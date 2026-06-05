@@ -9,9 +9,9 @@ export default function Home() {
     console.log("Nepali Date:", nepaliDate.format("YYYY-MM-DD"));
   };
   return (
-    <div className="App">
+    <div className="flex justify-center items-center gap-4">
       <Button type="primary">Button</Button>
-      <DatePicker onChange={handleDateChange} />;
+      <DatePicker onChange={handleDateChange} />
     </div>
   );
 }
