@@ -1,143 +1,224 @@
 "use client";
-
-import React from "react";
-import type { FormProps } from "antd";
-import { Button, Checkbox, Form, Input, message } from "antd";
-import { useAuthMutation } from "./useAuthMutation";
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Checkbox,
+  Card,
+  Typography,
+  message,
+  Row,
+  Col,
+} from "antd";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-type FieldType = {
-  email?: string;
-  username?: string;
-  password?: string;
-  confirmPassword?: string;
+const { Title, Text, Link } = Typography;
+
+// types.ts
+interface LoginFormData {
+  email: string;
+  password: string;
   remember?: boolean;
-};
+}
 
-export const Login = () => {
-  const { registerUser, isPending } = useAuthMutation();
+const Login: React.FC = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
-  const [form] = Form.useForm();
-
-  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    try {
-      const response = await registerUser({
-        email: values.email!,
-        username: values.username!,
-        password: values.password!,
-      });
-
-      if (response?.data?.success) {
-        message.success(response.data.message || "Registration successful!");
-
-        form.resetFields();
-
-        router.push("/auth/verify");
-      } else {
-        message.error(response?.data?.message || "Registration failed.");
-      }
-    } catch (error: any) {
-      message.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Registration failed. Please try again.",
-      );
-    }
+  const onFinish = (values: LoginFormData) => {
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      message.success("Login successful!");
+      router.push("/auth/verify");
+      setLoading(false);
+      console.log("Received values:", values);
+    }, 1500);
   };
 
-  const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo,
-  ) => {
+  const onFinishFailed = (errorInfo: any) => {
+    message.error("Please check your input fields.");
     console.log("Failed:", errorInfo);
   };
 
   return (
-    <Form
-      form={form}
-      name="register"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600 }}
-      initialValues={{ remember: true }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
-    >
-      {/* Email */}
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-          { required: true, message: "Please input your email!" },
-          { type: "email", message: "Please enter a valid email!" },
-        ]}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md"
       >
-        <Input />
-      </Form.Item>
+        <Card
+          bordered={false}
+          className="shadow-2xl rounded-2xl overflow-hidden backdrop-blur-sm bg-white/90"
+          styles={{ body: { padding: "2.5rem 2rem" } }}
+        >
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg mb-4">
+                <LockOutlined className="text-3xl text-white" />
+              </div>
+            </motion.div>
+            <Title level={2} className="!mb-1 !text-gray-800 font-bold">
+              Welcome Back
+            </Title>
+            <Text type="secondary" className="text-base">
+              Sign in to continue to your account
+            </Text>
+          </div>
 
-      {/* Username */}
-      <Form.Item
-        label="Username"
-        name="username"
-        rules={[{ required: true, message: "Please input your username!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      {/* Password */}
-      <Form.Item
-        label="Password"
-        name="password"
-        rules={[
-          { required: true, message: "Please input your password!" },
-          {
-            min: 6,
-            message: "Password must be at least 6 characters",
-          },
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-
-      {/* Confirm Password */}
-      <Form.Item
-        label="Confirm Password"
-        name="confirmPassword"
-        dependencies={["password"]}
-        rules={[
-          {
-            required: true,
-            message: "Please confirm your password!",
-          },
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (!value || getFieldValue("password") === value) {
-                return Promise.resolve();
+          <Form
+            name="login"
+            initialValues={{ remember: false }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            layout="vertical"
+            size="large"
+            requiredMark={false}
+            className="space-y-1"
+          >
+            <Form.Item
+              name="email"
+              label={
+                <span className="font-medium text-gray-700">Email Address</span>
               }
-              return Promise.reject(new Error("Passwords do not match!"));
-            },
-          }),
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
+              rules={[
+                { required: true, message: "Please enter your email" },
+                {
+                  type: "email",
+                  message: "Please enter a valid email address",
+                },
+              ]}
+              className="mb-5"
+            >
+              <Input
+                prefix={<MailOutlined className="text-gray-400" />}
+                placeholder="john@example.com"
+                className="rounded-lg py-2.5 px-4 border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors duration-200"
+              />
+            </Form.Item>
 
-      {/* Remember Me */}
-      <Form.Item
-        name="remember"
-        valuePropName="checked"
-        wrapperCol={{ offset: 8, span: 16 }}
-      >
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
+            <Form.Item
+              name="password"
+              label={
+                <span className="font-medium text-gray-700">Password</span>
+              }
+              rules={[
+                { required: true, message: "Please enter your password" },
+                { min: 6, message: "Password must be at least 6 characters" },
+              ]}
+              className="mb-3"
+            >
+              <Input.Password
+                prefix={<LockOutlined className="text-gray-400" />}
+                placeholder="••••••••"
+                className="rounded-lg py-2.5 px-4 border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors duration-200"
+              />
+            </Form.Item>
 
-      {/* Submit */}
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit" loading={isPending}>
-          Register
-        </Button>
-      </Form.Item>
-    </Form>
+            <div className="flex items-center justify-between mb-6">
+              <Form.Item
+                name="remember"
+                valuePropName="checked"
+                className="!mb-0"
+              >
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="text-gray-600 hover:text-blue-500 transition-colors"
+                >
+                  Remember me
+                </Checkbox>
+              </Form.Item>
+              <Link
+                href="#"
+                className="text-blue-500 hover:text-blue-700 font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <Form.Item className="!mb-4">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                block
+                className="h-12 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 text-base font-semibold"
+              >
+                Sign In
+              </Button>
+            </Form.Item>
+
+            <div className="text-center pt-2">
+              <Text type="secondary" className="text-sm">
+                Don't have an account?{" "}
+                <Link
+                  href="#"
+                  className="text-blue-500 hover:text-blue-700 font-medium"
+                >
+                  Sign up now
+                </Link>
+              </Text>
+            </div>
+          </Form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white/90 text-gray-500">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <Row gutter={[12, 12]}>
+            <Col span={12}>
+              <Button
+                block
+                className="h-11 rounded-xl border-gray-300 hover:border-blue-400 transition-all duration-200 flex items-center justify-center gap-2"
+                icon={
+                  <img
+                    src="https://www.google.com/favicon.ico"
+                    alt="Google"
+                    className="w-5 h-5"
+                  />
+                }
+              >
+                Google
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button
+                block
+                className="h-11 rounded-xl border-gray-300 hover:border-blue-400 transition-all duration-200 flex items-center justify-center gap-2"
+                icon={
+                  <img
+                    src="https://github.com/favicon.ico"
+                    alt="GitHub"
+                    className="w-5 h-5"
+                  />
+                }
+              >
+                GitHub
+              </Button>
+            </Col>
+          </Row>
+        </Card>
+      </motion.div>
+    </div>
   );
 };
+
+export default Login;
