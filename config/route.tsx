@@ -27,6 +27,7 @@ export const routes: Route[] = [
     path: "/dashboard",
     permission: "view_dashboard",
   },
+  
   {
     key: "analytics",
     label: "Analytics",
@@ -81,10 +82,10 @@ export const routes: Route[] = [
     ],
   },
   {
-    key: "orders",
-    label: "Orders",
+    key: "question",
+    label: "Questions",
     icon: <ShoppingCartOutlined />,
-    path: "/dashboard/orders",
+    path: "/dashboard/mcq",
     permission: "view_orders",
   },
   {
