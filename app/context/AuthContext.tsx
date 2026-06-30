@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     },
     staleTime: 5 * 60 * 1000,
-    enabled: !!localStorage.getItem("token"),
+    // enabled: !!localStorage.getItem("token"),
   });
 
   const isAuthenticated = !!user && !!localStorage.getItem("token");

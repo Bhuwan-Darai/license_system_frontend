@@ -1,3 +1,4 @@
+"use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
 import { useRouter } from "next/navigation";
