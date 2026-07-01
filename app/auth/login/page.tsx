@@ -1,9 +1,7 @@
+"use client";
+
 import Login from "@/app/components/auth/Login";
 
-export default function page() {
-  return (
-    <>
-      <Login />
-    </>
-  );
+export default function LoginPage() {
+  return <Login />;
 }
