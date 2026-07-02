@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="dddd">
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/IshiharaPlates/IshiharaAddForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/IshiharaPlates/IshiharaCardList.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/AddTrafficSignalModal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalCard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalFilters.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalList.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/hooks/useTrafficSignals.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/tranfficApi.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/dashboard/ishihara_plates/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/dashboard/signals/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/hooks/useModalHook.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/route.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/config/route.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="65" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;cityremit-bhuwan&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://Bhuwan-Darai@github.com/Bhuwan-Darai/license_system_frontend.git&quot;,
+    &quot;accountId&quot;: &quot;25c19785-2651-48b7-80fa-0b2bd762987d&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="2.7164253767099E-310" />
+      <entry key="S2" value="4.059751442010277E-78" />
+      <entry key="S5" value="1.105099340631723E-31" />
+      <entry key="S10" value="3.330800827532499E-16" />
+      <entry key="S30" value="8.193176434176867E-6" />
+      <entry key="S60" value="0.004735206605460317" />
+      <entry key="M2" value="0.17914963665072764" />
+      <entry key="M5" value="2.9525046193785163" />
+      <entry key="M10" value="11.671348110573875" />
+      <entry key="M15" value="20.820014957019946" />
+      <entry key="M30" value="40.80401924171933" />
+      <entry key="H1" value="60.55501475043929" />
+      <entry key="H2" value="75.674467732593" />
+      <entry key="H4" value="85.36095425407018" />
+      <entry key="D1" value="94.90208202711324" />
+      <entry key="W1" value="96.69608563525902" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0000910172844926" />
+      <entry key="S5" value="1.0242304182479718" />
+      <entry key="S10" value="1.1642814451804413" />
+      <entry key="S30" value="1.8635265198361233" />
+      <entry key="S60" value="2.545362545535253" />
+      <entry key="M2" value="3.322122230582456" />
+      <entry key="M5" value="6.067405880853561" />
+      <entry key="M10" value="10.762725032541239" />
+      <entry key="M15" value="14.912434128741271" />
+      <entry key="M30" value="24.45984149024155" />
+      <entry key="H1" value="34.57293066397464" />
+      <entry key="H2" value="42.359050142034064" />
+      <entry key="H4" value="47.25705598503528" />
+      <entry key="D1" value="51.977542237838016" />
+      <entry key="W1" value="52.8522408020046" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="1.6555985085043515E-9" />
+      <entry key="MS500" value="0.017530366883288823" />
+      <entry key="S2" value="0.3639001887142794" />
+      <entry key="S5" value="0.6827075705918877" />
+      <entry key="S10" value="0.9474674794699286" />
+      <entry key="S30" value="1.7345896521422148" />
+      <entry key="S60" value="2.4590116004745504" />
+      <entry key="M2" value="3.4380425564309305" />
+      <entry key="M5" value="8.9598801352717" />
+      <entry key="M10" value="22.374382555809913" />
+      <entry key="M15" value="35.67757040714117" />
+      <entry key="M30" value="65.222326087805" />
+      <entry key="H1" value="95.10091932578072" />
+      <entry key="H2" value="118.01780178447122" />
+      <entry key="H4" value="132.60948836328137" />
+      <entry key="D1" value="146.87809999697296" />
+      <entry key="W1" value="149.5481059682258" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3FsxDmjiumIzIYa9ftLqntxFR6z" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
+    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/bhuwan-personal/license-system/license_system_frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\bhuwan-personal\\license-system\\license_system_frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="npm.Next.js: server-side">
+    <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
+      <method v="2" />
+    </configuration>
+    <configuration name="Next.js: server-side" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-WS-261.25134.101" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="" />
+      <created>1782877462935</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1782877462935</updated>
+      <workItem from="1782877464006" duration="5214000" />
+      <workItem from="1782888732485" duration="7825000" />
+      <workItem from="1782965534411" duration="963000" />
+    </task>
+    <task id="LOCAL-00001">
+      <option name="closed" value="true" />
+      <created>1782877732072</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1782877732072</updated>
+    </task>
+    <task id="LOCAL-00002" summary="dddd">
+      <option name="closed" value="true" />
+      <created>1782878357127</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1782878357127</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="dddd" />
+    <option name="LAST_COMMIT_MESSAGE" value="dddd" />
+  </component>
+</project>
