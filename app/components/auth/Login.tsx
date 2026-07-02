@@ -10,40 +10,107 @@ import {
   message,
   Row,
   Col,
+  Alert,
 } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "@/app/utils/axios";
 
 const { Title, Text, Link } = Typography;
 
-// types.ts
+// Types
 interface LoginFormData {
   email: string;
   password: string;
   remember?: boolean;
 }
 
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    user: {
+      email: string;
+      username: string;
+      role: string;
+    };
+  };
+}
+
 const Login: React.FC = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [form] = Form.useForm();
+
+  // Login mutation
+  const loginMutation = useMutation({
+    mutationFn: async (payload: { email: string; password: string }) => {
+      const response = await api.post<LoginResponse>("/auth/login", payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // Store token and user data
+      if (data.success && data.data) {
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+
+        // Update query cache with user data
+        queryClient.setQueryData(["user"], data.data.user);
+        queryClient.setQueryData(["isAuthenticated"], true);
+
+        message.success(data.message || "Login successful!");
+
+        // Redirect to dashboard
+        router.push("/dashboard");
+      } else {
+        message.error(data.message || "Login failed.");
+      }
+    },
+    onError: (error: any) => {
+      console.error("Login error:", error);
+
+      if (error.response?.status === 401) {
+        message.error("Invalid email or password");
+      } else if (error.response?.status === 403) {
+        message.error(
+          error.response.data?.message || "Account is not verified or approved",
+        );
+      } else if (error.response?.status === 404) {
+        message.error("User not found");
+      } else {
+        message.error(
+          error.response?.data?.message || "Login failed. Please try again.",
+        );
+      }
+    },
+  });
 
   const onFinish = (values: LoginFormData) => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      message.success("Login successful!");
-      router.push("/auth/verify");
-      setLoading(false);
-      console.log("Received values:", values);
-    }, 1500);
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
+    console.log("payload", payload);
+    loginMutation.mutate(payload);
   };
 
   const onFinishFailed = (errorInfo: any) => {
     message.error("Please check your input fields.");
     console.log("Failed:", errorInfo);
   };
+
+  // Check if user is already logged in
+  React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Optionally validate token with API
+      router.push("/dashboard");
+    }
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
@@ -76,7 +143,23 @@ const Login: React.FC = () => {
             </Text>
           </div>
 
+          {/* Show error if login failed */}
+          {loginMutation.isError && (
+            <Alert
+              message="Login Failed"
+              description={
+                (loginMutation.error as any)?.response?.data?.message ||
+                "Please check your credentials and try again."
+              }
+              type="error"
+              showIcon
+              className="mb-4"
+              closable
+            />
+          )}
+
           <Form
+            form={form}
             name="login"
             initialValues={{ remember: false }}
             onFinish={onFinish}
@@ -104,6 +187,7 @@ const Login: React.FC = () => {
                 prefix={<MailOutlined className="text-gray-400" />}
                 placeholder="john@example.com"
                 className="rounded-lg py-2.5 px-4 border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors duration-200"
+                disabled={loginMutation.isPending}
               />
             </Form.Item>
 
@@ -122,6 +206,7 @@ const Login: React.FC = () => {
                 prefix={<LockOutlined className="text-gray-400" />}
                 placeholder="••••••••"
                 className="rounded-lg py-2.5 px-4 border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors duration-200"
+                disabled={loginMutation.isPending}
               />
             </Form.Item>
 
@@ -135,12 +220,13 @@ const Login: React.FC = () => {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="text-gray-600 hover:text-blue-500 transition-colors"
+                  disabled={loginMutation.isPending}
                 >
                   Remember me
                 </Checkbox>
               </Form.Item>
               <Link
-                href="#"
+                href="/forgot-password"
                 className="text-blue-500 hover:text-blue-700 font-medium"
               >
                 Forgot password?
@@ -151,11 +237,11 @@ const Login: React.FC = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={loading}
+                loading={loginMutation.isPending}
                 block
                 className="h-12 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 text-base font-semibold"
               >
-                Sign In
+                {loginMutation.isPending ? "Signing In..." : "Sign In"}
               </Button>
             </Form.Item>
 
@@ -163,7 +249,7 @@ const Login: React.FC = () => {
               <Text type="secondary" className="text-sm">
                 Don't have an account?{" "}
                 <Link
-                  href="#"
+                  href="/register"
                   className="text-blue-500 hover:text-blue-700 font-medium"
                 >
                   Sign up now
@@ -195,6 +281,7 @@ const Login: React.FC = () => {
                     className="w-5 h-5"
                   />
                 }
+                disabled={loginMutation.isPending}
               >
                 Google
               </Button>
@@ -210,6 +297,7 @@ const Login: React.FC = () => {
                     className="w-5 h-5"
                   />
                 }
+                disabled={loginMutation.isPending}
               >
                 GitHub
               </Button>
