@@ -29,11 +29,27 @@ export const routes: Route[] = [
   },
   
   {
-    key: "analytics",
-    label: "Analytics",
+    key: "categories",
+    label: "Categories",
     icon: <AreaChartOutlined />,
-    path: "/dashboard/analytics",
+    path: "/dashboard/categories/blog",
     permission: "view_analytics",
+    children: [
+      {
+        key: "categories-blog",
+        label: "Blog Categories",
+        path: "/dashboard/categories/blog",
+        permission: "view_analytics",
+        icon: <AreaChartOutlined />,
+      },
+      {
+        key: "categories-ishihara",
+        label: "Ishihara Category",
+        path: "/dashboard/categories/ishihara",
+        permission: "manage_analytics",
+        icon: <AreaChartOutlined />,
+      },
+    ],
   },
   {
     key: "users",
@@ -86,6 +102,27 @@ export const routes: Route[] = [
     label: "Questions",
     icon: <ShoppingCartOutlined />,
     path: "/dashboard/mcq",
+    permission: "view_orders",
+  },
+  {
+    key: "signals",
+    label: "Signals",
+    icon: <ShoppingCartOutlined />,
+    path: "/dashboard/signals",
+    permission: "view_orders",
+  },
+  {
+    key: "ishihara_plates",
+    label: "Ishihara Plates",
+    icon: <ShoppingCartOutlined />,
+    path: "/dashboard/ishihara_plates",
+    permission: "view_orders",
+  },
+    {
+    key: "blog",
+    label: "Blog",
+    icon: <ShoppingCartOutlined />,
+    path: "/dashboard/blog",
     permission: "view_orders",
   },
   {
