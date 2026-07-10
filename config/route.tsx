@@ -27,7 +27,7 @@ export const routes: Route[] = [
     path: "/dashboard",
     permission: "view_dashboard",
   },
-  
+
   {
     key: "categories",
     label: "Categories",
@@ -37,9 +37,16 @@ export const routes: Route[] = [
     children: [
       {
         key: "categories-blog",
-        label: "Blog Categories",
+        label: "Blog VehicleCategories",
         path: "/dashboard/categories/blog",
         permission: "view_analytics",
+        icon: <AreaChartOutlined />,
+      },
+      {
+        key: "categories-vehicle",
+        label: "Vehicle Category",
+        path: "/dashboard/categories/vehicle",
+        permission: "manage_analytics",
         icon: <AreaChartOutlined />,
       },
       {
@@ -75,34 +82,27 @@ export const routes: Route[] = [
     ],
   },
   {
-    key: "products",
-    label: "Products",
-    icon: <ShoppingOutlined />,
-    path: "/dashboard/products",
-    permission: "view_products",
+    key: "question",
+    label: "Questions",
+    icon: <ShoppingCartOutlined />,
+    path: "/dashboard/question/question-bank",
+    permission: "view_orders",
     children: [
       {
-        key: "products-list",
-        label: "All Products",
-        path: "/dashboard/products",
+        key: "questions-list",
+        label: "Question Bank",
+        path: "/dashboard/question/question-bank",
         permission: "view_products",
         icon: <ShoppingOutlined />,
       },
       {
-        key: "products-add",
-        label: "Add Product",
-        path: "/dashboard/products/add",
-        permission: "manage_products",
+        key: "questions-add",
+        label: "Add Question",
+        path: "/dashboard/question/mcq",
+        permission: "view_products",
         icon: <ShoppingOutlined />,
       },
-    ],
-  },
-  {
-    key: "question",
-    label: "Questions",
-    icon: <ShoppingCartOutlined />,
-    path: "/dashboard/mcq",
-    permission: "view_orders",
+    ]
   },
   {
     key: "signals",
@@ -118,7 +118,7 @@ export const routes: Route[] = [
     path: "/dashboard/ishihara_plates",
     permission: "view_orders",
   },
-    {
+  {
     key: "blog",
     label: "Blog",
     icon: <ShoppingCartOutlined />,
@@ -130,6 +130,13 @@ export const routes: Route[] = [
     label: "Reports",
     icon: <FileTextOutlined />,
     path: "/dashboard/reports",
+    permission: "view_reports",
+  },
+  {
+    key: "notification",
+    label: "Notification",
+    icon: <FileTextOutlined />,
+    path: "/dashboard/notification",
     permission: "view_reports",
   },
   {

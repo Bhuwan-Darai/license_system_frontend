@@ -48,7 +48,7 @@ function TrafficSignalFilters({
             >
                 {CATEGORIES.map(cat => (
                     <Option key={cat} value={cat}>
-                        {cat === 'all' ? '📋 All Categories' : cat}
+                        {cat === 'all' ? '📋 All VehicleCategories' : cat}
                     </Option>
                 ))}
             </Select>

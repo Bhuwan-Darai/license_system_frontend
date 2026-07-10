@@ -5,21 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="dddd">
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/IshiharaPlates/IshiharaAddForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/IshiharaPlates/IshiharaCardList.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/AddTrafficSignalModal.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalCard.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalFilters.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalList.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/hooks/useTrafficSignals.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/tranfficApi.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/dashboard/ishihara_plates/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/dashboard/signals/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/hooks/useModalHook.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Questions/Categories/VehicleCategories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/dashboard/categories/ishihara/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/dashboard/categories/vehicle/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/dashboard/question/question-bank/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalFilters.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalFilters.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalList.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/dashboard/mcq/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/dashboard/question/mcq/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/route.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/config/route.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +21,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="65" />
+    <option name="cachedIndexableFilesCount" value="76" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -50,61 +44,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="2.7164253767099E-310" />
-      <entry key="S2" value="4.059751442010277E-78" />
-      <entry key="S5" value="1.105099340631723E-31" />
-      <entry key="S10" value="3.330800827532499E-16" />
-      <entry key="S30" value="8.193176434176867E-6" />
-      <entry key="S60" value="0.004735206605460317" />
-      <entry key="M2" value="0.17914963665072764" />
-      <entry key="M5" value="2.9525046193785163" />
-      <entry key="M10" value="11.671348110573875" />
-      <entry key="M15" value="20.820014957019946" />
-      <entry key="M30" value="40.80401924171933" />
-      <entry key="H1" value="60.55501475043929" />
-      <entry key="H2" value="75.674467732593" />
-      <entry key="H4" value="85.36095425407018" />
-      <entry key="D1" value="94.90208202711324" />
-      <entry key="W1" value="96.69608563525902" />
+      <entry key="MS100" value="1.0000005477420593" />
+      <entry key="MS500" value="1.0559390669370574" />
+      <entry key="S2" value="1.4877678732897976" />
+      <entry key="S5" value="1.8517045648401005" />
+      <entry key="S10" value="2.563801872936164" />
+      <entry key="S30" value="5.794981327792877" />
+      <entry key="S60" value="9.045967794630341" />
+      <entry key="M2" value="13.071930617112304" />
+      <entry key="M5" value="18.679035227926697" />
+      <entry key="M10" value="24.174483601927268" />
+      <entry key="M15" value="30.09642514082618" />
+      <entry key="M30" value="48.39739730490708" />
+      <entry key="H1" value="73.12861593848754" />
+      <entry key="H2" value="95.52326956748489" />
+      <entry key="H4" value="111.1344420058658" />
+      <entry key="D1" value="127.33683616472548" />
+      <entry key="W1" value="130.46718918059105" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0000910172844926" />
-      <entry key="S5" value="1.0242304182479718" />
-      <entry key="S10" value="1.1642814451804413" />
-      <entry key="S30" value="1.8635265198361233" />
-      <entry key="S60" value="2.545362545535253" />
-      <entry key="M2" value="3.322122230582456" />
-      <entry key="M5" value="6.067405880853561" />
-      <entry key="M10" value="10.762725032541239" />
-      <entry key="M15" value="14.912434128741271" />
-      <entry key="M30" value="24.45984149024155" />
-      <entry key="H1" value="34.57293066397464" />
-      <entry key="H2" value="42.359050142034064" />
-      <entry key="H4" value="47.25705598503528" />
-      <entry key="D1" value="51.977542237838016" />
-      <entry key="W1" value="52.8522408020046" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="7.085913392999526E-98" />
+      <entry key="S2" value="5.3430597565032225E-25" />
+      <entry key="S5" value="2.6839126503325586E-10" />
+      <entry key="S10" value="2.6145462166868216E-5" />
+      <entry key="S30" value="0.06108810488897991" />
+      <entry key="S60" value="0.44750320522408366" />
+      <entry key="M2" value="1.3082692985629594" />
+      <entry key="M5" value="3.167140892045325" />
+      <entry key="M10" value="6.024906431421197" />
+      <entry key="M15" value="9.262375898881649" />
+      <entry key="M30" value="18.93378155453075" />
+      <entry key="H1" value="32.006438091265686" />
+      <entry key="H2" value="43.78062383015224" />
+      <entry key="H4" value="51.87627368088935" />
+      <entry key="D1" value="60.14939036505357" />
+      <entry key="W1" value="61.731294655575084" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.6555985085043515E-9" />
-      <entry key="MS500" value="0.017530366883288823" />
-      <entry key="S2" value="0.3639001887142794" />
-      <entry key="S5" value="0.6827075705918877" />
-      <entry key="S10" value="0.9474674794699286" />
-      <entry key="S30" value="1.7345896521422148" />
-      <entry key="S60" value="2.4590116004745504" />
-      <entry key="M2" value="3.4380425564309305" />
-      <entry key="M5" value="8.9598801352717" />
-      <entry key="M10" value="22.374382555809913" />
-      <entry key="M15" value="35.67757040714117" />
-      <entry key="M30" value="65.222326087805" />
-      <entry key="H1" value="95.10091932578072" />
-      <entry key="H2" value="118.01780178447122" />
-      <entry key="H4" value="132.60948836328137" />
-      <entry key="D1" value="146.87809999697296" />
-      <entry key="W1" value="149.5481059682258" />
+      <entry key="MS100" value="0.6973722125165588" />
+      <entry key="MS500" value="0.9824260388552343" />
+      <entry key="S2" value="1.4610311681591361" />
+      <entry key="S5" value="1.8383099977629935" />
+      <entry key="S10" value="2.5545170427038246" />
+      <entry key="S30" value="5.846047003186196" />
+      <entry key="S60" value="9.477423361162595" />
+      <entry key="M2" value="14.360707052820684" />
+      <entry key="M5" value="21.82439084040116" />
+      <entry key="M10" value="30.17382531748288" />
+      <entry key="M15" value="39.3300955416882" />
+      <entry key="M30" value="67.30081862440193" />
+      <entry key="H1" value="105.11036049712216" />
+      <entry key="H2" value="139.28761879251542" />
+      <entry key="H4" value="163.0012903593053" />
+      <entry key="D1" value="187.48444273004364" />
+      <entry key="W1" value="192.1982232817582" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -126,23 +120,34 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
     &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/bhuwan-personal/license-system/license_system_frontend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/bhuwan-personal/license-system/license_system_frontend/app/dashboard/categories/vehicle&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;ts.external.directory.path&quot;: &quot;D:\\bhuwan-personal\\license-system\\license_system_frontend\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\categories\vehicle" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\categories" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\Dashboard\Questions\Categories" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\question" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\Dashboard\Questions" />
+    </key>
+  </component>
   <component name="RunManager" selected="npm.Next.js: server-side">
     <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
       <method v="2" />
@@ -175,6 +180,8 @@
       <workItem from="1782877464006" duration="5214000" />
       <workItem from="1782888732485" duration="7825000" />
       <workItem from="1782965534411" duration="963000" />
+      <workItem from="1783046943980" duration="4742000" />
+      <workItem from="1783072517197" duration="22000" />
     </task>
     <task id="LOCAL-00001">
       <option name="closed" value="true" />

@@ -247,7 +247,7 @@ const MCQQuestionForm: React.FC = () => {
                 {editingId ? "Edit Question" : "Add New Question"}
               </Space>
             }
-            bordered={false}
+            variant={"borderless"}
             style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
           >
             <Form
@@ -416,7 +416,7 @@ const MCQQuestionForm: React.FC = () => {
                       borderLeft: `4px solid ${getDifficultyColor(q.difficulty)}`,
                     }}
                   >
-                    <Space direction="vertical" style={{ width: "100%" }}>
+                    <Space orientation="vertical" style={{ width: "100%" }}>
                       <div
                         style={{
                           display: "flex",
@@ -497,7 +497,7 @@ const MCQQuestionForm: React.FC = () => {
       {/* Save status indicator */}
       {saveMutation.isPending && (
         <Alert
-          message="Saving questions..."
+          title="Saving questions..."
           type="info"
           showIcon
           style={{ marginTop: "16px", zIndex: 1000 }}
@@ -505,7 +505,7 @@ const MCQQuestionForm: React.FC = () => {
       )}
       {saveMutation.isSuccess && (
         <Alert
-          message="Questions saved successfully!"
+          title="Questions saved successfully!"
           type="success"
           showIcon
           style={{ marginTop: "16px", zIndex: 1000 }}
