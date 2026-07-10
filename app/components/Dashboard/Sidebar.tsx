@@ -47,7 +47,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   const buildMenuItems = (items: any[]): MenuItem[] => {
     return items
       .map((item) => {
-        // Skip items without permission
         if (item.permission && !can(item.permission)) {
           return null;
         }
@@ -62,15 +61,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
             icon: item.icon,
             label: item.label,
             children: children,
-            onTitleClick: () => {
-              if (item.path) {
-                router.push(item.path);
-              }
-            },
+            // Remove onTitleClick for parent items with children
           } as MenuItem;
         }
 
-        // Leaf node
+        // Leaf node: redirect on click
         return {
           key: item.key,
           icon: item.icon,
@@ -143,9 +138,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
 
   return (
     <div
-      className={`h-screen flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${
-        collapsed ? "w-20" : "w-64"
-      }`}
+      className={`h-screen flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${collapsed ? "w-20" : "w-64"
+        }`}
     >
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 flex-shrink-0">
         {!collapsed && (
