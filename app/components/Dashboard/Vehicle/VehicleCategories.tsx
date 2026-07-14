@@ -7,56 +7,69 @@ import CustomTable from "@/app/components/ui/CustomTable";
 
 import { Button, Form, Image, Input, Modal, Space, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/app/utils/axios";
 
 const { TextArea } = Input;
 
-interface Category {
+interface VehicleCategory {
   id: number;
   title: string;
   description: string;
   image?: string;
 }
 
-export default function Categories() {
+export default function VehicleCategories() {
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
 
-  const [categories, setCategories] = useState<Category[]>([
+  const [categories, setCategories] = useState<VehicleCategory[]>([
     {
       id: 1,
-      title: "Technology",
-      description: "Technology related blogs and tutorials.",
-      image: "https://picsum.photos/100?random=1",
+      title: "Motorcycle",
+      description: "Two-wheeled motor vehicles including scooters and bikes.",
+      image: "https://picsum.photos/100?random=11",
     },
     {
       id: 2,
-      title: "Sports",
-      description: "Latest sports news and updates.",
-      image: "https://picsum.photos/100?random=2",
+      title: "Car",
+      description: "Private and commercial four-wheeled passenger vehicles.",
+      image: "https://picsum.photos/100?random=12",
     },
     {
       id: 3,
-      title: "Travel",
-      description: "Travel stories and destination guides.",
-      image: "https://picsum.photos/100?random=3",
+      title: "Bus",
+      description:
+        "Passenger buses used for public and private transportation.",
+      image: "https://picsum.photos/100?random=13",
+    },
+    {
+      id: 4,
+      title: "Truck",
+      description: "Heavy-duty vehicles used for transporting goods.",
+      image: "https://picsum.photos/100?random=14",
     },
   ]);
 
-  const onFinish = (values: Omit<Category, "id">) => {
-    const newCategory: Category = {
-      id: Date.now(),
-      ...values,
-    };
+  const {
+    mutateAsync: add,
+    isPending,
+    isError,
+  } = useMutation({
+    mutationFn: (category) => {
+      return api.post("/vehicle-category", category);
+    },
+  });
 
-    setCategories((prev) => [newCategory, ...prev]);
-
-    console.log("Success:", newCategory);
+  const onFinish = async (values: any) => {
+    console.log("values", values);
+    await add(values);
 
     form.resetFields();
     hideModal();
   };
 
-  const columns: ColumnsType<Category> = [
+  const columns: ColumnsType<VehicleCategory> = [
     {
       title: "Image",
       dataIndex: "image",
@@ -75,11 +88,11 @@ export default function Categories() {
             }}
           />
         ) : (
-          <Tag color="default">No Image</Tag>
+          <Tag>No Image</Tag>
         ),
     },
     {
-      title: "Title",
+      title: "Vehicle Category",
       dataIndex: "title",
       key: "title",
       sorter: (a, b) => a.title.localeCompare(b.title),
@@ -97,18 +110,13 @@ export default function Categories() {
       sorter: false,
       render: (_, record) => (
         <Space>
-          <Button
-            type="primary"
-            color="primary"
-            onClick={() => console.log("Edit", record)}
-          >
+          <Button type="primary" onClick={() => console.log("Edit", record)}>
             Edit
           </Button>
 
           <Button
             danger
             type="primary"
-            color="danger"
             onClick={() =>
               setCategories((prev) =>
                 prev.filter((item) => item.id !== record.id),
@@ -132,7 +140,7 @@ export default function Categories() {
         }}
       >
         <Button type="primary" onClick={showModal}>
-          Add Category
+          Add Vehicle Category
         </Button>
       </div>
 
@@ -150,7 +158,7 @@ export default function Categories() {
               fontWeight: 600,
             }}
           >
-            Add Category
+            Add Vehicle Category
           </span>
         }
         open={open}
@@ -168,21 +176,20 @@ export default function Categories() {
             paddingRight: 8,
           },
         }}
-        closable={{ "aria-label": "Custom Close Button" }}
         destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
-            label="Title"
+            label="Vehicle Category"
             name="title"
             rules={[
               {
                 required: true,
-                message: "Please enter a title",
+                message: "Please enter vehicle category name",
               },
             ]}
           >
-            <Input size="large" placeholder="Enter category title" />
+            <Input size="large" placeholder="Enter vehicle category" />
           </Form.Item>
 
           <Form.Item
@@ -191,7 +198,7 @@ export default function Categories() {
             rules={[
               {
                 required: true,
-                message: "Please enter a description",
+                message: "Please enter description",
               },
             ]}
           >
@@ -199,7 +206,7 @@ export default function Categories() {
               rows={4}
               showCount
               maxLength={250}
-              placeholder="Enter category description"
+              placeholder="Enter vehicle category description"
             />
           </Form.Item>
 
@@ -209,7 +216,7 @@ export default function Categories() {
             rules={[
               {
                 required: true,
-                message: "Please upload an image",
+                message: "Please upload category image",
               },
             ]}
           >
@@ -234,7 +241,7 @@ export default function Categories() {
               </Button>
 
               <Button type="primary" htmlType="submit">
-                Submit
+                Save Category
               </Button>
             </div>
           </Form.Item>

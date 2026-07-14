@@ -1,8 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
+import { message } from "antd";
+import { useRouter } from "next/navigation";
 
 interface User {
   email: string;
@@ -17,6 +19,13 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   refetchUser: () => void;
+  login: (credentials: LoginCredentials) => Promise<any>;
+  logout: () => void;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,7 +34,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
+  // Login Mutation
+  const loginMutation = useMutation({
+    mutationFn: async (credentials: LoginCredentials) => {
+      const response = await api.post("/auth/login", credentials);
+      return response.data;
+    },
+    onSuccess: async (data) => {
+      console.log("data", data);
+      if (data.success) {
+        console.log("trying to access me");
+        // Fetch user after successful login (cookie is already set by backend)
+        const userResponse = await api.get("", {
+          withCredentials: true,
+        });
+        console.log("userResponse", userResponse);
+        const user = userResponse.data;
+
+        queryClient.setQueryData(["user"], user);
+        queryClient.setQueryData(["isAuthenticated"], true);
+
+        message.success(data.message || "Login successful!");
+        router.push("/dashboard");
+      } else {
+        message.error(data.message || "Login failed.");
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || "Login failed";
+      message.error(errorMessage);
+    },
+  });
+
+  // User Query
   const {
     data: user,
     isLoading,
@@ -33,23 +76,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return null;
-
       try {
-        const response = await api.get("/auth/me");
-        return response.data.data;
+        const response = await api.get("/auth/me", { withCredentials: true });
+        return response.data;
       } catch (error) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
         return null;
       }
     },
-    staleTime: 5 * 60 * 1000,
-    // enabled: !!localStorage.getItem("token"),
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
-  const isAuthenticated = !!user && !!localStorage.getItem("token");
+  const isAuthenticated = !!user;
+
+  // Logout function
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.error(err);
+    }
+    queryClient.setQueryData(["user"], null);
+    router.push("/login");
+  };
+
+  // Optional: Auto fetch user on mount
+  useEffect(() => {
+    if (!user) {
+      refetch();
+    }
+  }, [user, refetch]);
 
   return (
     <AuthContext.Provider
@@ -58,6 +115,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isLoading,
         isAuthenticated,
         refetchUser: refetch,
+        login: loginMutation.mutateAsync, // ← Properly exported
+        logout,
       }}
     >
       {children}

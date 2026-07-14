@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import React from "react";
 import {
   Form,
   Input,
@@ -15,87 +16,38 @@ import {
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/app/utils/axios";
+import { useAuthContext } from "@/app/context/AuthContext";
 
 const { Title, Text, Link } = Typography;
 
-// Types
 interface LoginFormData {
   email: string;
   password: string;
   remember?: boolean;
 }
 
-interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: {
-    token: string;
-    user: {
-      email: string;
-      username: string;
-      role: string;
-    };
-  };
-}
-
 const Login: React.FC = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const { login, isLoading, isAuthenticated } = useAuthContext();
   const [form] = Form.useForm();
 
-  // Login mutation
-  const loginMutation = useMutation({
-    mutationFn: async (payload: { email: string; password: string }) => {
-      const response = await api.post<LoginResponse>("/auth/login", payload);
-      return response.data;
-    },
-    onSuccess: (data) => {
-      // Store token and user data
-      if (data.success && data.data) {
-        localStorage.setItem("token", data.data.token);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
-        // Update query cache with user data
-        queryClient.setQueryData(["user"], data.data.user);
-        queryClient.setQueryData(["isAuthenticated"], true);
-
-        message.success(data.message || "Login successful!");
-
-        // Redirect to dashboard
-        router.push("/dashboard");
-      } else {
-        message.error(data.message || "Login failed.");
-      }
-    },
-    onError: (error: any) => {
+  const onFinish = async (values: LoginFormData) => {
+    try {
+      await login({
+        email: values.email,
+        password: values.password,
+      });
+    } catch (error) {
+      // Error is already handled in AuthContext
       console.error("Login error:", error);
-
-      if (error.response?.status === 401) {
-        message.error("Invalid email or password");
-      } else if (error.response?.status === 403) {
-        message.error(
-          error.response.data?.message || "Account is not verified or approved",
-        );
-      } else if (error.response?.status === 404) {
-        message.error("User not found");
-      } else {
-        message.error(
-          error.response?.data?.message || "Login failed. Please try again.",
-        );
-      }
-    },
-  });
-
-  const onFinish = (values: LoginFormData) => {
-    const payload = {
-      email: values.email,
-      password: values.password,
-    };
-    console.log("payload", payload);
-    loginMutation.mutate(payload);
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -103,17 +55,8 @@ const Login: React.FC = () => {
     console.log("Failed:", errorInfo);
   };
 
-  // Check if user is already logged in
-  React.useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Optionally validate token with API
-      router.push("/dashboard");
-    }
-  }, [router]);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,7 +64,7 @@ const Login: React.FC = () => {
         className="w-full max-w-md"
       >
         <Card
-          bordered={false}
+          variant="outlined"
           className="shadow-2xl rounded-2xl overflow-hidden backdrop-blur-sm bg-white/90"
           styles={{ body: { padding: "2.5rem 2rem" } }}
         >
@@ -131,32 +74,17 @@ const Login: React.FC = () => {
               animate={{ scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg mb-4">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-r from-blue-500 to-purple-500 shadow-lg mb-4">
                 <LockOutlined className="text-3xl text-white" />
               </div>
             </motion.div>
-            <Title level={2} className="!mb-1 !text-gray-800 font-bold">
+            <Title level={2} className="mb-1! text-gray-800! font-bold">
               Welcome Back
             </Title>
             <Text type="secondary" className="text-base">
               Sign in to continue to your account
             </Text>
           </div>
-
-          {/* Show error if login failed */}
-          {loginMutation.isError && (
-            <Alert
-              message="Login Failed"
-              description={
-                (loginMutation.error as any)?.response?.data?.message ||
-                "Please check your credentials and try again."
-              }
-              type="error"
-              showIcon
-              className="mb-4"
-              closable
-            />
-          )}
 
           <Form
             form={form}
@@ -187,7 +115,7 @@ const Login: React.FC = () => {
                 prefix={<MailOutlined className="text-gray-400" />}
                 placeholder="john@example.com"
                 className="rounded-lg py-2.5 px-4 border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors duration-200"
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
               />
             </Form.Item>
 
@@ -206,7 +134,7 @@ const Login: React.FC = () => {
                 prefix={<LockOutlined className="text-gray-400" />}
                 placeholder="••••••••"
                 className="rounded-lg py-2.5 px-4 border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors duration-200"
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
               />
             </Form.Item>
 
@@ -214,17 +142,13 @@ const Login: React.FC = () => {
               <Form.Item
                 name="remember"
                 valuePropName="checked"
-                className="!mb-0"
+                className="mb-0!"
               >
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="text-gray-600 hover:text-blue-500 transition-colors"
-                  disabled={loginMutation.isPending}
-                >
+                <Checkbox className="text-gray-600 hover:text-blue-500 transition-colors">
                   Remember me
                 </Checkbox>
               </Form.Item>
+
               <Link
                 href="/forgot-password"
                 className="text-blue-500 hover:text-blue-700 font-medium"
@@ -233,15 +157,15 @@ const Login: React.FC = () => {
               </Link>
             </div>
 
-            <Form.Item className="!mb-4">
+            <Form.Item className="mb-4!">
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={loginMutation.isPending}
+                loading={isLoading}
                 block
-                className="h-12 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 text-base font-semibold"
+                className="h-12 rounded-xl bg-linear-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 text-base font-semibold"
               >
-                {loginMutation.isPending ? "Signing In..." : "Sign In"}
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </Form.Item>
 
@@ -258,6 +182,7 @@ const Login: React.FC = () => {
             </div>
           </Form>
 
+          {/* Social Logins */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
@@ -281,7 +206,7 @@ const Login: React.FC = () => {
                     className="w-5 h-5"
                   />
                 }
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
               >
                 Google
               </Button>
@@ -297,7 +222,7 @@ const Login: React.FC = () => {
                     className="w-5 h-5"
                   />
                 }
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
               >
                 GitHub
               </Button>
