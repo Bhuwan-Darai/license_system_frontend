@@ -62,7 +62,7 @@ export default function Categories() {
       dataIndex: "image",
       key: "image",
       width: 120,
-      sorter:false,
+      sorter: false,
       render: (image: string) =>
         image ? (
           <Image
@@ -94,10 +94,14 @@ export default function Categories() {
       title: "Action",
       key: "action",
       width: 180,
-      sorter:false,
+      sorter: false,
       render: (_, record) => (
         <Space>
-          <Button type="primary" color="primary" onClick={() => console.log("Edit", record)}>
+          <Button
+            type="primary"
+            color="primary"
+            onClick={() => console.log("Edit", record)}
+          >
             Edit
           </Button>
 
@@ -157,13 +161,15 @@ export default function Categories() {
         }}
         width={700}
         style={{ top: "5vh" }}
-        bodyStyle={{
-          maxHeight: "calc(80vh - 110px)",
-          overflowY: "auto",
-          paddingRight: 8,
+        styles={{
+          body: {
+            maxHeight: "calc(80vh - 110px)",
+            overflowY: "auto",
+            paddingRight: 8,
+          },
         }}
         closable={{ "aria-label": "Custom Close Button" }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item

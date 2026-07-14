@@ -4,7 +4,7 @@ import { message } from "antd";
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_API_URL
-    : "http://127.0.0.1:4000/api/v1";
+    : "http://127.0.0.1:3000/api/v1";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,49 +13,41 @@ const api = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
+  withCredentials: true, // ← Important for cookies
 });
 
-// Request interceptor
+// Request Interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // No need to attach token manually anymore (handled by cookie)
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
-// Response interceptor
+// Response Interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // Handle 401 Unauthorized
-      if (error.response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+      const status = error.response.status;
+      const url = error.response.config.url;
+
+      if (status === 401) {
+        // Ignore auth check failures
+        if (url !== "/auth/me" && url !== "/auth/login") {
+          message.error("Session expired. Please login again.");
+
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          message.error("Session expired. Please login again.");
         }
-        message.error("Session expired. Please login again.");
-      }
-
-      // Handle 403 Forbidden
-      if (error.response.status === 403) {
+      } else if (status === 403) {
         message.error(error.response.data?.message || "Access denied");
-      }
-
-      // Handle 404 Not Found
-      if (error.response.status === 404) {
+      } else if (status === 404) {
         message.error("Resource not found");
-      }
-
-      // Handle 500 Server Error
-      if (error.response.status >= 500) {
+      } else if (status >= 500) {
         message.error("Server error. Please try again later.");
       }
     } else if (error.request) {
