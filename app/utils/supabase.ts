@@ -1,3 +1,4 @@
+"use client";
 import { createClient } from "@supabase/supabase-js";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { message } from "antd";
@@ -27,18 +28,19 @@ export async function uploadAndGetUrl(
     const filePath = `uploads/${uniqueFileName}`;
 
     // 1. Upload file
-    const { error: uploadError } = await supabase.storage
+    const response = await supabase.storage
       .from(bucketName)
       .upload(filePath, fileObject, {
         cacheControl: "3600",
         upsert: false, // Don't overwrite if file exists
       });
 
-    if (uploadError) {
-      console.error(
-        `Upload failed in bucket [${bucketName}]:`,
-        uploadError.message,
-      );
+    if (response.error) {
+      // console.error(
+      //   `Upload failed in bucket [${bucketName}]:`,
+      //   response.error.message,
+      // );
+      console.log("error", response.error);
       return null;
     }
 

@@ -43,10 +43,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return response.data;
     },
     onSuccess: async (data) => {
+      console.log("data", data);
       if (data.success) {
         console.log("trying to access me");
         // Fetch user after successful login (cookie is already set by backend)
-        const userResponse = await api.get("/auth/me", {
+        const userResponse = await api.get("", {
           withCredentials: true,
         });
         console.log("userResponse", userResponse);

@@ -9,6 +9,7 @@ import {
   PlusOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
+import { uploadAndGetUrl } from "@/app/utils/supabase";
 
 interface ImageUploadProps {
   value?: string;
@@ -42,14 +43,17 @@ export default function ImageUpload({
    */
 
   const uploadImage = async (file: File): Promise<string> => {
+    const url = await uploadAndGetUrl("vehicle", file);
     console.log("Uploading...", file);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return url ?? "";
 
-    // TODO
-    // upload to MinIO and return URL
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    return URL.createObjectURL(file);
+    // // TODO
+    // // upload to MinIO and return URL
+
+    // return URL.createObjectURL(file);
   };
 
   const beforeUpload: UploadProps["beforeUpload"] = async (file) => {
