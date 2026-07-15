@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = [
-  "/login",
-  "/register",
-  "/forgot-password",
-];
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -19,12 +15,17 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const authToken = request.cookies.get("auth_token")?.value;
-  console.log("authToken",authToken)
+  let authToken;
+  const NODE_ENV = process.env.NEXT_PUBLIC_NODE_ENV;
 
-  const isPublic = PUBLIC_ROUTES.some((route) =>
-    pathname.startsWith(route)
-  );
+  if (NODE_ENV === "development") {
+    authToken = request.cookies.get("auth_token")?.value;
+  } else {
+    authToken = request.cookies.get("_vercel_jwt")?.value;
+  }
+  console.log("authToken", authToken);
+
+  const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
   // User is not authenticated
   if (!authToken && !isPublic) {

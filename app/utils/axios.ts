@@ -2,7 +2,7 @@ import axios from "axios";
 import { message } from "antd";
 
 const API_BASE_URL =
-  process.env.NODE_ENV === "production"
+  process.env.NEXT_PUBLIC_NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_API_URL
     : "http://localhost:3030/api/v1";
 
