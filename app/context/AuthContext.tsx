@@ -19,7 +19,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   refetchUser: () => void;
-  login: (credentials: LoginCredentials) => Promise<any>;
+  login: (credentials: LoginCredentials) => Promise<{success: boolean; message: string}>;
   logout: () => void;
 }
 
@@ -47,11 +47,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (data.success) {
         console.log("trying to access me");
         // Fetch user after successful login (cookie is already set by backend)
-        const userResponse = await api.get("", {
+        const userResponse = await api.get("/auth/me", {
           withCredentials: true,
         });
         console.log("userResponse", userResponse);
-        const user = userResponse.data;
+        const user = userResponse?.data?.data;
 
         queryClient.setQueryData(["user"], user);
         queryClient.setQueryData(["isAuthenticated"], true);
@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         message.error(data.message || "Login failed.");
       }
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       const errorMessage = error.response?.data?.message || "Login failed";
       message.error(errorMessage);
     },

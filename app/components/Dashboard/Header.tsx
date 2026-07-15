@@ -13,6 +13,7 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { User } from "@/app/hooks/usePermissions";
+import { useAuthContext } from "@/app/context/AuthContext";
 
 interface HeaderProps {
   user: User | null;
@@ -21,6 +22,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
   const router = useRouter();
+  const {logout}= useAuthContext();
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   const toggleFullscreen = () => {
@@ -55,9 +57,9 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
       key: "logout",
       icon: <LogoutOutlined />,
       label: "Logout",
-      onClick: () => {
+      onClick: async () => {
         // Handle logout
-        router.push("/auth/login");
+        await logout();
       },
       danger: true,
     },

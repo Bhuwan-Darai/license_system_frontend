@@ -11,12 +11,12 @@ import {
   message,
   Row,
   Col,
-  Alert,
 } from "antd";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/app/context/AuthContext";
+import Image from "next/image";
 
 const { Title, Text, Link } = Typography;
 
@@ -171,7 +171,7 @@ const Login: React.FC = () => {
 
             <div className="text-center pt-2">
               <Text type="secondary" className="text-sm">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="text-blue-500 hover:text-blue-700 font-medium"
@@ -200,10 +200,11 @@ const Login: React.FC = () => {
                 block
                 className="h-11 rounded-xl border-gray-300 hover:border-blue-400 transition-all duration-200 flex items-center justify-center gap-2"
                 icon={
-                  <img
+                  <Image
                     src="https://www.google.com/favicon.ico"
                     alt="Google"
-                    className="w-5 h-5"
+                    width={5}
+                    height={5}
                   />
                 }
                 disabled={isLoading}

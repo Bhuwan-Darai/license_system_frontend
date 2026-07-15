@@ -4,7 +4,7 @@ import { message } from "antd";
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_API_URL
-    : "http://127.0.0.1:3000/api/v1";
+    : "http://localhost:3030/api/v1";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
