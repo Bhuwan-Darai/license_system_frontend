@@ -3,9 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   compiler: {
     removeConsole:
-      process.env.NODE_ENV === "production"
+      process.env.NEXT_PUBLIC_NODE_ENV === "production"
         ? {
-            exclude: ["error", "warn"],
+            exclude: ["warn"],
           }
         : false,
   },
@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "www.google.com",
-        pathname: "/**",
+      pathname: "/**",
       },
     ],
   },
