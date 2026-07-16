@@ -21,7 +21,7 @@ export function proxy(request: NextRequest) {
   if (NODE_ENV === "development") {
     authToken = request.cookies.get("auth_token")?.value;
   } else {
-    authToken = request.cookies.get("_vercel_jwt")?.value;
+    authToken = request.cookies.get("auth_token")?.value;
   }
   console.log("authToken", authToken);
 
