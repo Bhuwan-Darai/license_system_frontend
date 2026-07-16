@@ -19,7 +19,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   refetchUser: () => void;
-  login: (credentials: LoginCredentials) => Promise<{success: boolean; message: string}>;
+  login: (credentials: LoginCredentials) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
 }
 
@@ -77,8 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     queryKey: ["user"],
     queryFn: async () => {
       try {
-        const response = await api.get("/auth/me", { withCredentials: true });
-        return response.data;
+        const response = await api.get("/auth/me");
+        return response.data.data;
       } catch (error) {
         return null;
       }
