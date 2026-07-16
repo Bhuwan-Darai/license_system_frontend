@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryFn: async () => {
       try {
         const response = await api.get("/auth/me");
-        return response.data.data;
+        return response.data;
       } catch {
         return null;
       }
