@@ -1,14 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  compiler: {
-    removeConsole:
-      process.env.NEXT_PUBLIC_NODE_ENV === "production"
-        ? {
-            exclude: ["warn"],
-          }
-        : false,
-  },
   images: {
     remotePatterns: [
       {
@@ -19,7 +11,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "www.google.com",
-      pathname: "/**",
+        pathname: "/**",
       },
     ],
   },
