@@ -9,12 +9,16 @@ import {
   PlusOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import { uploadAndGetUrl } from "@/app/utils/supabase";
+import { handleDelete, uploadAndGetUrl, UploadResult } from "@/app/utils/supabase";
+
+interface ImageValue {
+  url: string;
+  path: string;
+}
 
 interface ImageUploadProps {
-  value?: string;
-  onChange?: (url?: string) => void;
-
+  value?: ImageValue;
+  onChange?: (value?: ImageValue) => void;
   accept?: string[];
   width?: number;
   height?: number;
@@ -27,6 +31,7 @@ export default function ImageUpload({
   height = 160,
   accept = ["image/jpeg", "image/png"],
 }: ImageUploadProps) {
+  console.log("value", value)
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -42,18 +47,8 @@ export default function ImageUpload({
    * return res.url;
    */
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const url = await uploadAndGetUrl("vehicle", file);
-    console.log("Uploading...", file);
-
-    return url ?? "";
-
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // // TODO
-    // // upload to MinIO and return URL
-
-    // return URL.createObjectURL(file);
+  const uploadImage = async (file: File): Promise<UploadResult | null> => {
+    return await uploadAndGetUrl(file);
   };
 
   const beforeUpload: UploadProps["beforeUpload"] = async (file) => {
@@ -61,7 +56,7 @@ export default function ImageUpload({
       message.error(
         `Only ${accept
           .map((x) => x.replace("image/", "").toUpperCase())
-          .join(", ")} files are allowed`
+          .join(", ")} files are allowed`,
       );
 
       return Upload.LIST_IGNORE;
@@ -75,10 +70,14 @@ export default function ImageUpload({
 
     try {
       setLoading(true);
+      const uploaded = await uploadImage(file as RcFile);
 
-      const url = await uploadImage(file as RcFile);
+      if (!uploaded) {
+        message.error("Upload failed");
+        return Upload.LIST_IGNORE;
+      }
 
-      onChange?.(url);
+      onChange?.(uploaded);
 
       message.success("Uploaded successfully");
     } catch {
@@ -88,6 +87,25 @@ export default function ImageUpload({
     }
 
     return false;
+  };
+
+  const deleteImage = async () => {
+    if (!value) return;
+
+    try {
+      setLoading(true);
+
+      const res = await handleDelete(value?.path);
+      console.log("res", res)
+
+      onChange?.(undefined);
+
+      message.success("Image deleted successfully");
+    } catch {
+      message.error("Failed to delete image");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const containerStyle: React.CSSProperties = {
@@ -109,9 +127,10 @@ export default function ImageUpload({
         onMouseLeave={() => setHovered(false)}
       >
         <Image
-          src={value}
+          src={value?.url ?? value}
           width={width}
           height={height}
+          alt="image"
           preview={false}
           style={{
             objectFit: "cover",
@@ -139,18 +158,19 @@ export default function ImageUpload({
           />
           <DeleteOutlined
             style={{ color: "#fff", fontSize: 18, cursor: "pointer" }}
-            onClick={() => onChange?.(undefined)}
+            onClick={deleteImage}
           />
         </div>
 
         {/* Single controlled preview, decoupled from the thumbnail image above */}
         <div style={{ display: "none" }}>
           <Image
-            src={value}
+            src={value?.url ?? value}
+            alt="image"
             preview={{
-              visible: previewOpen,
-              src: value,
-              onVisibleChange: (visible) => setPreviewOpen(visible),
+              open: previewOpen,
+              src: value?.url ?? value,
+              onOpenChange: (visible) => setPreviewOpen(visible),
             }}
           />
         </div>
@@ -175,12 +195,8 @@ export default function ImageUpload({
           cursor: "pointer",
           transition: "border-color 0.2s ease",
         }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.borderColor = "#4096ff")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.borderColor = "#d9d9d9")
-        }
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#4096ff")}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#d9d9d9")}
       >
         {loading ? (
           <Spin indicator={<LoadingOutlined style={{ fontSize: 20 }} spin />} />

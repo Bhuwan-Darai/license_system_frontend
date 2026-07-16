@@ -2,12 +2,18 @@
 import { createClient } from "@supabase/supabase-js";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { message } from "antd";
+export interface UploadResult {
+  url: string;
+  path: string;
+}
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
+
+const bucketName = "license";
 
 /**
  * Uploads a file to a Supabase Storage bucket and returns its public URL.
@@ -17,48 +23,57 @@ const supabase: SupabaseClient = createClient(
  * @returns Promise<string | null> - Public URL or null if upload fails
  */
 export async function uploadAndGetUrl(
-  bucketName: string,
   fileObject: File,
-): Promise<string | null> {
+): Promise<UploadResult | null> {
   try {
-    // Generate unique filename to prevent collisions
     const fileExtension =
       fileObject.name.split(".").pop()?.toLowerCase() || "png";
-    const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${fileExtension}`;
-    const filePath = `uploads/${uniqueFileName}`;
 
-    // 1. Upload file
-    const response = await supabase.storage
+    const uniqueFileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2, 10)}.${fileExtension}`;
+
+    const filePath = `vehicle/${uniqueFileName}`;
+
+    const { data, error } = await supabase.storage
       .from(bucketName)
       .upload(filePath, fileObject, {
         cacheControl: "3600",
-        upsert: false, // Don't overwrite if file exists
+        upsert: false,
       });
 
-    if (response.error) {
-      // console.error(
-      //   `Upload failed in bucket [${bucketName}]:`,
-      //   response.error.message,
-      // );
-      console.log("error", response.error);
+    if (error) {
+      console.error(error);
       return null;
     }
 
-    // 2. Get Public URL (for public buckets)
     const { data: publicData } = supabase.storage
       .from(bucketName)
-      .getPublicUrl(filePath);
+      .getPublicUrl(data.path);
 
-    return publicData.publicUrl;
+    return {
+      url: publicData.publicUrl,
+      path: data.path,
+    };
   } catch (error) {
-    console.error("Unexpected error during file upload:", error);
+    console.error(error);
     return null;
   }
 }
 
 export const handleUpload = async (file: File) => {
-  const url = await uploadAndGetUrl("avatars", file);
+  const url = await uploadAndGetUrl(file);
   if (url) {
     message.success("File uploaded successfully:");
   }
+};
+
+export const handleDelete = async (path: string) => {
+  await supabase.storage.from("license").remove([path]);
+};
+
+export const getImageUrl = async (path: string): Promise<string> => {
+  const { data } = await supabase.storage.from(bucketName).getPublicUrl(path);
+
+  return data.publicUrl;
 };

@@ -1,19 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { Button, Form, Image, Input, message, Modal, Space, Tag } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import api from "@/app/utils/axios";
+
 import useModal from "@/app/hooks/useModalHook";
 import ImageUpload from "@/app/components/ui/UploadImage";
 import CustomTable from "@/app/components/ui/CustomTable";
-
-import { Button, Form, Image, Input, Modal, Space, Tag } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { useMutation } from "@tanstack/react-query";
-import api from "@/app/utils/axios";
+import { getImageUrl } from "@/app/utils/supabase";
+import { useState } from "react";
 
 const { TextArea } = Input;
 
 interface VehicleCategory {
-  id: number;
+  ID: number;
+  VehicleCategoryID: string;
+  Title: string;
+  Description: string;
+  Image: string;
+  CreatedAt: string;
+  CreatedBy: string;
+  UpdatedAt: string;
+  UpdatedBy?: string | null;
+}
+
+export interface ImageValue {
+  url: string;
+  path: string;
+}
+
+interface VehicleCategoryFormValues {
+  title: string;
+  description: string;
+  image?: ImageValue;
+}
+
+interface CreateVehicleCategoryPayload {
+  vehicleCategoryId?: string;
   title: string;
   description: string;
   image?: string;
@@ -21,49 +45,104 @@ interface VehicleCategory {
 
 export default function VehicleCategories() {
   const { open, showModal, hideModal } = useModal();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<VehicleCategoryFormValues>();
+  const [mode, setMode] = useState<"add" | "edit">("add");
+  const [selectedId, setSelectedId] = useState<string>("");
 
-  const [categories, setCategories] = useState<VehicleCategory[]>([
-    {
-      id: 1,
-      title: "Motorcycle",
-      description: "Two-wheeled motor vehicles including scooters and bikes.",
-      image: "https://picsum.photos/100?random=11",
-    },
-    {
-      id: 2,
-      title: "Car",
-      description: "Private and commercial four-wheeled passenger vehicles.",
-      image: "https://picsum.photos/100?random=12",
-    },
-    {
-      id: 3,
-      title: "Bus",
-      description:
-        "Passenger buses used for public and private transportation.",
-      image: "https://picsum.photos/100?random=13",
-    },
-    {
-      id: 4,
-      title: "Truck",
-      description: "Heavy-duty vehicles used for transporting goods.",
-      image: "https://picsum.photos/100?random=14",
-    },
-  ]);
+  const queryClient = useQueryClient();
 
-  const {
-    mutateAsync: add,
-    isPending,
-    isError,
-  } = useMutation({
-    mutationFn: (category) => {
-      return api.post("/vehicle-category", category);
+  // add vehicle category
+  const { mutateAsync: add, isPending } = useMutation({
+    mutationFn: (payload: CreateVehicleCategoryPayload) =>
+      api.post("/vehicle-category", payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["vehicle-categories"],
+      });
+
+      message.success("Vehicle category added successfully!");
     },
   });
 
-  const onFinish = async (values: any) => {
-    console.log("values", values);
-    await add(values);
+  // delete vehicle category
+  const { mutateAsync: deleteVehicleCategory, isPending: deletePending } =
+    useMutation({
+      mutationFn: (id: string) => api.delete(`/vehicle-category/${id}`),
+
+      onSuccess: () => {
+        message.success("Vehicle category deleted successfully");
+        queryClient.invalidateQueries({
+          queryKey: ["vehicle-categories"],
+        });
+      },
+      onError: () => {
+        message.error("Failed to delete vehicle category");
+      },
+    });
+
+  // get vehicle categories
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["vehicle-categories"],
+    queryFn: async () => {
+      const res = await api.get("/vehicle-category");
+      return res.data?.data;
+    },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  });
+
+  const { mutateAsync: update, isPending: isUpdatePending } = useMutation({
+    mutationFn: ({ id, payload }: { id: string, payload: CreateVehicleCategoryPayload }) =>
+      api.put(`/vehicle-category/${id}`, payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["vehicle-categories"],
+      });
+
+      message.success("Vehicle category updated successfully!");
+    },
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error</div>;
+  }
+
+  const handleEdit = async (value: any) => {
+    console.log("value", value);
+    showModal();
+    setMode("edit")
+    setSelectedId(value?.VehicleCategoryID);
+    const url = await getImageUrl(value.ImagePath);
+    form.setFieldsValue({
+      title: value?.Title,
+      description: value?.Description,
+      image: {
+        url: url,
+        path: value.ImagePath,
+      }
+    });
+  };
+
+  const onFinish = async (values: VehicleCategoryFormValues) => {
+    const payload: CreateVehicleCategoryPayload = {
+      ...values,
+      image: values.image?.path,
+    };
+
+    if (mode === "edit") {
+      await update({ id: selectedId, payload });
+    } else {
+      await add(payload);
+    }
 
     form.resetFields();
     hideModal();
@@ -72,13 +151,13 @@ export default function VehicleCategories() {
   const columns: ColumnsType<VehicleCategory> = [
     {
       title: "Image",
-      dataIndex: "image",
-      key: "image",
+      dataIndex: "Image",
+      key: "Image",
       width: 120,
-      sorter: false,
       render: (image: string) =>
         image ? (
           <Image
+            alt="image"
             src={image}
             width={60}
             height={60}
@@ -93,35 +172,37 @@ export default function VehicleCategories() {
     },
     {
       title: "Vehicle Category",
-      dataIndex: "title",
-      key: "title",
-      sorter: (a, b) => a.title.localeCompare(b.title),
+      dataIndex: "Title",
+      key: "Title",
+      sorter: (a, b) => a.Title.localeCompare(b.Title),
     },
     {
       title: "Description",
-      dataIndex: "description",
-      key: "description",
+      dataIndex: "Description",
+      key: "Description",
       ellipsis: true,
+    },
+    {
+      title: "Created At",
+      dataIndex: "CreatedAt",
+      key: "CreatedAt",
+      sorter: (a, b) => a.CreatedAt.localeCompare(b.CreatedAt),
     },
     {
       title: "Action",
       key: "action",
       width: 180,
-      sorter: false,
       render: (_, record) => (
         <Space>
-          <Button type="primary" onClick={() => console.log("Edit", record)}>
+          <Button type="primary" onClick={() => handleEdit(record)}>
             Edit
           </Button>
 
           <Button
             danger
+            disabled={deletePending}
             type="primary"
-            onClick={() =>
-              setCategories((prev) =>
-                prev.filter((item) => item.id !== record.id),
-              )
-            }
+            onClick={() => deleteVehicleCategory(record.VehicleCategoryID)}
           >
             Delete
           </Button>
@@ -146,7 +227,7 @@ export default function VehicleCategories() {
 
       <CustomTable
         columns={columns}
-        dataSource={categories}
+        dataSource={data ?? []}
         initialPageSize={10}
       />
 
@@ -220,7 +301,7 @@ export default function VehicleCategories() {
               },
             ]}
           >
-            <ImageUpload />
+            <ImageUpload value={form.getFieldValue("image") as ImageValue} />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0 }}>
@@ -240,7 +321,7 @@ export default function VehicleCategories() {
                 Cancel
               </Button>
 
-              <Button type="primary" htmlType="submit">
+              <Button disabled={isPending} type="primary" htmlType="submit">
                 Save Category
               </Button>
             </div>
