@@ -43,6 +43,54 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
     setFilteredRoutes(filtered);
   }, [user]);
 
+  // Recursively find the selected menu item + its parent chain based on pathname.
+  // Handles exact matches and nested/dynamic routes (prefix match).
+  const findSelectedPath = (
+    items: any[],
+    currentPath: string,
+    parents: string[] = []
+  ): { key: string; parentKeys: string[] } | null => {
+    let bestMatch: { key: string; parentKeys: string[]; matchLength: number } | null = null;
+
+    for (const item of items) {
+      // Check children first so the deepest/most specific match wins
+      if (item.children && item.children.length > 0) {
+        const childResult = findSelectedPath(item.children, currentPath, [...parents, item.key]);
+        if (childResult) return childResult;
+      }
+
+      if (item.path) {
+        // Exact match: return immediately, nothing beats this
+        if (item.path === currentPath) {
+          return { key: item.key, parentKeys: parents };
+        }
+        // Prefix match, e.g. item.path = "/users" matches "/users/123"
+        if (
+          currentPath.startsWith(`${item.path}/`) &&
+          (!bestMatch || item.path.length > bestMatch.matchLength)
+        ) {
+          bestMatch = { key: item.key, parentKeys: parents, matchLength: item.path.length };
+        }
+      }
+    }
+
+    return bestMatch ? { key: bestMatch.key, parentKeys: bestMatch.parentKeys } : null;
+  };
+
+  // Update selected keys + auto-expand parents based on pathname
+  useEffect(() => {
+    if (!pathname) return;
+
+    const match = findSelectedPath(filteredRoutes, pathname);
+    if (match) {
+      setSelectedKeys([match.key]);
+      setOpenKeys((prev) => Array.from(new Set([...prev, ...match.parentKeys])));
+    } else {
+      // Fallback: no route matched, select pathname as-is (previous behavior)
+      setSelectedKeys([pathname]);
+    }
+  }, [pathname, filteredRoutes]);
+
   // Build menu items from routes
   const buildMenuItems = (items: any[]): MenuItem[] => {
     return items
@@ -106,24 +154,22 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
       .filter(Boolean);
   };
 
-  // Get menu items with search filter
   const menuItems = useMemo(() => {
     let items = filteredRoutes;
 
     if (searchTerm) {
       items = filterMenuItemsBySearch(items, searchTerm);
 
-      // Auto expand all items when searching
-      const keys: string[] = [];
+      const searchKeys: string[] = [];
       items.forEach((route: any) => {
         if (route.children && route.children.length > 0) {
-          keys.push(route.key);
+          searchKeys.push(route.key);
         }
       });
-      setOpenKeys(keys);
-    } else {
-      setOpenKeys([]);
+      setOpenKeys((prev) => Array.from(new Set([...prev, ...searchKeys])));
     }
+    // Note: no more `else { setOpenKeys([]) }` — clearing search shouldn't
+    // collapse the submenu containing the currently active route.
 
     return buildMenuItems(items);
   }, [filteredRoutes, searchTerm, can]);

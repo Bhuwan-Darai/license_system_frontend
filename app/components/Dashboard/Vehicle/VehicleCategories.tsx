@@ -13,7 +13,7 @@ import { useState } from "react";
 
 const { TextArea } = Input;
 
-interface VehicleCategory {
+export interface VehicleCategory {
   ID: number;
   VehicleCategoryID: string;
   Title: string;
@@ -30,13 +30,13 @@ export interface ImageValue {
   path: string;
 }
 
-interface VehicleCategoryFormValues {
+export interface VehicleCategoryFormValues {
   title: string;
   description: string;
   image?: ImageValue;
 }
 
-interface CreateVehicleCategoryPayload {
+export interface CreateVehicleCategoryPayload {
   vehicleCategoryId?: string;
   title: string;
   description: string;

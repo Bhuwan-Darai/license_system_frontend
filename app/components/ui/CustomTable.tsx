@@ -64,6 +64,10 @@ const CustomTable = <T extends object = any>({
     value: col.dataIndex || col.key,
   }));
 
+  const hasEllipsisColumn = useMemo(() => {
+    return initialColumns.some((col) => Boolean(col.ellipsis));
+  }, [initialColumns]);
+
   const displayedColumns = useMemo(() => {
     return initialColumns
       .filter((col) => {
@@ -72,20 +76,51 @@ const CustomTable = <T extends object = any>({
       })
       .map((col) => {
         const key = col.dataIndex || col.key;
+        const isEllipsis = Boolean(col.ellipsis);
+
+        // Configure ellipsis: show native title tooltip or customized
+        const ellipsisConfig = col.ellipsis === true ? { showTitle: true } : col.ellipsis;
+
+        // If non-ellipsis column and no explicit width provided, assign 'max-content'
+        // so it squeezes to its content/header width instead of taking equal column flex.
+        const width =
+          col.width !== undefined
+            ? col.width
+            : !isEllipsis && hasEllipsisColumn
+              ? 'max-content'
+              : undefined;
+
+        // Custom render for string/number ellipsis fields to add rich Ant Design Tooltip if no custom render was defined
+        let render = col.render;
+        if (isEllipsis && !render) {
+          render = (text: any) => {
+            if (text === null || text === undefined || text === '') return '-';
+            const str = String(text);
+            return (
+              <Tooltip title={str} placement="topLeft">
+                <span>{str}</span>
+              </Tooltip>
+            );
+          };
+        }
+
         return {
           ...col,
+          width,
+          ellipsis: ellipsisConfig,
           // Keep an explicit custom sorter if provided, otherwise fall back to a generic one
           // so every column is actually sortable rather than just showing a dead sort icon.
           sorter:
             typeof col.sorter === 'function'
               ? col.sorter
               : col.sorter === false
-              ? false
-              : defaultComparator(key),
+                ? false
+                : defaultComparator(key),
           sortOrder: sortedInfo.columnKey === key ? sortedInfo.order : null,
+          render,
         };
       });
-  }, [initialColumns, visibleColumns, sortedInfo]);
+  }, [initialColumns, visibleColumns, sortedInfo, hasEllipsisColumn]);
 
   // Client-side search + sort + pagination
   const filteredData = useMemo(() => {
@@ -261,6 +296,15 @@ const CustomTable = <T extends object = any>({
         .custom-table-wrapper .ant-table-thead > tr > th.ant-table-column-has-sorters:hover {
           background-color: #0958d9;
         }
+        .custom-table-wrapper .ant-table-thead > tr > th:not(.ant-table-cell-ellipsis),
+        .custom-table-wrapper .ant-table-tbody > tr > td:not(.ant-table-cell-ellipsis) {
+          white-space: nowrap;
+        }
+        .custom-table-wrapper .ant-table-cell-ellipsis {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       `}</style>
 
       {renderTopToolbar()}
@@ -270,6 +314,8 @@ const CustomTable = <T extends object = any>({
       {/* Main Table — pagination is fully handled by our own <Pagination> above/below,
           so the Table's built-in pagination must be disabled to avoid double pagination. */}
       <Table
+        tableLayout="fixed"
+        scroll={{ x: 'max-content', ...tableProps.scroll }}
         {...tableProps}
         columns={displayedColumns}
         dataSource={paginatedData}
@@ -278,7 +324,6 @@ const CustomTable = <T extends object = any>({
         pagination={false}
         size="small"
         bordered
-        scroll={{ x: 'max-content' }}
       />
 
       {totalRecords > 0 && renderPagination('bottom')}

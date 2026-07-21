@@ -1,18 +1,17 @@
 "use client";
-import { useState } from "react";
+import { Button, Form, Input, Modal, Space } from "antd";
+import type { ColumnsType } from "antd/es/table";
+
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
-
-import { Button, Form, Input, Modal, Space, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/app/utils/axios";
+import { useMutationIshihara } from "./useMutationIshihara";
+import { useQueryIshihara } from "./useQueryIshihara";
 
 const { TextArea } = Input;
 
-interface BlogCategory {
+interface IshiharaCategory {
   id: number | string;
-  BlogCategoryID: string;
+  IshiharaCategoryID: string;
   Title: string;
   Description: string;
   Image?: string;
@@ -22,78 +21,36 @@ interface BlogCategory {
   UpdatedAt: string;
 }
 
-export default function BlogCategory() {
+export default function IshiharaCategory() {
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
-  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
 
-  const queryClient = useQueryClient();
+  const {
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    isAdding,
+    isUpdating,
+    isDeleting,
+    setEditingCategory,
+    editingCategory,
+  } = useMutationIshihara();
+  const { categories, isLoading } = useQueryIshihara();
 
-  // Fetch Categories
-  const { data: categories = [], isLoading } = useQuery({
-    queryKey: ["blog-categories"],
-    queryFn: async () => {
-      const res = await api.get("/blog-category");
-      return res.data?.data || res.data || [];
-    },
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-  });
-
-  // Add Mutation
-  const { mutateAsync: addCategory, isPending: isAdding } = useMutation({
-    mutationFn: (payload: Omit<BlogCategory, "id">) =>
-      api.post("/blog-category", payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category added successfully!");
-      form.resetFields();
-      hideModal();
-    },
-    onError: () => {
-      message.error("Failed to add category");
-    },
-  });
-
-  // Update Mutation
-  const { mutateAsync: updateCategory, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, payload }: { id: string | number; payload: Partial<BlogCategory> }) =>
-      api.put(`/blog-category/${id}`, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category updated successfully!");
-      form.resetFields();
-      hideModal();
-      setEditingCategory(null);
-    },
-    onError: () => {
-      message.error("Failed to update category");
-    },
-  });
-
-  // Delete Mutation
-  const { mutateAsync: deleteCategory, isPending: isDeleting } = useMutation({
-    mutationFn: (id: string | number) =>
-      api.delete(`/blog-category/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category deleted successfully");
-    },
-    onError: () => {
-      message.error("Failed to delete category");
-    },
-  });
-
-  const onFinish = async (values: Omit<BlogCategory, "id">) => {
+  const onFinish = async (values: Omit<IshiharaCategory, "id">) => {
     if (editingCategory) {
-      await updateCategory({ id: editingCategory.BlogCategoryID, payload: values });
+      await updateCategory({
+        id: editingCategory.IshiharaCategoryID,
+        payload: values,
+      });
     } else {
       await addCategory(values);
+      form.resetFields();
     }
+    hideModal();
   };
 
-  const handleEdit = (record: BlogCategory) => {
+  const handleEdit = (record: IshiharaCategory) => {
     setEditingCategory(record);
     form.setFieldsValue({
       title: record.Title,
@@ -102,17 +59,17 @@ export default function BlogCategory() {
     showModal();
   };
 
-  const handleDelete = (BlogCategoryID: string) => {
+  const handleDelete = (IshiharaCategoryID: string) => {
     Modal.confirm({
       title: "Are you sure you want to delete this category?",
       content: "This action cannot be undone.",
       okText: "Yes, Delete",
       okType: "danger",
-      onOk: () => deleteCategory(BlogCategoryID),
+      onOk: () => deleteCategory(IshiharaCategoryID),
     });
   };
 
-  const columns: ColumnsType<BlogCategory> = [
+  const columns: ColumnsType<IshiharaCategory> = [
     {
       title: "Category",
       dataIndex: "Title",
@@ -136,10 +93,7 @@ export default function BlogCategory() {
       width: 180,
       render: (_, record) => (
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleEdit(record)}
-          >
+          <Button type="primary" onClick={() => handleEdit(record)}>
             Edit
           </Button>
 
@@ -147,7 +101,7 @@ export default function BlogCategory() {
             danger
             type="primary"
             loading={isDeleting}
-            onClick={() => handleDelete(record.BlogCategoryID)}
+            onClick={() => handleDelete(record.IshiharaCategoryID)}
           >
             Delete
           </Button>
@@ -175,7 +129,7 @@ export default function BlogCategory() {
             showModal();
           }}
         >
-          Add blog Category
+          Add Ishihara Category
         </Button>
       </div>
 
@@ -189,7 +143,9 @@ export default function BlogCategory() {
       <Modal
         title={
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            {editingCategory ? "Edit blog Category" : "Add blog Category"}
+            {editingCategory
+              ? "Edit Ishihara Category"
+              : "Add Ishihara Category"}
           </span>
         }
         open={open}
@@ -206,15 +162,11 @@ export default function BlogCategory() {
             maxHeight: "calc(80vh - 110px)",
             overflowY: "auto",
             paddingRight: 8,
-          }
+          },
         }}
         destroyOnHidden={true}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-        >
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
             label="Category Name"
             name="title"
@@ -225,10 +177,7 @@ export default function BlogCategory() {
               },
             ]}
           >
-            <Input
-              size="large"
-              placeholder="Enter blog category"
-            />
+            <Input size="large" placeholder="Enter Ishihara category" />
           </Form.Item>
 
           <Form.Item
@@ -267,11 +216,7 @@ export default function BlogCategory() {
                 Cancel
               </Button>
 
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isSubmitting}
-              >
+              <Button type="primary" htmlType="submit" loading={isSubmitting}>
                 {editingCategory ? "Update Category" : "Save Category"}
               </Button>
             </div>
