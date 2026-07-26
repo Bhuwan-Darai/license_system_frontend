@@ -9,6 +9,7 @@ import Sidebar from "../components/Dashboard/Sidebar";
 import LoadingSkeleton from "../components/ui/LoadingSkeleton";
 import Header from "../components/Dashboard/Header";
 import Footer from "../components/Dashboard/Footer";
+import { ProtectedRoute } from "../components/Route/ProtectedRoute";
 
 // Mock user data for demo
 const mockUser: User = {
@@ -73,7 +74,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <div className="flex-1 flex flex-col">
         <Header user={user} collapsed={collapsed} />
         <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
-          {children}
+          <ProtectedRoute>{children}</ProtectedRoute>
         </main>
         <Footer collapsed={collapsed} />
       </div>

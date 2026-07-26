@@ -56,6 +56,13 @@ export const routes: Route[] = [
         permission: "manage_analytics",
         icon: <AreaChartOutlined />,
       },
+      {
+        key: "question-bank",
+        label: "Question Bank",
+        path: "/dashboard/categories/question-bank",
+        permission: "manage_analytics",
+        icon: <AreaChartOutlined />,
+      },
     ],
   },
   {
@@ -102,7 +109,7 @@ export const routes: Route[] = [
         permission: "view_products",
         icon: <ShoppingOutlined />,
       },
-    ]
+    ],
   },
   {
     key: "signals",

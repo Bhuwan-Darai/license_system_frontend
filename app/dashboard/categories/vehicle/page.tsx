@@ -1,6 +1,6 @@
 "use client";
 
-import VehicleCategories from "@/app/components/Dashboard/Vehicle/VehicleCategories";
+import VehicleCategories from "@/app/components/Dashboard/VehicleCagetory/VehicleCategories";
 
 export default function Page() {
   return (
