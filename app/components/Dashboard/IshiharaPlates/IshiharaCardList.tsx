@@ -18,7 +18,6 @@ import {
 } from "@ant-design/icons";
 
 import AddIshiharaPlates from "@/app/components/Dashboard/IshiharaPlates/IshiharaAddForm";
-import useModalHook from "@/app/hooks/useModalHook";
 import useModal from "@/app/hooks/useModalHook";
 
 type IshiharaPlate = {
@@ -44,7 +43,7 @@ const PAGE_SIZE = 8;
 
 export default function IshiharaCardList() {
     const [currentPage, setCurrentPage] = useState(1);
-  const { open, showModal, hideModal } = useModal();
+    const { open, showModal, hideModal } = useModal();
 
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * PAGE_SIZE;

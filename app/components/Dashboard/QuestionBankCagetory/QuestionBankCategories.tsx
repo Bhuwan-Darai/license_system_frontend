@@ -1,24 +1,21 @@
 "use client";
 
-import { Button, Form, Image, Input, message, Modal, Space, Tag } from "antd";
+import { useState } from "react";
+import { Button, Form, Input, message, Modal, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
-
 import useModal from "@/app/hooks/useModalHook";
-import ImageUpload from "@/app/components/ui/UploadImage";
 import CustomTable from "@/app/components/ui/CustomTable";
-import { getImageUrl } from "@/app/utils/supabase";
-import { useState } from "react";
 
 const { TextArea } = Input;
 
-interface VehicleCategory {
+export interface QuestionBankCategory {
   ID: number;
-  VehicleCategoryID: string;
+  QuestionBankCategoryID: string;
   Title: string;
   Description: string;
-  Image: string;
   CreatedAt: string;
   CreatedBy: string;
   UpdatedAt: string;
@@ -30,62 +27,60 @@ export interface ImageValue {
   path: string;
 }
 
-interface VehicleCategoryFormValues {
+export interface QuestionBankCategoryFormValues {
   title: string;
   description: string;
-  image?: ImageValue;
 }
 
-interface CreateVehicleCategoryPayload {
-  vehicleCategoryId?: string;
+export interface CreateQuestionBankCategoryPayload {
+  QuestionBankCategoryId?: string;
   title: string;
   description: string;
-  image?: string;
 }
 
-export default function VehicleCategories() {
+export default function QuestionBankCategories() {
   const { open, showModal, hideModal } = useModal();
-  const [form] = Form.useForm<VehicleCategoryFormValues>();
+  const [form] = Form.useForm<QuestionBankCategoryFormValues>();
   const [mode, setMode] = useState<"add" | "edit">("add");
   const [selectedId, setSelectedId] = useState<string>("");
 
   const queryClient = useQueryClient();
 
-  // add vehicle category
+  // add question bank category
   const { mutateAsync: add, isPending } = useMutation({
-    mutationFn: (payload: CreateVehicleCategoryPayload) =>
-      api.post("/vehicle-category", payload),
+    mutationFn: (payload: CreateQuestionBankCategoryPayload) =>
+      api.post("/question-bank-category", payload),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["vehicle-categories"],
+        queryKey: ["question-bank-categories"],
       });
 
-      message.success("Vehicle category added successfully!");
+      message.success("Question bank category added successfully!");
     },
   });
 
-  // delete vehicle category
-  const { mutateAsync: deleteVehicleCategory, isPending: deletePending } =
+  // delete question bank category
+  const { mutateAsync: deleteQuestionBankCategory, isPending: deletePending } =
     useMutation({
-      mutationFn: (id: string) => api.delete(`/vehicle-category/${id}`),
+      mutationFn: (id: string) => api.delete(`/question-bank-category/${id}`),
 
       onSuccess: () => {
-        message.success("Vehicle category deleted successfully");
+        message.success("Question bank category deleted successfully");
         queryClient.invalidateQueries({
-          queryKey: ["vehicle-categories"],
+          queryKey: ["question-bank-categories"],
         });
       },
       onError: () => {
-        message.error("Failed to delete vehicle category");
+        message.error("Failed to delete question bank category");
       },
     });
 
-  // get vehicle categories
+  // get question bank categories
   const { data, isLoading, error } = useQuery({
-    queryKey: ["vehicle-categories"],
+    queryKey: ["question-bank-categories"],
     queryFn: async () => {
-      const res = await api.get("/vehicle-category");
+      const res = await api.get("/question-bank-category");
       return res.data?.data;
     },
     staleTime: 0,
@@ -96,15 +91,15 @@ export default function VehicleCategories() {
   });
 
   const { mutateAsync: update, isPending: isUpdatePending } = useMutation({
-    mutationFn: ({ id, payload }: { id: string, payload: CreateVehicleCategoryPayload }) =>
-      api.put(`/vehicle-category/${id}`, payload),
+    mutationFn: ({ id, payload }: { id: string, payload: CreateQuestionBankCategoryPayload }) =>
+      api.put(`/question-bank-category/${id}`, payload),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["vehicle-categories"],
+        queryKey: ["question-bank-categories"],
       });
 
-      message.success("Vehicle category updated successfully!");
+      message.success("Question bank category updated successfully!");
     },
   });
 
@@ -120,22 +115,16 @@ export default function VehicleCategories() {
     console.log("value", value);
     showModal();
     setMode("edit")
-    setSelectedId(value?.VehicleCategoryID);
-    const url = await getImageUrl(value.ImagePath);
+    setSelectedId(value?.QuestionBankCategoryID);
     form.setFieldsValue({
       title: value?.Title,
       description: value?.Description,
-      image: {
-        url: url,
-        path: value.ImagePath,
-      }
     });
   };
 
-  const onFinish = async (values: VehicleCategoryFormValues) => {
-    const payload: CreateVehicleCategoryPayload = {
+  const onFinish = async (values: QuestionBankCategoryFormValues) => {
+    const payload: CreateQuestionBankCategoryPayload = {
       ...values,
-      image: values.image?.path,
     };
 
     if (mode === "edit") {
@@ -148,30 +137,9 @@ export default function VehicleCategories() {
     hideModal();
   };
 
-  const columns: ColumnsType<VehicleCategory> = [
+  const columns: ColumnsType<QuestionBankCategory> = [
     {
-      title: "Image",
-      dataIndex: "Image",
-      key: "Image",
-      width: 120,
-      render: (image: string) =>
-        image ? (
-          <Image
-            alt="image"
-            src={image}
-            width={60}
-            height={60}
-            style={{
-              objectFit: "cover",
-              borderRadius: 8,
-            }}
-          />
-        ) : (
-          <Tag>No Image</Tag>
-        ),
-    },
-    {
-      title: "Vehicle Category",
+      title: "Question Bank Category",
       dataIndex: "Title",
       key: "Title",
       sorter: (a, b) => a.Title.localeCompare(b.Title),
@@ -202,7 +170,7 @@ export default function VehicleCategories() {
             danger
             disabled={deletePending}
             type="primary"
-            onClick={() => deleteVehicleCategory(record.VehicleCategoryID)}
+            onClick={() => deleteQuestionBankCategory(record.QuestionBankCategoryID)}
           >
             Delete
           </Button>
@@ -221,7 +189,7 @@ export default function VehicleCategories() {
         }}
       >
         <Button type="primary" onClick={showModal}>
-          Add Vehicle Category
+          Add Question Bank Category
         </Button>
       </div>
 
@@ -239,7 +207,7 @@ export default function VehicleCategories() {
               fontWeight: 600,
             }}
           >
-            Add Vehicle Category
+            Add Question Bank Category
           </span>
         }
         open={open}
@@ -261,16 +229,16 @@ export default function VehicleCategories() {
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
-            label="Vehicle Category"
+            label="Question Bank Category"
             name="title"
             rules={[
               {
                 required: true,
-                message: "Please enter vehicle category name",
+                message: "Please enter question bank category name",
               },
             ]}
           >
-            <Input size="large" placeholder="Enter vehicle category" />
+            <Input size="large" placeholder="Enter question bank category" />
           </Form.Item>
 
           <Form.Item
@@ -287,21 +255,8 @@ export default function VehicleCategories() {
               rows={4}
               showCount
               maxLength={250}
-              placeholder="Enter vehicle category description"
+              placeholder="Enter question bank category description"
             />
-          </Form.Item>
-
-          <Form.Item
-            label="Category Image"
-            name="image"
-            rules={[
-              {
-                required: true,
-                message: "Please upload category image",
-              },
-            ]}
-          >
-            <ImageUpload value={form.getFieldValue("image") as ImageValue} />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0 }}>
