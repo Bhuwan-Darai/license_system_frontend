@@ -59,12 +59,12 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <NepaliDateSelector
+      {/* <NepaliDateSelector
         onChange={({ ad, bs }) => {
           console.log(ad.iso); // "2026-09-17"
           console.log(bs.formatted); // "2083-06-01"
         }}
-      />
+      /> */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
