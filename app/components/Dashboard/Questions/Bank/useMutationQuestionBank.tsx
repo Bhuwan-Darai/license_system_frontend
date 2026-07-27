@@ -4,24 +4,15 @@ import api from "@/app/utils/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { message } from "antd";
-
-interface QuestionBank {
-  QuestionBankID: string;
-  Title: string;
-  Questions: number;
-  Duration: number;
-  Category: string;
-  TotalMarks: number;
-  PassMarks: number;
-}
+import { QuestionBankAdd } from "./QuestionBank";
 
 export const useMutationQuestionBank = () => {
   const queryClient = useQueryClient();
   const [editingQuestionBank, setEditingQuestionBank] =
-    useState<QuestionBank | null>(null);
+    useState<QuestionBankAdd | null>(null);
 
   const { mutateAsync: addQuestionBank, isPending: isAdding } = useMutation({
-    mutationFn: (payload: Omit<QuestionBank, "QuestionBankID">) =>
+    mutationFn: (payload: Omit<QuestionBankAdd, "QuestionBankID">) =>
       api.post("/question-bank", payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["question-bank"] });
@@ -39,7 +30,7 @@ export const useMutationQuestionBank = () => {
         payload,
       }: {
         id: string;
-        payload: Partial<QuestionBank>;
+        payload: Partial<QuestionBankAdd>;
       }) => api.put(`/question-bank/${id}`, payload),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["question-bank"] });

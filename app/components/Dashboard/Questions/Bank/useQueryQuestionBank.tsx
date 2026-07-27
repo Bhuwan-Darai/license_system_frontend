@@ -8,7 +8,7 @@ export const useQueryQuestionBank = () => {
     queryKey: ["question-banks"],
     queryFn: async () => {
       const res = await api.get("/question-bank");
-      return res.data?.data || res.data || [];
+      return res?.data ?? [];
     },
     staleTime: 0,
     refetchOnMount: "always",

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, message, Modal, Space } from "antd";
+import { Button, Form, Input, Modal, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/app/utils/axios";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
+import { useMutationQuestionBankCategories } from "./useMutationQuestionBank";
+import { useQueryQuestionBankCategories } from "./useQueryQuestionBank";
 
 const { TextArea } = Input;
 
@@ -44,64 +44,15 @@ export default function QuestionBankCategories() {
   const [mode, setMode] = useState<"add" | "edit">("add");
   const [selectedId, setSelectedId] = useState<string>("");
 
-  const queryClient = useQueryClient();
-
-  // add question bank category
-  const { mutateAsync: add, isPending } = useMutation({
-    mutationFn: (payload: CreateQuestionBankCategoryPayload) =>
-      api.post("/question-bank-category", payload),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["question-bank-categories"],
-      });
-
-      message.success("Question bank category added successfully!");
-    },
-  });
-
-  // delete question bank category
-  const { mutateAsync: deleteQuestionBankCategory, isPending: deletePending } =
-    useMutation({
-      mutationFn: (id: string) => api.delete(`/question-bank-category/${id}`),
-
-      onSuccess: () => {
-        message.success("Question bank category deleted successfully");
-        queryClient.invalidateQueries({
-          queryKey: ["question-bank-categories"],
-        });
-      },
-      onError: () => {
-        message.error("Failed to delete question bank category");
-      },
-    });
-
-  // get question bank categories
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["question-bank-categories"],
-    queryFn: async () => {
-      const res = await api.get("/question-bank-category");
-      return res.data?.data;
-    },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
-  });
-
-  const { mutateAsync: update, isPending: isUpdatePending } = useMutation({
-    mutationFn: ({ id, payload }: { id: string, payload: CreateQuestionBankCategoryPayload }) =>
-      api.put(`/question-bank-category/${id}`, payload),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["question-bank-categories"],
-      });
-
-      message.success("Question bank category updated successfully!");
-    },
-  });
+  const {
+    add,
+    update,
+    isPending,
+    isUpdatePending,
+    deleteQuestionBankCategory,
+    deletePending,
+  } = useMutationQuestionBankCategories();
+  const { data, isLoading, error } = useQueryQuestionBankCategories();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -114,7 +65,7 @@ export default function QuestionBankCategories() {
   const handleEdit = async (value: any) => {
     console.log("value", value);
     showModal();
-    setMode("edit")
+    setMode("edit");
     setSelectedId(value?.QuestionBankCategoryID);
     form.setFieldsValue({
       title: value?.Title,
@@ -170,7 +121,9 @@ export default function QuestionBankCategories() {
             danger
             disabled={deletePending}
             type="primary"
-            onClick={() => deleteQuestionBankCategory(record.QuestionBankCategoryID)}
+            onClick={() =>
+              deleteQuestionBankCategory(record.QuestionBankCategoryID)
+            }
           >
             Delete
           </Button>
@@ -276,7 +229,11 @@ export default function QuestionBankCategories() {
                 Cancel
               </Button>
 
-              <Button disabled={isPending} type="primary" htmlType="submit">
+              <Button
+                disabled={mode === "edit" ? isUpdatePending : isPending}
+                type="primary"
+                htmlType="submit"
+              >
                 Save Category
               </Button>
             </div>
