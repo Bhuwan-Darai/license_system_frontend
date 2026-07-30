@@ -1,197 +1,171 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import type { FormProps, UploadProps } from "antd";
-import { Button, Form, Input, message, Select, Upload } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/app/utils/axios";
-
-type FieldType = {
-    title: string;
-    imageType: string;
-    img: any;
-};
+import { useState, useEffect } from "react";
+import { Button, Form, Input, Select } from "antd";
+import { useMutationIshihara } from "./useMutationIshihara";
+import ImageUpload from "../../ui/UploadImage";
+import { ImageValue } from "../VehicleCagetory/VehicleCategories";
+import { useQueryIshiharaCategory } from "./Category/useQueryIshiharaCategory";
 
 type AddIshiharaPlatesProps = {
-    editMode?: boolean;
-    initialData?: {
-        id?: string;
-        title?: string;
-        imageType?: string;
-        image?: string; // existing image URL/path
-    } | null;
-    onSuccess?: () => void;
+  editMode?: boolean;
+  initialData?: {
+    id?: string;
+    title?: string;
+    imageType?: string;
+    image?: string; // existing image URL/path
+  } | null;
+  onSuccess?: () => void;
 };
 
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-    console.log("Failed:", errorInfo);
+export interface IshiharaPlateFormValues {
+  title: string;
+  description: string;
+  image?: ImageValue;
+}
+
+export interface CreateIshiharaPlatePayload {
+  plate_id?: string;
+  title: string;
+  ishihara_category?: string;
+  image_url?: string; // optional, only send if a new image is uploaded
+}
+
+type IshiharaCategory = {
+  ID: number;
+  IshiharaCategoryID: string;
+  Title: string;
+  Description: string;
+  Image: string;
+  ImagePath: string;
+  CreatedAt: string;
+  CreatedBy: string;
+  UpdatedAt: string;
 };
 
 export default function AddIshiharaPlates({
-    editMode = false,
-    initialData = null,
-    onSuccess,
+  editMode = false,
+  initialData = null,
+  onSuccess,
 }: AddIshiharaPlatesProps) {
-    const [imageUrl, setImageUrl] = useState<string>("");
-    const [form] = Form.useForm<FieldType>();
-    const queryClient = useQueryClient();
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [form] = Form.useForm();
 
-    // Reset form when initialData changes (for edit mode)
-    useEffect(() => {
-        if (editMode && initialData) {
-            form.setFieldsValue({
-                title: initialData.title || "",
-                imageType: initialData.imageType || "",
-            });
+  const {
+    addPlate,
+    updatePlate,
+    deletePlate,
+    isAdding,
+    isUpdating,
+    isDeleting,
+    setEditingPlate,
+    editingPlate,
+  } = useMutationIshihara();
+  const { categories, isLoading } = useQueryIshiharaCategory();
 
-            // Set existing image preview if available
-            if (initialData.image) {
-                setImageUrl(initialData.image);
-            }
-        } else {
-            form.resetFields();
-            setImageUrl("");
-        }
-    }, [editMode, initialData, form]);
+  // Reset form when initialData changes (for edit mode)
+  useEffect(() => {
+    if (editMode && initialData) {
+      form.setFieldsValue({
+        title: initialData.title || "",
+        ishihara_category: initialData.category_id || "",
+      });
 
-    // Add mutation
-    const { mutateAsync: add, isPending: isAddPending } = useMutation({
-        mutationFn: (payload: any) => api.post("/ishihara-plate", payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["ishihara-plates"] });
-            message.success("Ishihara plate added successfully!");
-            form.resetFields();
-            setImageUrl("");
-            onSuccess?.();
-        },
-        onError: () => {
-            message.error("Failed to add ishihara plate");
-        },
-    });
+      // Set existing image preview if available
+      if (initialData.image) {
+        setImageUrl(initialData.image);
+      }
+    } else {
+      form.resetFields();
+      setImageUrl("");
+    }
+  }, [editMode, initialData, form]);
 
-    // Update mutation
-    const { mutateAsync: update, isPending: isUpdatePending } = useMutation({
-        mutationFn: ({ id, payload }: { id: string; payload: any }) =>
-            api.put(`/ishihara-plate/${id}`, payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["ishihara-plates"] });
-            message.success("Ishihara plate updated successfully!");
-            onSuccess?.();
-        },
-        onError: () => {
-            message.error("Failed to update ishihara plate");
-        },
-    });
-
-    const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-        const payload: any = {
-            title: values.title,
-            imageType: values.imageType,
-            image: values.img?.path || undefined, // only send new image if uploaded
-        };
-
-        try {
-            if (editMode && initialData?.id) {
-                await update({ id: initialData.id, payload });
-            } else {
-                await add(payload);
-            }
-        } catch (error) {
-            // Error already handled in onError
-        }
+  const onFinish = async (values: IshiharaPlateFormValues) => {
+    console.log("Form values:", values);
+    const payload: CreateIshiharaPlatePayload = {
+      ...values,
+      image_url: values.image?.path || undefined, // only send new image if uploaded
     };
 
-    const handleChange: UploadProps["onChange"] = (info) => {
-        const file = info.file.originFileObj;
-        if (file) {
-            setImageUrl(URL.createObjectURL(file));
-        }
-    };
+    try {
+      if (editMode && initialData?.id) {
+        await updatePlate({ id: initialData.id, payload });
+      } else {
+        await addPlate(payload);
+      }
+    } catch (error) {
+      // Error already handled in onError
+    }
+  };
 
-    const beforeUpload = () => false; // Prevent auto upload
+  return (
+    <Form
+      form={form}
+      layout="vertical"
+      style={{ maxWidth: 600 }}
+      onFinish={onFinish}
+      autoComplete="off"
+      initialValues={{
+        title: initialData?.title,
+        category_id: initialData?.id,
+      }}
+    >
+      <Form.Item name="plate_id" hidden>
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Title"
+        name="title"
+        rules={[{ required: true, message: "Please input title!" }]}
+      >
+        <Input placeholder="Enter title" />
+      </Form.Item>
 
-    const uploadButton = (
-        <div>
-            <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Upload</div>
-        </div>
-    );
+      <Form.Item
+        name="ishihara_category"
+        label="Category"
+        rules={[
+          {
+            required: true,
+            message: "Please select a Category",
+          },
+        ]}
+      >
+        <Select
+          showSearch
+          optionFilterProp="label"
+          placeholder="Search category to Select"
+          loading={isLoading}
+          getPopupContainer={() => document.body}
+          options={categories?.map((c: IshiharaCategory) => ({
+            value: c.IshiharaCategoryID,
+            label: c.Title,
+          }))}
+        />
+      </Form.Item>
 
-    const isPending = isAddPending || isUpdatePending;
+      <Form.Item
+        label="Category Image"
+        name="image"
+        rules={[
+          {
+            required: true,
+            message: "Please upload category image",
+          },
+        ]}
+      >
+        <ImageUpload value={form.getFieldValue("image") as ImageValue} />
+      </Form.Item>
 
-    return (
-        <Form<FieldType>
-            form={form}
-            layout="vertical"
-            style={{ maxWidth: 600 }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-            initialValues={{
-                title: initialData?.title,
-                imageType: initialData?.imageType,
-            }}
+      <Form.Item>
+        <Button
+          type="primary"
+          htmlType="submit"
+          loading={editMode ? isUpdating : isAdding}
         >
-            <Form.Item
-                label="Title"
-                name="title"
-                rules={[{ required: true, message: "Please input title!" }]}
-            >
-                <Input placeholder="Enter title" />
-            </Form.Item>
-
-            <Form.Item
-                label="Image Type"
-                name="imageType"
-                rules={[{ required: true, message: "Please select image type!" }]}
-            >
-                <Select
-                    showSearch
-                    placeholder="Select image type"
-                    optionLabelProp="label"
-                    options={[
-                        { value: "normal", label: "Normal" },
-                        { value: "protanopia", label: "Protanopia" },
-                        { value: "deuteranopia", label: "Deuteranopia" },
-                    ]}
-                />
-            </Form.Item>
-
-            <Form.Item
-                label="Image"
-                name="img"
-                valuePropName="fileList"
-                rules={[
-                    {
-                        required: !editMode, // Only require image on add, not on edit
-                        message: "Please upload an image!",
-                    },
-                ]}
-            >
-                <Upload
-                    listType="picture-circle"
-                    showUploadList={false}
-                    beforeUpload={beforeUpload}
-                    onChange={handleChange}
-                >
-                    {imageUrl ? (
-                        <img
-                            src={imageUrl}
-                            alt="preview"
-                            style={{ width: "100%", borderRadius: "50%" }}
-                            draggable={false}
-                        />
-                    ) : (
-                        uploadButton
-                    )}
-                </Upload>
-            </Form.Item>
-
-            <Form.Item>
-                <Button type="primary" htmlType="submit" loading={isPending}>
-                    {editMode ? "Update" : "Save"}
-                </Button>
-            </Form.Item>
-        </Form>
-    );
+          {editMode ? "Update" : "Save"}
+        </Button>
+      </Form.Item>
+    </Form>
+  );
 }

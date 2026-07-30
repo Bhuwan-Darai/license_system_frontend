@@ -4,8 +4,8 @@ import type { ColumnsType } from "antd/es/table";
 
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
-import { useMutationIshihara } from "./useMutationIshihara";
-import { useQueryIshihara } from "./useQueryIshihara";
+import { useMutationIshiharaCategory } from "./useMutationIshiharaCategory";
+import { useQueryIshiharaCategory } from "./useQueryIshiharaCategory";
 
 const { TextArea } = Input;
 
@@ -34,8 +34,8 @@ export default function IshiharaCategory() {
     isDeleting,
     setEditingCategory,
     editingCategory,
-  } = useMutationIshihara();
-  const { categories, isLoading } = useQueryIshihara();
+  } =   useMutationIshiharaCategory();
+  const { categories, isLoading } = useQueryIshiharaCategory();
 
   const onFinish = async (values: Omit<IshiharaCategory, "id">) => {
     if (editingCategory) {

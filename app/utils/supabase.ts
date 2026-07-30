@@ -34,6 +34,14 @@ export async function uploadAndGetUrl(
       .substring(2, 10)}.${fileExtension}`;
 
     const filePath = `vehicle/${uniqueFileName}`;
+    console.log({
+      name: fileObject.name,
+      size: fileObject.size,
+      type: fileObject.type,
+      path: filePath,
+    });
+
+    console.log(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
     const { data, error } = await supabase.storage
       .from(bucketName)
