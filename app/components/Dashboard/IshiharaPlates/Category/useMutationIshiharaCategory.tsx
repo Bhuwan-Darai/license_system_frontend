@@ -13,7 +13,7 @@ interface IshiharaCategory {
   ImagePath?: string;
 }
 
-export const useMutationIshihara = () => {
+export const useMutationIshiharaCategory = () => {
   const queryClient = useQueryClient();
   const [editingCategory, setEditingCategory] =
     useState<IshiharaCategory | null>(null);

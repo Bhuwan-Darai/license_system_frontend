@@ -1,3 +1,4 @@
+"use client";
 import IshiharaCardList from "@/app/components/Dashboard/IshiharaPlates/IshiharaCardList";
 
 

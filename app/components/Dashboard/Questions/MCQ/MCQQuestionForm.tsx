@@ -158,7 +158,7 @@ const SortableQuestionCard: React.FC<SortableQuestionCardProps> = ({
           borderLeft: `4px solid ${getDifficultyColor(q.difficulty_level)}`,
         }}
       >
-        <Space direction="vertical" style={{ width: "100%" }}>
+        <Space orientation="vertical" style={{ width: "100%" }}>
           <div
             style={{
               display: "flex",

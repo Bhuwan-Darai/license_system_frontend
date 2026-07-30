@@ -19,36 +19,19 @@ import {
 
 import AddIshiharaPlates from "@/app/components/Dashboard/IshiharaPlates/IshiharaAddForm";
 import useModal from "@/app/hooks/useModalHook";
+import { useQueryIshihara } from "./useQueryIshihara";
 
 type IshiharaPlate = {
     id: number;
     title: string;
     imageType: string;
-    image: string;
+    image_url: string;
 };
-
-const dummyData: IshiharaPlate[] = Array.from({ length: 25 }, (_, index) => ({
-    id: index + 1,
-    title: `Ishihara Plate ${index + 1}`,
-    imageType:
-        index % 3 === 0
-            ? "Normal"
-            : index % 3 === 1
-                ? "Protanopia"
-                : "Deuteranopia",
-    image: `https://picsum.photos/400/300?random=${index + 1}`,
-}));
-
-const PAGE_SIZE = 8;
 
 export default function IshiharaCardList() {
     const [currentPage, setCurrentPage] = useState(1);
     const { open, showModal, hideModal } = useModal();
-
-    const paginatedData = useMemo(() => {
-        const start = (currentPage - 1) * PAGE_SIZE;
-        return dummyData.slice(start, start + PAGE_SIZE);
-    }, [currentPage]);
+     const { plates, isLoading } = useQueryIshihara();
 
     return (
         <>
@@ -63,13 +46,13 @@ export default function IshiharaCardList() {
             </Row>
 
             <Row gutter={[16, 16]}>
-                {paginatedData.map((item) => (
+                {plates?.data?.map((item) => (
                     <Col xs={24} sm={12} md={8} lg={6} key={item.id}>
                         <Card
                             hoverable
                             cover={
                                 <Image
-                                    src={item.image}
+                                    src={item.image_url}
                                     alt={item.title}
                                     draggable={false}
                                     style={{
@@ -119,9 +102,9 @@ export default function IshiharaCardList() {
                 }}
             >
                 <Pagination
-                    current={currentPage}
-                    pageSize={PAGE_SIZE}
-                    total={dummyData.length}
+                    current={plates?.pagination?.page}
+                    pageSize={plates?.pagination?.limit}
+                    total={plates?.pagination?.total_pages}
                     showSizeChanger={false}
                     onChange={setCurrentPage}
                 />

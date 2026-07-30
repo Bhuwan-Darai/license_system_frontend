@@ -48,6 +48,7 @@ export default function ImageUpload({
    */
 
   const uploadImage = async (file: File): Promise<UploadResult | null> => {
+    console.log("Uploading file:", file);
     return await uploadAndGetUrl(file);
   };
 
