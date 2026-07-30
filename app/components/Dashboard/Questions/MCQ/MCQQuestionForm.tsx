@@ -48,6 +48,7 @@ import {
   useQueryQuestions,
   DBQuestion,
   CreateQuestionPayload,
+  UpdateQuestionPayload,
 } from "./useQuestions";
 import ImageUpload from "@/app/components/ui/UploadImage";
 import { useSearchParams } from "next/navigation";
@@ -61,10 +62,15 @@ interface ImageValue {
 }
 
 interface QuestionFormValues {
-  bankId: string;
+  question_bank_id: string;
+  question_id: string;
   question: string;
   subtitle?: string;
   image?: ImageValue;
+  optionA_id?: string;
+  optionB_id?: string;
+  optionC_id?: string;
+  optionD_id?: string;
   optionA: string;
   optionB: string;
   optionC: string;
@@ -78,7 +84,7 @@ interface QuestionFormValues {
 const buildPayloadFromQuestion = (
   q: DBQuestion,
   sortOrder: number,
-): CreateQuestionPayload => {
+): UpdateQuestionPayload => {
   const sortedOpts = [...(q.options || [])].sort(
     (a, b) => a.sort_order - b.sort_order,
   );
@@ -86,14 +92,19 @@ const buildPayloadFromQuestion = (
 
   return {
     question_bank_id: q.question_bank_id,
+    question_id: q.question_id,
     title1: q.title,
     title2: (q as any).subtitle || "",
     title3: (q as any).image_url || "",
     options: {
-      option1: sortedOpts[0]?.option_text || "",
-      option2: sortedOpts[1]?.option_text || "",
-      option3: sortedOpts[2]?.option_text || "",
-      option4: sortedOpts[3]?.option_text || "",
+      optionA_id: sortedOpts[0]?.option_id ?? "",
+      optionB_id: sortedOpts[1]?.option_id ?? "",
+      optionC_id: sortedOpts[2]?.option_id ?? "",
+      optionD_id: sortedOpts[3]?.option_id ?? "",
+      optionA: sortedOpts[0]?.option_text || "",
+      optionB: sortedOpts[1]?.option_text || "",
+      optionC: sortedOpts[2]?.option_text || "",
+      optionD: sortedOpts[3]?.option_text || "",
       correct_option: (correctIndex >= 0 ? correctIndex : 0) + 1,
     },
     level: (q.difficulty_level || "MEDIUM").toUpperCase() as any,
@@ -225,6 +236,12 @@ const SortableQuestionCard: React.FC<SortableQuestionCardProps> = ({
 const MCQQuestionForm: React.FC = () => {
   const [form] = Form.useForm<QuestionFormValues>();
   const [editingId, setEditingId] = useState<string | null>(null); // question_id
+  const [editingOptionIds, setEditingOptionIds] = useState<{
+    optionA_id?: string;
+    optionB_id?: string;
+    optionC_id?: string;
+    optionD_id?: string;
+  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const search = useSearchParams();
@@ -264,7 +281,7 @@ const MCQQuestionForm: React.FC = () => {
   // Pre-select bank from URL
   useEffect(() => {
     if (bankIdFromUrl) {
-      form.setFieldsValue({ bankId: bankIdFromUrl });
+      form.setFieldsValue({ question_bank_id: bankIdFromUrl });
     }
   }, [bankIdFromUrl, form]);
 
@@ -305,10 +322,7 @@ const MCQQuestionForm: React.FC = () => {
 
       await Promise.all(
         toPersist.map((q) =>
-          updateQuestion({
-            id: q.question_id,
-            payload: buildPayloadFromQuestion(q, q.sort_order),
-          }),
+          updateQuestion(buildPayloadFromQuestion(q, q.sort_order)),
         ),
       );
     } catch (error) {
@@ -323,33 +337,52 @@ const MCQQuestionForm: React.FC = () => {
   const handleSubmit = async (values: QuestionFormValues) => {
     setIsSubmitting(true);
     try {
-      const payload: CreateQuestionPayload = {
-        question_bank_id: values.bankId,
-        title1: values.question,
-        title2: values.subtitle || "",
-        title3: values.image?.url || "",
-        options: {
-          option1: values.optionA,
-          option2: values.optionB,
-          option3: values.optionC,
-          option4: values.optionD,
-          correct_option: parseInt(values.correctAnswer, 10) + 1, // API is 1-based
-        },
-        level: (values.difficulty || "medium").toUpperCase() as any,
-        sort_order: values.sortOrder ?? 0,
-      };
-
       if (editingId) {
-        await updateQuestion({ id: editingId, payload });
+        const payload: UpdateQuestionPayload = {
+          question_bank_id: values.question_bank_id,
+          question_id: values.question_id,
+          title1: values.question,
+          title2: values.subtitle || "",
+          title3: values.image?.url || "",
+          options: {
+            optionA_id: values.optionA_id ?? "",
+            optionB_id: values.optionB_id ?? "",
+            optionC_id: values.optionC_id ?? "",
+            optionD_id: values.optionD_id ?? "",
+            optionA: values.optionA,
+            optionB: values.optionB,
+            optionC: values.optionC,
+            optionD: values.optionD,
+            correct_option: parseInt(values.correctAnswer, 10) + 1, // API is 1-based
+          },
+          level: (values.difficulty || "medium").toUpperCase() as any,
+          sort_order: values.sortOrder ?? 0,
+        };
+        await updateQuestion(payload);
         setEditingId(null);
       } else {
+        const payload: CreateQuestionPayload = {
+          question_bank_id: values.question_bank_id,
+          question_id: values.question_id,
+          title1: values.question,
+          title2: values.subtitle || "",
+          title3: values.image?.url || "",
+          options: {
+            optionA: values.optionA,
+            optionB: values.optionB,
+            optionC: values.optionC,
+            optionD: values.optionD,
+            correct_option: parseInt(values.correctAnswer, 10) + 1, // API is 1-based
+          },
+          level: (values.difficulty || "medium").toUpperCase() as any,
+          sort_order: values.sortOrder ?? 0,
+        };
         await createQuestion(payload);
       }
 
       form.resetFields();
-      // keep bankId after reset
       if (bankIdFromUrl) {
-        form.setFieldsValue({ bankId: bankIdFromUrl });
+        form.setFieldsValue({ question_bank_id: bankIdFromUrl });
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -371,17 +404,28 @@ const MCQQuestionForm: React.FC = () => {
   const handleEdit = (q: DBQuestion) => {
     setEditingId(q.question_id);
 
-    // Sort options by sort_order so A/B/C/D stay consistent
     const sortedOpts = [...(q.options || [])].sort(
       (a, b) => a.sort_order - b.sort_order,
     );
 
+    setEditingOptionIds({
+      optionA_id: sortedOpts[0]?.option_id,
+      optionB_id: sortedOpts[1]?.option_id,
+      optionC_id: sortedOpts[2]?.option_id,
+      optionD_id: sortedOpts[3]?.option_id,
+    });
+
     const correctIndex = sortedOpts.findIndex((o) => o.is_correct);
 
     form.setFieldsValue({
-      bankId: q.question_bank_id,
+      question_bank_id: q.question_bank_id,
+      question_id: q.question_id,
       question: q.title,
-      subtitle: (q as any).subtitle || "", // if your API returns subtitle
+      subtitle: (q as any).subtitle || "",
+      optionA_id: sortedOpts[0]?.option_id,
+      optionB_id: sortedOpts[1]?.option_id,
+      optionC_id: sortedOpts[2]?.option_id,
+      optionD_id: sortedOpts[3]?.option_id,
       optionA: sortedOpts[0]?.option_text || "",
       optionB: sortedOpts[1]?.option_text || "",
       optionC: sortedOpts[2]?.option_text || "",
@@ -389,8 +433,6 @@ const MCQQuestionForm: React.FC = () => {
       correctAnswer: correctIndex >= 0 ? String(correctIndex) : "0",
       difficulty: (q.difficulty_level || "MEDIUM").toLowerCase() as any,
       sortOrder: q.sort_order,
-      // image: if you store image_url on the question
-      // image: q.image_url ? { url: q.image_url, path: q.image_url } : undefined,
     });
   };
 
@@ -398,7 +440,7 @@ const MCQQuestionForm: React.FC = () => {
     setEditingId(null);
     form.resetFields();
     if (bankIdFromUrl) {
-      form.setFieldsValue({ bankId: bankIdFromUrl });
+      form.setFieldsValue({ question_bank_id: bankIdFromUrl });
     }
   };
 
@@ -449,7 +491,7 @@ const MCQQuestionForm: React.FC = () => {
                 autoComplete="off"
               >
                 <Form.Item
-                  name="bankId"
+                  name="question_bank_id"
                   label="Question Bank"
                   rules={[
                     {
@@ -459,8 +501,9 @@ const MCQQuestionForm: React.FC = () => {
                   ]}
                 >
                   <Select
-                    showSearch
-                    optionFilterProp="label"
+                    showSearch={{
+                      optionFilterProp: "label",
+                    }}
                     placeholder="Search to Select"
                     loading={isQuestionBankLoading}
                     getPopupContainer={() => document.body}
@@ -497,6 +540,22 @@ const MCQQuestionForm: React.FC = () => {
 
                 <Form.Item name="image" label="प्रश्नको चित्र (Question Image)">
                   <ImageUpload value={form.getFieldValue("image")} />
+                </Form.Item>
+
+                <Form.Item name="question_id" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="optionA_id" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="optionB_id" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="optionC_id" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="optionD_id" hidden>
+                  <Input />
                 </Form.Item>
 
                 <Row gutter={16}>
@@ -599,19 +658,22 @@ const MCQQuestionForm: React.FC = () => {
           lg={1}
           style={{ display: "flex", justifyContent: "center" }}
         >
-          <Divider type="vertical" style={{ height: "100%", minHeight: 600 }} />
+          <Divider
+            orientation="vertical"
+            style={{ height: "100%", minHeight: 600 }}
+          />
         </Col>
 
         {/* ========== RIGHT: List ========== */}
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space>
+              <Space orientation="horizontal">
                 <Text>Questions List</Text>
                 <Tag color="blue">{orderedQuestions.length} questions</Tag>
               </Space>
             }
-            bordered={false}
+            variant="borderless"
             style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
           >
             {isQuestionsLoading ? (
@@ -620,7 +682,7 @@ const MCQQuestionForm: React.FC = () => {
               </div>
             ) : orderedQuestions.length === 0 ? (
               <Alert
-                message="No questions yet"
+                title="No questions yet"
                 description="Add your first MCQ question on the left."
                 type="info"
                 showIcon

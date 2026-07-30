@@ -29,20 +29,35 @@ export interface DBQuestion {
   }[];
 }
 
-export interface CreateQuestionPayload {
+type BaseQuestionPayload = {
   question_bank_id: string;
+  question_id: string;
   title1: string;
   title2?: string;
-  title3?: string; // image path/url
-  options: {
-    option1: string;
-    option2: string;
-    option3: string;
-    option4: string;
-    correct_option: number; // 1-4
-  };
+  title3?: string;
   level: "EASY" | "MEDIUM" | "HARD" | "EXPERT";
   sort_order?: number;
+};
+
+type BaseOptions = {
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+  correct_option: number;
+};
+
+export interface CreateQuestionPayload extends BaseQuestionPayload {
+  options: BaseOptions;
+}
+
+export interface UpdateQuestionPayload extends BaseQuestionPayload {
+  options: BaseOptions & {
+    optionA_id: string;
+    optionB_id: string;
+    optionC_id: string;
+    optionD_id: string;
+  };
 }
 
 export const useQueryQuestions = (
@@ -80,7 +95,7 @@ export const useMutationQuestions = () => {
       api.post("/question", payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
-      message.success("Question created successfully on the server!");
+      message.success("Question created successfully!");
     },
     onError: (err: any) => {
       const errMsg =
@@ -95,7 +110,7 @@ export const useMutationQuestions = () => {
     mutationFn: (id: string) => api.delete(`/question/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
-      message.success("Question deleted from server!");
+      message.success("Question deleted!");
     },
     onError: () => {
       message.error("Failed to delete question");
@@ -103,13 +118,14 @@ export const useMutationQuestions = () => {
   });
 
   const { mutateAsync: updateQuestion, isPending: isUpdating } = useMutation({
-    mutationFn: (id: string) => api.put(`/question/${id}`),
+    mutationFn: (value: UpdateQuestionPayload) =>
+      api.put(`/question/${value?.question_id}`, value),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
-      message.success("Question updated successfully on the server!");
+      message.success("Question updated successfully!");
     },
     onError: () => {
-      message.error("Failed to delete question");
+      message.error("Failed to update question");
     },
   });
 
