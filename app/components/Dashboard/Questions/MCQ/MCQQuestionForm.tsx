@@ -539,7 +539,7 @@ const MCQQuestionForm: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item name="image" label="प्रश्नको चित्र (Question Image)">
-                  <ImageUpload value={form.getFieldValue("image")} />
+                  <ImageUpload />
                 </Form.Item>
 
                 <Form.Item name="question_id" hidden>
