@@ -4,8 +4,12 @@ import api from "@/app/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 
 export const useQueryQuestionBank = () => {
-  const { data: questionBanks = [], isLoading } = useQuery({
-    queryKey: ["question-banks"],
+  const {
+    data: questionBanks = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["question-bank"],
     queryFn: async () => {
       const res = await api.get("/question-bank");
       return res?.data ?? [];
@@ -15,5 +19,5 @@ export const useQueryQuestionBank = () => {
     refetchOnWindowFocus: true,
   });
 
-  return { questionBanks, isLoading };
+  return { questionBanks, isLoading, refetch };
 };

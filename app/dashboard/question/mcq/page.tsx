@@ -1,4 +1,5 @@
-import MCQQuestionForm from "@/app/components/Dashboard/Questions/MCQQuestionForm";
+"use client";
+import MCQQuestionForm from "@/app/components/Dashboard/Questions/MCQ/MCQQuestionForm";
 
 export default function Page() {
   return (

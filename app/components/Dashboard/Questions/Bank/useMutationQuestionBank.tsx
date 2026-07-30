@@ -4,12 +4,12 @@ import api from "@/app/utils/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { message } from "antd";
-import { QuestionBankAdd } from "./QuestionBank";
+import { QuestionBank, QuestionBankAdd } from "./QuestionBank";
 
 export const useMutationQuestionBank = () => {
   const queryClient = useQueryClient();
   const [editingQuestionBank, setEditingQuestionBank] =
-    useState<QuestionBankAdd | null>(null);
+    useState<QuestionBank | null>(null);
 
   const { mutateAsync: addQuestionBank, isPending: isAdding } = useMutation({
     mutationFn: (payload: Omit<QuestionBankAdd, "QuestionBankID">) =>

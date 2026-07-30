@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Form,
   Input,
@@ -19,6 +19,7 @@ import { useAuthContext } from "@/app/context/AuthContext";
 import Image from "next/image";
 import HamroPatroCalendar from "../ui/NepaliPatro";
 import NepaliDateSelector from "../ui/NepaliPatro";
+import dayjs from "dayjs";
 
 const { Title, Text, Link } = Typography;
 
@@ -59,12 +60,6 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      {/* <NepaliDateSelector
-        onChange={({ ad, bs }) => {
-          console.log(ad.iso); // "2026-09-17"
-          console.log(bs.formatted); // "2083-06-01"
-        }}
-      /> */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
