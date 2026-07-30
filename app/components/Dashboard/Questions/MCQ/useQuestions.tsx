@@ -95,7 +95,7 @@ export const useMutationQuestions = () => {
       api.post("/question", payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
-      message.success("Question created successfully!");
+      // message.success("Question created successfully!");
     },
     onError: (err: any) => {
       const errMsg =
