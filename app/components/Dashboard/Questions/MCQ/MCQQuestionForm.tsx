@@ -53,7 +53,7 @@ import {
 import ImageUpload from "@/app/components/ui/UploadImage";
 import { useSearchParams } from "next/navigation";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 interface ImageValue {
@@ -236,16 +236,13 @@ const SortableQuestionCard: React.FC<SortableQuestionCardProps> = ({
 const MCQQuestionForm: React.FC = () => {
   const [form] = Form.useForm<QuestionFormValues>();
   const [editingId, setEditingId] = useState<string | null>(null); // question_id
-  const [editingOptionIds, setEditingOptionIds] = useState<{
-    optionA_id?: string;
-    optionB_id?: string;
-    optionC_id?: string;
-    optionD_id?: string;
-  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const search = useSearchParams();
   const bankIdFromUrl = search.get("bankId");
+  const [selectedBankId, setSelectedBankId] = useState<string | null>(
+    bankIdFromUrl,
+  );
 
   const { questionBanks, isLoading: isQuestionBankLoading } =
     useQueryQuestionBank();
@@ -258,30 +255,41 @@ const MCQQuestionForm: React.FC = () => {
     isDeleting,
   } = useMutationQuestions();
 
-  // Fetch questions for the selected bank
-  const { data: questionsResponse, isLoading: isQuestionsLoading } =
-    useQueryQuestions(bankIdFromUrl, {
-      page: 1,
-      limit: 50, // or keep 10 + pagination later
-      search: "",
-    });
+  // Fetch questions for the selected bank.
+  // `refetch` may or may not exist depending on how useQueryQuestions is
+  // implemented — we call it defensively with `?.()` everywhere below so
+  // this works whether or not the hook already invalidates its own cache.
+  const {
+    data: questionsResponse,
+    isLoading: isQuestionsLoading,
+    refetch: refetchQuestions,
+  } = useQueryQuestions(selectedBankId, {
+    page: 1,
+    limit: 50,
+    search: "",
+  });
 
-  // Real list from API
-  const questions: DBQuestion[] = questionsResponse?.data ?? [];
-
-  // Local ordered copy so drag-and-drop can reorder instantly,
-  // ahead of the server round-trip / refetch.
+  // Local ordered copy so drag-and-drop, add, edit, and delete can all
+  // update the screen instantly, ahead of / independent of any refetch.
   const [orderedQuestions, setOrderedQuestions] = useState<DBQuestion[]>([]);
 
-  useEffect(() => {
-    const sorted = [...questions].sort((a, b) => a.sort_order - b.sort_order);
-    setOrderedQuestions(sorted);
-  }, [questions]);
+  // Re-sync the local copy only when the query's data reference actually
+  // changes (a real fetch/refetch), not on every render.
+  const [syncedData, setSyncedData] = useState(questionsResponse?.data);
+  if (questionsResponse?.data !== syncedData) {
+    setSyncedData(questionsResponse?.data);
+    setOrderedQuestions(
+      [...(questionsResponse?.data ?? [])].sort(
+        (a, b) => a.sort_order - b.sort_order,
+      ),
+    );
+  }
 
   // Pre-select bank from URL
   useEffect(() => {
     if (bankIdFromUrl) {
       form.setFieldsValue({ question_bank_id: bankIdFromUrl });
+      setSelectedBankId(bankIdFromUrl);
     }
   }, [bankIdFromUrl, form]);
 
@@ -311,7 +319,6 @@ const MCQQuestionForm: React.FC = () => {
     const renumbered = reordered.map((q, idx) => ({ ...q, sort_order: idx }));
     setOrderedQuestions(renumbered);
 
-    // Persist only the questions whose sort_order actually changed
     try {
       const toPersist = renumbered.filter((q) => {
         const original = previousOrder.find(
@@ -325,6 +332,9 @@ const MCQQuestionForm: React.FC = () => {
           updateQuestion(buildPayloadFromQuestion(q, q.sort_order)),
         ),
       );
+
+      // Reconcile with the server in the background
+      refetchQuestions?.();
     } catch (error) {
       console.error("Reorder error:", error);
       message.error("Could not save the new order. Please try again.");
@@ -333,6 +343,7 @@ const MCQQuestionForm: React.FC = () => {
     }
   };
 
+  // ---------- Submit (create or update) ----------
   // ---------- Submit (create or update) ----------
   const handleSubmit = async (values: QuestionFormValues) => {
     setIsSubmitting(true);
@@ -353,13 +364,30 @@ const MCQQuestionForm: React.FC = () => {
             optionB: values.optionB,
             optionC: values.optionC,
             optionD: values.optionD,
-            correct_option: parseInt(values.correctAnswer, 10) + 1, // API is 1-based
+            correct_option: parseInt(values.correctAnswer, 10) + 1,
           },
           level: (values.difficulty || "medium").toUpperCase() as any,
           sort_order: values.sortOrder ?? 0,
         };
-        await updateQuestion(payload);
+
+        const response = await updateQuestion(payload);
+        // Axios responses come back as { data: ... }; some APIs additionally
+        // wrap the payload in another `data` key. Unwrap defensively.
+        const updated: DBQuestion | undefined =
+          (response as any)?.data?.data ?? (response as any)?.data;
+
+        setOrderedQuestions((prev) =>
+          prev.map((q) =>
+            q.question_id === values.question_id
+              ? updated
+                ? { ...q, ...updated }
+                : q // no usable shape back — leave as-is, refetch will fix it
+              : q,
+          ),
+        );
+
         setEditingId(null);
+        message.success("Question updated.");
       } else {
         const payload: CreateQuestionPayload = {
           question_bank_id: values.question_bank_id,
@@ -372,20 +400,40 @@ const MCQQuestionForm: React.FC = () => {
             optionB: values.optionB,
             optionC: values.optionC,
             optionD: values.optionD,
-            correct_option: parseInt(values.correctAnswer, 10) + 1, // API is 1-based
+            correct_option: parseInt(values.correctAnswer, 10) + 1,
           },
           level: (values.difficulty || "medium").toUpperCase() as any,
           sort_order: values.sortOrder ?? 0,
         };
-        await createQuestion(payload);
+
+        const response = await createQuestion(payload);
+        const created: DBQuestion | undefined =
+          (response as any)?.data?.data ?? (response as any)?.data;
+
+        if (created) {
+          setOrderedQuestions((prev) =>
+            [...prev, created].sort((a, b) => a.sort_order - b.sort_order),
+          );
+        }
+        message.success("Question added.");
       }
 
+      // Reconcile with the server regardless — this is what actually
+      // guarantees correctness if the unwrap shape above doesn't match
+      // your API's real response.
+      await refetchQuestions?.();
+
       form.resetFields();
-      if (bankIdFromUrl) {
-        form.setFieldsValue({ question_bank_id: bankIdFromUrl });
+      if (selectedBankId) {
+        form.setFieldsValue({ question_bank_id: selectedBankId });
       }
     } catch (error) {
       console.error("Submit error:", error);
+      message.error(
+        editingId
+          ? "Could not update the question. Please try again."
+          : "Could not add the question. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -393,10 +441,21 @@ const MCQQuestionForm: React.FC = () => {
 
   // ---------- Delete ----------
   const handleDelete = async (questionId: string) => {
+    const previous = orderedQuestions;
+
+    // Optimistic removal so the list responds instantly
+    setOrderedQuestions((prev) =>
+      prev.filter((q) => q.question_id !== questionId),
+    );
+
     try {
       await deleteQuestion(questionId);
+      message.success("Question deleted.");
+      await refetchQuestions?.();
     } catch (e) {
-      // error already handled in the mutation
+      console.error("Delete error:", e);
+      message.error("Could not delete the question. Please try again.");
+      setOrderedQuestions(previous); // roll back
     }
   };
 
@@ -407,13 +466,6 @@ const MCQQuestionForm: React.FC = () => {
     const sortedOpts = [...(q.options || [])].sort(
       (a, b) => a.sort_order - b.sort_order,
     );
-
-    setEditingOptionIds({
-      optionA_id: sortedOpts[0]?.option_id,
-      optionB_id: sortedOpts[1]?.option_id,
-      optionC_id: sortedOpts[2]?.option_id,
-      optionD_id: sortedOpts[3]?.option_id,
-    });
 
     const correctIndex = sortedOpts.findIndex((o) => o.is_correct);
 
@@ -439,8 +491,8 @@ const MCQQuestionForm: React.FC = () => {
   const handleCancelEdit = () => {
     setEditingId(null);
     form.resetFields();
-    if (bankIdFromUrl) {
-      form.setFieldsValue({ question_bank_id: bankIdFromUrl });
+    if (selectedBankId) {
+      form.setFieldsValue({ question_bank_id: selectedBankId });
     }
   };
 
@@ -458,8 +510,6 @@ const MCQQuestionForm: React.FC = () => {
 
   return (
     <div style={{ maxWidth: "100%", margin: "0 auto" }}>
-      {/* <Title level={2}>MCQ Question Management</Title> */}
-
       <Row gutter={[24, 24]}>
         {/* ========== LEFT: Form ========== */}
         <Col xs={24} lg={11}>
@@ -501,11 +551,11 @@ const MCQQuestionForm: React.FC = () => {
                   ]}
                 >
                   <Select
-                    showSearch={{
-                      optionFilterProp: "label",
-                    }}
+                    showSearch
+                    optionFilterProp="label"
                     placeholder="Search to Select"
                     loading={isQuestionBankLoading}
+                    onChange={(value: string) => setSelectedBankId(value)}
                     getPopupContainer={() => document.body}
                     options={questionBanks?.data?.map((b: QuestionBank) => ({
                       value: b["Question Bank Id"],
@@ -668,7 +718,7 @@ const MCQQuestionForm: React.FC = () => {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space orientation="horizontal">
+              <Space direction="horizontal">
                 <Text>Questions List</Text>
                 <Tag color="blue">{orderedQuestions.length} questions</Tag>
               </Space>
@@ -682,7 +732,7 @@ const MCQQuestionForm: React.FC = () => {
               </div>
             ) : orderedQuestions.length === 0 ? (
               <Alert
-                title="No questions yet"
+                message="No questions yet"
                 description="Add your first MCQ question on the left."
                 type="info"
                 showIcon
