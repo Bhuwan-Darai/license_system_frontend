@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { message } from "antd";
 import { CreateIshiharaPlatePayload } from "./IshiharaAddForm";
+import { IshiharaPlate } from "./IshiharaCardList";
 
 interface Ishihara {
   IshiharaID: string;
@@ -15,8 +16,7 @@ interface Ishihara {
 
 export const useMutationIshihara = () => {
   const queryClient = useQueryClient();
-  const [editingPlate, setEditingPlate] =
-    useState<Ishihara | null>(null);
+  const [editingPlate, setEditingPlate] = useState<IshiharaPlate | null>(null);
 
   const { mutateAsync: addPlate, isPending: isAdding } = useMutation({
     mutationFn: (payload: Omit<CreateIshiharaPlatePayload, "plate_id">) =>

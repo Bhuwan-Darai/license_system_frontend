@@ -11,15 +11,15 @@ type AddIshiharaPlatesProps = {
   initialData?: {
     id?: string;
     title?: string;
-    imageType?: string;
-    image?: string; // existing image URL/path
+    ishihara_category?: string;
+    image?: string;
   } | null;
   onSuccess?: () => void;
 };
 
 export interface IshiharaPlateFormValues {
   title: string;
-  description: string;
+  ishihara_category?: string;
   image?: ImageValue;
 }
 
@@ -27,7 +27,7 @@ export interface CreateIshiharaPlatePayload {
   plate_id?: string;
   title: string;
   ishihara_category?: string;
-  image_url?: string; // optional, only send if a new image is uploaded
+  image_url?: string;
 }
 
 type IshiharaCategory = {
@@ -67,7 +67,7 @@ export default function AddIshiharaPlates({
     if (editMode && initialData) {
       form.setFieldsValue({
         title: initialData.title || "",
-        ishihara_category: initialData.category_id || "",
+        ishihara_category: initialData.ishihara_category || "",
       });
 
       // Set existing image preview if available
