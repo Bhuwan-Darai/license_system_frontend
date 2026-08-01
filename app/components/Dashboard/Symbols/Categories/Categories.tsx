@@ -3,106 +3,57 @@ import { useState } from "react";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
-import { Button, Form, Input, Modal, Space, message } from "antd";
+import { Button, Form, Input, Modal, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/app/utils/axios";
+import { useSignalCategoryMutation } from "./useSignalCategoryMutation";
+import { useSignalCategoryQuery } from "./useSignalCategoryQuery";
 
 const { TextArea } = Input;
 
-interface BlogCategory {
+export interface SignalCategory {
   id: number | string;
-  BlogCategoryID: string;
+  TrafficSignalCategoryID: string;
   Title: string;
   Description: string;
-  Image?: string;
-  ImagePath?: string;
   CreatedAt: string;
   CreatedBy: string;
   UpdatedAt: string;
 }
 
-export default function BlogCategory() {
+export default function SignalCategory() {
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
-  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(
+  const [editingCategory, setEditingCategory] = useState<SignalCategory | null>(
     null,
   );
 
-  const queryClient = useQueryClient();
+  const {
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    isAdding,
+    isUpdating,
+    isDeleting,
+  } = useSignalCategoryMutation();
 
-  // Fetch Categories
-  const { data: categories = [], isLoading } = useQuery({
-    queryKey: ["symbol-categories"],
-    queryFn: async () => {
-      const res = await api.get("/symbol-category");
-      return res.data?.data || res.data || [];
-    },
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-  });
+  const { categories, isLoading } = useSignalCategoryQuery();
 
-  // Add Mutation
-  const { mutateAsync: addCategory, isPending: isAdding } = useMutation({
-    mutationFn: (payload: Omit<BlogCategory, "id">) =>
-      api.post("/blog-category", payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category added successfully!");
-      form.resetFields();
-      hideModal();
-    },
-    onError: () => {
-      message.error("Failed to add category");
-    },
-  });
-
-  // Update Mutation
-  const { mutateAsync: updateCategory, isPending: isUpdating } = useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string | number;
-      payload: Partial<BlogCategory>;
-    }) => api.put(`/blog-category/${id}`, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category updated successfully!");
-      form.resetFields();
-      hideModal();
-      setEditingCategory(null);
-    },
-    onError: () => {
-      message.error("Failed to update category");
-    },
-  });
-
-  // Delete Mutation
-  const { mutateAsync: deleteCategory, isPending: isDeleting } = useMutation({
-    mutationFn: (id: string | number) => api.delete(`/blog-category/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category deleted successfully");
-    },
-    onError: () => {
-      message.error("Failed to delete category");
-    },
-  });
-
-  const onFinish = async (values: Omit<BlogCategory, "id">) => {
+  const onFinish = async (
+    values: Omit<SignalCategory, "TrafficSignalCategoryID">,
+  ) => {
     if (editingCategory) {
       await updateCategory({
-        id: editingCategory.BlogCategoryID,
+        id: editingCategory.TrafficSignalCategoryID,
         payload: values,
       });
     } else {
       await addCategory(values);
     }
+    form.resetFields();
+    hideModal();
   };
 
-  const handleEdit = (record: BlogCategory) => {
+  const handleEdit = (record: SignalCategory) => {
     setEditingCategory(record);
     form.setFieldsValue({
       title: record.Title,
@@ -111,17 +62,17 @@ export default function BlogCategory() {
     showModal();
   };
 
-  const handleDelete = (BlogCategoryID: string) => {
+  const handleDelete = (TrafficSignalCategoryID: string) => {
     Modal.confirm({
       title: "Are you sure you want to delete this category?",
       content: "This action cannot be undone.",
       okText: "Yes, Delete",
       okType: "danger",
-      onOk: () => deleteCategory(BlogCategoryID),
+      onOk: () => deleteCategory(TrafficSignalCategoryID),
     });
   };
 
-  const columns: ColumnsType<BlogCategory> = [
+  const columns: ColumnsType<SignalCategory> = [
     {
       title: "Category",
       dataIndex: "Title",
@@ -153,7 +104,7 @@ export default function BlogCategory() {
             danger
             type="primary"
             loading={isDeleting}
-            onClick={() => handleDelete(record.BlogCategoryID)}
+            onClick={() => handleDelete(record.TrafficSignalCategoryID)}
           >
             Delete
           </Button>
@@ -181,7 +132,7 @@ export default function BlogCategory() {
             showModal();
           }}
         >
-          Add blog Category
+          Add Signal Category
         </Button>
       </div>
 
@@ -195,7 +146,7 @@ export default function BlogCategory() {
       <Modal
         title={
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            {editingCategory ? "Edit blog Category" : "Add blog Category"}
+            {editingCategory ? "Edit Signal Category" : "Add Signal Category"}
           </span>
         }
         open={open}
@@ -227,7 +178,7 @@ export default function BlogCategory() {
               },
             ]}
           >
-            <Input size="large" placeholder="Enter blog category" />
+            <Input size="large" placeholder="Enter signal category" />
           </Form.Item>
 
           <Form.Item
@@ -242,9 +193,7 @@ export default function BlogCategory() {
           >
             <TextArea
               rows={4}
-              showCount
-              maxLength={250}
-              placeholder="Enter category description"
+              placeholder="Enter signal category description"
             />
           </Form.Item>
 

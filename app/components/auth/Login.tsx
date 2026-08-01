@@ -17,9 +17,6 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/app/context/AuthContext";
 import Image from "next/image";
-import HamroPatroCalendar from "../ui/NepaliPatro";
-import NepaliDateSelector from "../ui/NepaliPatro";
-import dayjs from "dayjs";
 
 const { Title, Text, Link } = Typography;
 
@@ -31,7 +28,8 @@ interface LoginFormData {
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const { login, isLoading, isAuthenticated } = useAuthContext();
+  const { login, isLoading, isAuthenticated, isLoginLoading } =
+    useAuthContext();
   const [form] = Form.useForm();
 
   // Redirect if already authenticated
@@ -57,6 +55,8 @@ const Login: React.FC = () => {
     message.error("Please check your input fields.");
     console.log("Failed:", errorInfo);
   };
+
+  const loading = isLoading || isLoginLoading;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
@@ -164,11 +164,11 @@ const Login: React.FC = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={isLoading}
+                loading={loading}
                 block
                 className="h-12 rounded-xl bg-linear-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 text-base font-semibold"
               >
-                {isLoading ? "Signing In..." : "Sign In"}
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </Form.Item>
 

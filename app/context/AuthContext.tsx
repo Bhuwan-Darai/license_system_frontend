@@ -18,7 +18,10 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   refetchUser: () => void;
-  login: (credentials: LoginCredentials) => Promise<{ success: boolean; message: string }>;
+  login: (
+    credentials: LoginCredentials,
+  ) => Promise<{ success: boolean; message: string }>;
+  isLoginLoading: boolean;
   logout: () => void;
 }
 
@@ -29,7 +32,9 @@ interface LoginCredentials {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -92,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated,
         refetchUser: refetch,
         login: loginMutation.mutateAsync,
+        isLoginLoading: loginMutation.isPending,
         logout,
       }}
     >
