@@ -37,7 +37,7 @@ export const routes: Route[] = [
     children: [
       {
         key: "categories-blog",
-        label: "Blog VehicleCategories",
+        label: "Blog Category",
         path: "/dashboard/categories/blog",
         permission: "view_analytics",
         icon: <AreaChartOutlined />,
@@ -60,6 +60,13 @@ export const routes: Route[] = [
         key: "question-bank",
         label: "Question Bank",
         path: "/dashboard/categories/question-bank",
+        permission: "manage_analytics",
+        icon: <AreaChartOutlined />,
+      },
+      {
+        key: "traffic-signal-category",
+        label: "Traffic Signal Category",
+        path: "/dashboard/categories/traffic-signal-category",
         permission: "manage_analytics",
         icon: <AreaChartOutlined />,
       },

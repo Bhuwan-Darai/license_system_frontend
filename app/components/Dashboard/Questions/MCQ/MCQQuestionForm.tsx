@@ -718,7 +718,7 @@ const MCQQuestionForm: React.FC = () => {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space direction="horizontal">
+              <Space orientation="horizontal">
                 <Text>Questions List</Text>
                 <Tag color="blue">{orderedQuestions.length} questions</Tag>
               </Space>
@@ -732,7 +732,7 @@ const MCQQuestionForm: React.FC = () => {
               </div>
             ) : orderedQuestions.length === 0 ? (
               <Alert
-                message="No questions yet"
+                title="No questions yet"
                 description="Add your first MCQ question on the left."
                 type="info"
                 showIcon
