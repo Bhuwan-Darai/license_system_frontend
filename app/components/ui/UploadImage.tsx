@@ -9,7 +9,11 @@ import {
   PlusOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import { handleDelete, uploadAndGetUrl, UploadResult } from "@/app/utils/supabase";
+import {
+  handleDelete,
+  uploadAndGetUrl,
+  UploadResult,
+} from "@/app/utils/supabase";
 
 interface ImageValue {
   url: string;
@@ -31,7 +35,7 @@ export default function ImageUpload({
   height = 160,
   accept = ["image/jpeg", "image/png"],
 }: ImageUploadProps) {
-  console.log("value", value)
+  console.log("value", value);
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -97,7 +101,7 @@ export default function ImageUpload({
       setLoading(true);
 
       const res = await handleDelete(value?.path);
-      console.log("res", res)
+      console.log("res", res);
 
       onChange?.(undefined);
 
