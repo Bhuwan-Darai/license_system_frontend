@@ -7,6 +7,7 @@ import { Button, Form, Input, Modal, Space, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
+import { useQueryBlogCategoires } from "./useQueryBlogCategories";
 
 const { TextArea } = Input;
 
@@ -31,17 +32,7 @@ export default function BlogCategory() {
 
   const queryClient = useQueryClient();
 
-  // Fetch Categories
-  const { data: categories = [], isLoading } = useQuery({
-    queryKey: ["symbol-categories"],
-    queryFn: async () => {
-      const res = await api.get("/symbol-category");
-      return res.data?.data || res.data || [];
-    },
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-  });
+  const { categories, isLoading } = useQueryBlogCategoires();
 
   // Add Mutation
   const { mutateAsync: addCategory, isPending: isAdding } = useMutation({
