@@ -5,7 +5,7 @@ import CustomTable from "@/app/components/ui/CustomTable";
 
 import { Button, Form, Input, Modal, Space, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
 import { useQueryBlogCategoires } from "./useQueryBlogCategories";
 
@@ -32,7 +32,15 @@ export default function BlogCategory() {
 
   const queryClient = useQueryClient();
 
-  const { categories, isLoading } = useQueryBlogCategoires();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState("");
+
+  const { categories, pagination, isLoading } = useQueryBlogCategoires(
+    page,
+    pageSize,
+    search,
+  );
 
   // Add Mutation
   const { mutateAsync: addCategory, isPending: isAdding } = useMutation({
@@ -76,6 +84,11 @@ export default function BlogCategory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
       message.success("Category deleted successfully");
+      // Deleting the last row on a page beyond page 1 would otherwise leave
+      // the user stranded on a now-empty page.
+      if (categories.length === 1 && page > 1) {
+        setPage(page - 1);
+      }
     },
     onError: () => {
       message.error("Failed to delete category");
@@ -179,8 +192,19 @@ export default function BlogCategory() {
       <CustomTable
         columns={columns}
         dataSource={categories}
-        initialPageSize={10}
         loading={isLoading}
+        manualPagination
+        total={pagination?.total ?? 0}
+        currentPage={page}
+        initialPageSize={pageSize}
+        onPageChange={(nextPage, nextPageSize) => {
+          setPage(nextPage);
+          setPageSize(nextPageSize);
+        }}
+        onSearch={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
       />
 
       <Modal
