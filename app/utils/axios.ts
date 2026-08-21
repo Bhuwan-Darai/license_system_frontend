@@ -44,7 +44,7 @@ api.interceptors.response.use(
           message.error("Session expired. Please login again.");
         }
       } else if (status === 403) {
-        message.error(error.response.data?.message || "Access denied");
+        message.error(error.response.data?.message ?? "Access denied");
       } else if (status === 404) {
         message.error("Resource not found");
       } else if (status >= 500) {

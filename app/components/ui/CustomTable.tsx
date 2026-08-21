@@ -23,6 +23,14 @@ interface CustomTableProps<T> extends Omit<TableProps<T>, 'pagination' | 'column
   searchPlaceholder?: string;
   onSearch?: (value: string) => void;
   rowKey?: string | ((record: T) => React.Key);
+  // Server-side pagination: when true, `dataSource` is assumed to already be
+  // just the current page's rows (fetched from the server), so the table
+  // skips its own client-side search/slice and instead reports page changes
+  // via `onPageChange` and total-row-count via `total`.
+  manualPagination?: boolean;
+  total?: number;
+  currentPage?: number;
+  onPageChange?: (page: number, pageSize: number) => void;
 }
 
 // Generic fallback comparator used when a column doesn't define its own `sorter` function.
@@ -48,10 +56,14 @@ const CustomTable = <T extends object = any>({
   searchPlaceholder = 'Search...',
   onSearch,
   rowKey = 'key',
+  manualPagination = false,
+  total: manualTotal,
+  currentPage: controlledPage,
+  onPageChange,
   ...tableProps
 }: CustomTableProps<T>) => {
   const [searchText, setSearchText] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [internalPage, setInternalPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
   const [sortedInfo, setSortedInfo] = useState<any>({});
   const [visibleColumns, setVisibleColumns] = useState(
@@ -126,6 +138,10 @@ const CustomTable = <T extends object = any>({
   const filteredData = useMemo(() => {
     let result = [...(dataSource as T[])];
 
+    // In manual (server-side) pagination mode, `dataSource` is already just the
+    // current page's rows filtered/searched by the server, so skip local search.
+    if (manualPagination) return result;
+
     // Search filter
     if (searchText) {
       const lowerSearch = searchText.toLowerCase();
@@ -161,37 +177,52 @@ const CustomTable = <T extends object = any>({
     return result;
   }, [dataSource, searchText, sortedInfo, displayedColumns]);
 
-  // Reset to a valid page whenever the filtered result set shrinks (e.g. after search/sort)
-  const totalRecords = filteredData.length;
+  // Server-side mode: trust the caller's total/current page instead of deriving
+  // them from `dataSource`, since dataSource only ever holds the current page's rows.
+  const totalRecords = manualPagination ? (manualTotal ?? dataSource.length) : filteredData.length;
   const pageCount = Math.max(1, Math.ceil(totalRecords / pageSize));
-  const safePage = Math.min(currentPage, pageCount);
+  const safePage = manualPagination
+    ? (controlledPage ?? 1)
+    : Math.min(internalPage, pageCount);
 
   // Pagination data
   const paginatedData = useMemo(() => {
+    if (manualPagination) return filteredData;
     const start = (safePage - 1) * pageSize;
     return filteredData.slice(start, start + pageSize);
-  }, [filteredData, safePage, pageSize]);
+  }, [filteredData, safePage, pageSize, manualPagination]);
 
   const handleTableChange: TableProps<T>['onChange'] = (_pagination, _filters, sorter) => {
     const s = Array.isArray(sorter) ? sorter[0] : sorter;
     setSortedInfo(s || {});
-    if ((s as any)?.order !== sortedInfo.order || (s as any)?.columnKey !== sortedInfo.columnKey) {
-      setCurrentPage(1);
+    if (
+      !manualPagination &&
+      ((s as any)?.order !== sortedInfo.order || (s as any)?.columnKey !== sortedInfo.columnKey)
+    ) {
+      setInternalPage(1);
     }
   };
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    setCurrentPage(1); // Reset to first page on search
+    if (!manualPagination) setInternalPage(1); // Reset to first page on search
     onSearch?.(value);
   };
 
   const handlePaginationChange = (page: number, newPageSize?: number) => {
+    const nextPageSize = newPageSize && newPageSize !== pageSize ? newPageSize : pageSize;
+
+    if (manualPagination) {
+      if (nextPageSize !== pageSize) setPageSize(nextPageSize);
+      onPageChange?.(newPageSize && newPageSize !== pageSize ? 1 : page, nextPageSize);
+      return;
+    }
+
     if (newPageSize && newPageSize !== pageSize) {
       setPageSize(newPageSize);
-      setCurrentPage(1);
+      setInternalPage(1);
     } else {
-      setCurrentPage(page);
+      setInternalPage(page);
     }
   };
 
