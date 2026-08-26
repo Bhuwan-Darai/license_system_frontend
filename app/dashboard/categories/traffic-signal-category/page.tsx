@@ -1,11 +1,11 @@
 "use client";
 
-import Categories from "@/app/components/Dashboard/Blog/Categories/Categories";
+import TrafficSignalCategory from "@/app/components/Dashboard/TrafficSignal/TrafficSignalCategory";
 
 export default function Page() {
   return (
     <div>
-      <Categories/>
+      <TrafficSignalCategory/>
     </div>
   );
 }
