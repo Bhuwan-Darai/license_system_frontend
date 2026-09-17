@@ -5,15 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="dddd">
-      <change afterPath="$PROJECT_DIR$/app/components/Dashboard/Questions/Categories/VehicleCategories.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/dashboard/categories/ishihara/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/dashboard/categories/vehicle/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/dashboard/question/question-bank/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalFilters.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalFilters.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Symbols/TrafficSignalList.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/dashboard/mcq/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/dashboard/question/mcq/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/route.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/config/route.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/AuthGurad.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/AuthGurad.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="76" />
+    <option name="cachedIndexableFilesCount" value="112" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -44,62 +38,65 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000005477420593" />
-      <entry key="MS500" value="1.0559390669370574" />
-      <entry key="S2" value="1.4877678732897976" />
-      <entry key="S5" value="1.8517045648401005" />
-      <entry key="S10" value="2.563801872936164" />
-      <entry key="S30" value="5.794981327792877" />
-      <entry key="S60" value="9.045967794630341" />
-      <entry key="M2" value="13.071930617112304" />
-      <entry key="M5" value="18.679035227926697" />
-      <entry key="M10" value="24.174483601927268" />
-      <entry key="M15" value="30.09642514082618" />
-      <entry key="M30" value="48.39739730490708" />
-      <entry key="H1" value="73.12861593848754" />
-      <entry key="H2" value="95.52326956748489" />
-      <entry key="H4" value="111.1344420058658" />
-      <entry key="D1" value="127.33683616472548" />
-      <entry key="W1" value="130.46718918059105" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.000000032976191" />
+      <entry key="S2" value="1.013475784026307" />
+      <entry key="S5" value="1.1803643999762123" />
+      <entry key="S10" value="1.474622334426372" />
+      <entry key="S30" value="2.628032239721878" />
+      <entry key="S60" value="4.319019326475259" />
+      <entry key="M2" value="6.940980234730937" />
+      <entry key="M5" value="13.037755280883843" />
+      <entry key="M10" value="23.780352901210858" />
+      <entry key="M15" value="34.190304256386725" />
+      <entry key="M30" value="60.813136677478845" />
+      <entry key="H1" value="98.94108995522697" />
+      <entry key="H2" value="139.6277611047654" />
+      <entry key="H4" value="171.74801058174938" />
+      <entry key="D1" value="208.29463844213348" />
+      <entry key="W1" value="215.72380065806794" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="7.085913392999526E-98" />
-      <entry key="S2" value="5.3430597565032225E-25" />
-      <entry key="S5" value="2.6839126503325586E-10" />
-      <entry key="S10" value="2.6145462166868216E-5" />
-      <entry key="S30" value="0.06108810488897991" />
-      <entry key="S60" value="0.44750320522408366" />
-      <entry key="M2" value="1.3082692985629594" />
-      <entry key="M5" value="3.167140892045325" />
-      <entry key="M10" value="6.024906431421197" />
-      <entry key="M15" value="9.262375898881649" />
-      <entry key="M30" value="18.93378155453075" />
-      <entry key="H1" value="32.006438091265686" />
-      <entry key="H2" value="43.78062383015224" />
-      <entry key="H4" value="51.87627368088935" />
-      <entry key="D1" value="60.14939036505357" />
-      <entry key="W1" value="61.731294655575084" />
+      <entry key="MS100" value="2.849067875791711E-21" />
+      <entry key="MS500" value="7.779301401809466E-5" />
+      <entry key="S2" value="0.09556616979207483" />
+      <entry key="S5" value="0.4804844882420527" />
+      <entry key="S10" value="1.0806032167491284" />
+      <entry key="S30" value="3.111751387994358" />
+      <entry key="S60" value="4.935060780589382" />
+      <entry key="M2" value="6.538807664584373" />
+      <entry key="M5" value="8.314076626052776" />
+      <entry key="M10" value="11.802480382280216" />
+      <entry key="M15" value="15.984643202308366" />
+      <entry key="M30" value="27.821786742819423" />
+      <entry key="H1" value="45.90214895377021" />
+      <entry key="H2" value="65.80062861317319" />
+      <entry key="H4" value="81.65558562682222" />
+      <entry key="D1" value="99.7071635405629" />
+      <entry key="W1" value="103.37092614415752" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.6973722125165588" />
-      <entry key="MS500" value="0.9824260388552343" />
-      <entry key="S2" value="1.4610311681591361" />
-      <entry key="S5" value="1.8383099977629935" />
-      <entry key="S10" value="2.5545170427038246" />
-      <entry key="S30" value="5.846047003186196" />
-      <entry key="S60" value="9.477423361162595" />
-      <entry key="M2" value="14.360707052820684" />
-      <entry key="M5" value="21.82439084040116" />
-      <entry key="M10" value="30.17382531748288" />
-      <entry key="M15" value="39.3300955416882" />
-      <entry key="M30" value="67.30081862440193" />
-      <entry key="H1" value="105.11036049712216" />
-      <entry key="H2" value="139.28761879251542" />
-      <entry key="H4" value="163.0012903593053" />
-      <entry key="D1" value="187.48444273004364" />
-      <entry key="W1" value="192.1982232817582" />
+      <entry key="MS100" value="2.4110147456768107E-5" />
+      <entry key="MS500" value="0.11925087196474864" />
+      <entry key="S2" value="0.6408320860853678" />
+      <entry key="S5" value="1.2759998448605492" />
+      <entry key="S10" value="2.175530836305038" />
+      <entry key="S30" value="5.401755678329983" />
+      <entry key="S60" value="8.992879386532532" />
+      <entry key="M2" value="13.307304041405597" />
+      <entry key="M5" value="21.26027265127897" />
+      <entry key="M10" value="35.51008233580083" />
+      <entry key="M15" value="50.1053924809005" />
+      <entry key="M30" value="88.57313036897132" />
+      <entry key="H1" value="144.79482184479926" />
+      <entry key="H2" value="205.39569555120897" />
+      <entry key="H4" value="253.38410608948874" />
+      <entry key="D1" value="307.99798461416924" />
+      <entry key="W1" value="319.0941653602983" />
     </decayedShown>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2,
@@ -110,40 +107,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
-    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/bhuwan-personal/license-system/license_system_frontend/app/dashboard/categories/vehicle&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;D:\\bhuwan-personal\\license-system\\license_system_frontend\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "website",
+    "javascript.preferred.runtime.type.id": "node",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "D:/bhuwan-personal/license-system/license_system_frontend/public/img",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "D:\\bhuwan-personal\\license-system\\license_system_frontend\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\public\img" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\categories\vehicle" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\categories" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\Dashboard\Questions\Categories" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\public" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\LandingPage" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\(public)" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\question" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\Dashboard\Questions" />
     </key>
@@ -166,7 +169,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-WS-261.25134.101" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-WS-262.9437.145" />
       </set>
     </attachedChunks>
   </component>
@@ -182,6 +185,9 @@
       <workItem from="1782965534411" duration="963000" />
       <workItem from="1783046943980" duration="4742000" />
       <workItem from="1783072517197" duration="22000" />
+      <workItem from="1788493917992" duration="805000" />
+      <workItem from="1788748178914" duration="108000" />
+      <workItem from="1789638565304" duration="4165000" />
     </task>
     <task id="LOCAL-00001">
       <option name="closed" value="true" />
