@@ -4,3 +4,9 @@
   --background: #ffffff;
   /* --foreground: #171717; */
 }
+
+.contours {
+  background-image:
+          repeating-radial-gradient(circle at 12% 18%, rgba(178,34,52,0.05) 0px, rgba(178,34,52,0.05) 1px, transparent 1px, transparent 34px),
+          repeating-radial-gradient(circle at 88% 82%, rgba(139,20,38,0.04) 0px, rgba(139,20,38,0.04) 1px, transparent 1px, transparent 40px);
+}
