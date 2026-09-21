@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useI18n } from "@/app/context/LanguageContext";
 import ThemeToggle from "@/app/components/ui/ThemeToggle";
 import LanguageSwitcher from "@/app/components/ui/LanguageSwitcher";
+import {useRouter} from "next/navigation";
 
 const NAV_LINKS = [
     { href: "/home", key: "home" },
@@ -18,6 +19,11 @@ const NAV_LINKS = [
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { m } = useI18n();
+    const router = useRouter();
+
+    const handleLogin = () => {
+        router.push("/contact");
+    }
 
     return (
         <header className="bg-ly-panel w-full">
@@ -66,7 +72,7 @@ export default function Header() {
                             background: "#7A1F2B",
                             border: "none",
                         }}
-                        onClick={() => {}}
+                        onClick={() => {handleLogin()}}
                     >
                         {m.header.startJourney} <ChevronRight size={18} />
                     </Button>
@@ -120,7 +126,7 @@ export default function Header() {
                                 background: "#7A1F2B",
                                 border: "none",
                             }}
-                            onClick={() => {}}
+                            onClick={() => {handleLogin}}
                         >
                             {m.header.startJourney}
                         </Button>
