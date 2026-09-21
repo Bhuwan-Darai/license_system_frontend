@@ -5,21 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="dddd">
-      <change afterPath="$PROJECT_DIR$/app/(public)/pricing/layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(public)/pricing/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(public)/about/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(public)/about/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(public)/contact/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(public)/contact/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/AuthGurad.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/AuthGurad.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/LandingPage/About.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/About.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/LandingPage/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/Footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/LandingPage/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/Header.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/LandingPage/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/Hero.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/LandingPage/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/Home.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/LandingPage/Services.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/Services.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/LandingPage/ServicesCompled.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/ServicesCompled.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -207,7 +198,7 @@
       <workItem from="1789720994875" duration="7929000" />
       <workItem from="1789958256262" duration="4172000" />
       <workItem from="1789962466683" duration="613000" />
-      <workItem from="1789970498596" duration="4176000" />
+      <workItem from="1789970498596" duration="5235000" />
     </task>
     <task id="LOCAL-00001">
       <option name="closed" value="true" />
