@@ -1,12 +1,97 @@
 @import "tailwindcss";
 
+/* Dark mode is class-driven (html.dark) so the user's explicit choice wins over the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Likhit Yatra design tokens.
+  Light values are the original brand palette; .dark overrides them.
+*/
 :root {
-  --background: #ffffff;
-  /* --foreground: #171717; */
+  --background: #eee8dd;
+  --foreground: #131b2e;
+
+  --ly-bg: #eee8dd;          /* page background */
+  --ly-surface: #faf7f0;     /* alternating section background */
+  --ly-card: #ffffff;        /* cards and form panels */
+  --ly-ink: #131b2e;         /* primary text */
+  --ly-muted: #5c6b7a;       /* secondary text */
+  --ly-panel: #131b2e;       /* dark feature panels (header, stats, summaries) */
+  --ly-panel-ink: #eee8dd;   /* text on panels — same in both themes */
+  --ly-footer: #0a0e1a;
+  --ly-brand: #7a1f2b;       /* buttons / filled accents */
+  --ly-brand-hover: #641923;
+  --ly-brand-text: #7a1f2b;  /* brand colour used as text or thin borders */
+  --ly-gold: #8a6d3b;
+  --ly-gold-soft: #c9b98d;   /* gold on panels — same in both themes */
+
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0b1120;
+  --foreground: #ece6da;
+
+  --ly-bg: #0b1120;
+  --ly-surface: #0f1729;
+  --ly-card: #151f37;
+  --ly-ink: #ece6da;
+  --ly-muted: #9aa7b5;
+  --ly-panel: #182240;
+  --ly-footer: #060910;
+  --ly-brand: #8e2436;
+  --ly-brand-hover: #a32b40;
+  --ly-brand-text: #e58a97;
+  --ly-gold: #c9a45c;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ly-bg: var(--ly-bg);
+  --color-ly-surface: var(--ly-surface);
+  --color-ly-card: var(--ly-card);
+  --color-ly-ink: var(--ly-ink);
+  --color-ly-muted: var(--ly-muted);
+  --color-ly-panel: var(--ly-panel);
+  --color-ly-panel-ink: var(--ly-panel-ink);
+  --color-ly-footer: var(--ly-footer);
+  --color-ly-brand: var(--ly-brand);
+  --color-ly-brand-hover: var(--ly-brand-hover);
+  --color-ly-brand-text: var(--ly-brand-text);
+  --color-ly-gold: var(--ly-gold);
+  --color-ly-gold-soft: var(--ly-gold-soft);
+
+  --font-devanagari: var(--font-noto-devanagari), "Noto Sans Devanagari",
+    sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Nepali UI: make Devanagari the primary face, including the serif headings */
+html[lang="ne"] body,
+html[lang="ne"] .font-serif {
+  font-family: var(--font-noto-devanagari), "Noto Sans Devanagari", sans-serif;
+}
+
+/* Devanagari glyphs are taller — give headings a little more room */
+html[lang="ne"] h1,
+html[lang="ne"] h2,
+html[lang="ne"] h3 {
+  line-height: 1.3;
 }
 
 .contours {
   background-image:
           repeating-radial-gradient(circle at 12% 18%, rgba(178,34,52,0.05) 0px, rgba(178,34,52,0.05) 1px, transparent 1px, transparent 34px),
           repeating-radial-gradient(circle at 88% 82%, rgba(139,20,38,0.04) 0px, rgba(139,20,38,0.04) 1px, transparent 1px, transparent 40px);
+}
+
+/* Letter-spacing splits Devanagari conjuncts, so drop the tracking-* utilities in Nepali */
+html[lang="ne"] * {
+  letter-spacing: normal;
 }
