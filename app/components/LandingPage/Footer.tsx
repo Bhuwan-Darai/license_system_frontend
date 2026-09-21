@@ -1,5 +1,7 @@
-"use client"
+"use client";
+
 import React from "react";
+import { useI18n } from "@/app/context/LanguageContext";
 
 const LinkedInIcon = () => (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -26,148 +28,204 @@ const ProductHuntIcon = () => (
 );
 
 const ArrowRightIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-    </svg>
-);
-
-const CoframeLogo = () => (
-    <svg className="w-7 h-7" viewBox="0 0 28 28" fill="none">
-        <path d="M4 8L10 2L16 8L10 14L4 8Z" fill="#6B7280" />
-        <path d="M10 14L16 8L22 14L16 20L10 14Z" fill="white" />
+    <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+        />
     </svg>
 );
 
 export default function Footer() {
+    const { m } = useI18n();
+    const { footer } = m;
+
+    // Column layout stays here; labels come from the dictionaries
+    const columns = [footer.journey, footer.information, footer.company];
+
     return (
-        <footer className="bg-[#0a0e1a] text-white min-h-screen flex flex-col">
-            {/* Main Content */}
-            <div className="flex-1 px-8 md:px-16 lg:px-24 pt-16 pb-12">
-                <div className="flex flex-col lg:flex-row justify-between gap-12">
-                    {/* Left Column - Brand */}
-                    <div className="lg:w-1/3 max-w-sm">
-                        <div className="flex items-center gap-2 mb-6">
-                            <div className="bg-red-800 rounded-2xl w-14 h-14 flex items-center justify-center text-white">
-                                <span className="text-lg font-semibold">LY</span>
+        <footer className="bg-ly-footer text-white">
+
+            {/* Main Footer */}
+            <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pt-14 sm:pt-16 lg:pt-20 pb-10">
+
+                <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_2fr] gap-12 lg:gap-20">
+
+                    {/* Brand */}
+                    <div className="max-w-md">
+
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="bg-ly-brand rounded-xl sm:rounded-2xl w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+                                <span className="text-base sm:text-lg font-semibold">
+                                    LY
+                                </span>
                             </div>
 
-                            <p className="text-2xl font-bold tracking-tight">
-                                Likhit Yatra
+                            <p className="text-xl sm:text-2xl font-bold tracking-tight">
+                                {m.common.brand}
                             </p>
                         </div>
-                        <p className="text-gray-400 text-base leading-relaxed mb-8">
-                            Optimize and personalize your digital experiences, at scale.
+
+                        <p className="text-[#9CA3AF] text-sm sm:text-base leading-relaxed max-w-sm">
+                            {footer.tagline}
                         </p>
-                        <div className="flex items-center gap-5">
-                            <a href="#" className="text-white hover:text-gray-300 transition-colors">
+
+                        {/* Socials */}
+                        <div className="flex items-center gap-5 mt-7">
+                            <a
+                                href="#"
+                                aria-label="LinkedIn"
+                                className="text-[#9CA3AF] hover:text-white transition-colors"
+                            >
                                 <LinkedInIcon />
                             </a>
-                            <a href="#" className="text-white hover:text-gray-300 transition-colors">
+
+                            <a
+                                href="#"
+                                aria-label="X"
+                                className="text-[#9CA3AF] hover:text-white transition-colors"
+                            >
                                 <XIcon />
                             </a>
-                            <a href="#" className="text-white hover:text-gray-300 transition-colors">
+
+                            <a
+                                href="#"
+                                aria-label="GitHub"
+                                className="text-[#9CA3AF] hover:text-white transition-colors"
+                            >
                                 <GitHubIcon />
                             </a>
-                            <a href="#" className="text-white hover:text-gray-300 transition-colors">
+
+                            <a
+                                href="#"
+                                aria-label="Product Hunt"
+                                className="text-[#9CA3AF] hover:text-white transition-colors"
+                            >
                                 <ProductHuntIcon />
                             </a>
                         </div>
                     </div>
 
-                    {/* Right Columns - Links */}
-                    <div className="flex flex-col sm:flex-row gap-16 lg:gap-20">
-                        <div>
-                            <h4 className="text-white font-semibold text-sm mb-5">Product</h4>
-                            <ul className="space-y-4">
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Case Studies
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        AI Research
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-white font-semibold text-sm mb-5">Company</h4>
-                            <ul className="space-y-4">
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Careers
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Contact
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Terms of Use
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Privacy Policy
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-white font-semibold text-sm mb-5">Resources</h4>
-                            <ul className="space-y-4">
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Blog
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Docs
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Trust Center
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                                        Get Started
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                    {/* Links */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-10">
+
+                        {columns.map((column) => (
+                            <div key={column.title}>
+                                <h4 className="text-white font-semibold text-sm mb-5">
+                                    {column.title}
+                                </h4>
+
+                                <ul className="space-y-3.5">
+                                    {column.links.map((label) => (
+                                        <li key={label}>
+                                            <a
+                                                href="#"
+                                                className="text-[#9CA3AF] hover:text-white transition-colors text-sm"
+                                            >
+                                                {label}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Subscribe Section */}
-                <div className="mt-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                    <h3 className="text-white text-lg font-semibold leading-snug max-w-xs">
-                        Subscribe for personalized insights and news
-                    </h3>
-                    <div className="flex items-center gap-3 w-full md:w-auto">
-                        <input
-                            type="email"
-                            placeholder="Your email address"
-                            className="bg-transparent border border-gray-600 rounded-lg px-5 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors w-full md:w-72"
-                        />
-                        <button className="bg-gray-700 hover:bg-gray-600 text-white rounded-lg p-3 transition-colors flex-shrink-0">
-                            <ArrowRightIcon />
-                        </button>
+                {/* Subscribe */}
+                <div className="mt-14 sm:mt-16 lg:mt-20 pt-8 lg:pt-10 border-t border-white/10">
+
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+                        <div>
+                            <h3 className="text-white text-base sm:text-lg font-semibold">
+                                {footer.subscribeTitle}
+                            </h3>
+
+                            <p className="text-[#9CA3AF] text-sm mt-1">
+                                {footer.subscribeText}
+                            </p>
+                        </div>
+
+                        <div className="flex w-full md:w-auto gap-2">
+                            <input
+                                type="email"
+                                placeholder={footer.emailPlaceholder}
+                                className="
+                                    min-w-0
+                                    flex-1
+                                    md:w-72
+                                    bg-transparent
+                                    border
+                                    border-white/20
+                                    rounded-lg
+                                    px-4
+                                    py-3
+                                    text-sm
+                                    text-white
+                                    placeholder:text-[#6B7280]
+                                    focus:outline-none
+                                    focus:border-white/40
+                                    transition-colors
+                                "
+                            />
+
+                            <button
+                                type="button"
+                                aria-label={footer.subscribe}
+                                className="
+                                    shrink-0
+                                    bg-ly-brand
+                                    hover:bg-ly-brand-hover
+                                    text-white
+                                    rounded-lg
+                                    px-4
+                                    py-3
+                                    transition-colors
+                                "
+                            >
+                                <ArrowRightIcon />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Bottom Bar */}
-            <div className="px-8 md:px-16 lg:px-24 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-800/50">
-                <p className="text-gray-500 text-sm">© 2026 License Yatra.</p>
-                <p className="text-gray-500 text-sm">
-                    Made with <span className="text-red-500">❤</span> in Nepal.
-                </p>
+            <div className="border-t border-white/10">
+                <div
+                    className="
+                        max-w-7xl
+                        mx-auto
+                        px-5 sm:px-8 lg:px-12
+                        py-5 sm:py-6
+                        flex
+                        flex-col
+                        sm:flex-row
+                        justify-between
+                        items-center
+                        gap-3
+                        text-center
+                        sm:text-left
+                    "
+                >
+                    <p className="text-[#6B7280] text-xs sm:text-sm">
+                        {footer.rights}
+                    </p>
+
+                    <p className="text-[#6B7280] text-xs sm:text-sm">
+                        {footer.madeWith}{" "}
+                        <span className="text-ly-brand-text">♥</span>{" "}
+                        {footer.inNepal}
+                    </p>
+                </div>
             </div>
         </footer>
     );

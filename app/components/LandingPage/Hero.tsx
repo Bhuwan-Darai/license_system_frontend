@@ -1,57 +1,160 @@
-"use client"
+"use client";
 
 import Image from "next/image";
-import {useRouter} from "next/navigation";
-import {Button} from "antd";
+import { useRouter } from "next/navigation";
+import { useI18n } from "@/app/context/LanguageContext";
 
 export default function Hero() {
     const router = useRouter();
+    const { m, lang } = useI18n();
+
     const handleChange = () => {
         router.push("/login");
-    }
-  return (
-      <div className="mx-auto max-w-6xl px-6 md:px-8 mt-20 md:mt-28">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-              {/* Text column */}
-              <div>
-                  <p className="font-serif text-[2.75rem] md:text-5xl leading-[1.1] text-[#131B2E] font-medium">
-                      Your license, one clear trail from start to finish.
-                  </p>
+    };
 
-                  <p className="mt-6 text-[#5C6B7A] text-lg leading-relaxed max-w-md">
-                      Likhit Yatra turns the licensing office's paperwork into a route you
-                      can actually follow — register, practice the real written questions,
-                      and walk into your exam knowing exactly what's next.
-                  </p>
+    return (
+        <section className="min-h-[calc(100svh-80px)] flex items-center">
+            <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-20">
 
-                  {/* Dotted route connecting the two lines of copy — literal nod to "yatra" */}
-                  <div className="flex items-center gap-3 mt-6 mb-6 max-w-md">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#8A6D3B] shrink-0" />
-                      <span className="flex-1 border-t border-dotted border-[#8A6D3B]/50" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#7A1F2B] shrink-0" />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 xl:gap-24 items-center">
 
-                  <p className="font-devanagari text-lg text-[#131B2E]">
-                      तपाईंको लाइसेन्स यात्रा सुरु हुन्छ यहाँबाट — दर्ताबाट लाइसेन्स प्राप्तिसम्म।
-                  </p>
+                    {/* =========================
+                        Text Column
+                    ========================== */}
+                    <div className="flex flex-col items-start">
 
-                  <button onClick={handleChange} className="mt-8 inline-flex items-center gap-2 bg-red-800 rounded-2xl text-[#FAF7F0] px-6 py-3 text-lg border-0">
-                      Start Your Yatra
-                  </button>
-              </div>
+                        {/* Heading */}
+                        <h1
+                            className="
+                                font-serif
+                                text-[clamp(2.25rem,5vw,4.5rem)]
+                                leading-[1.05]
+                                tracking-tight
+                                text-ly-ink
+                                font-medium
+                            "
+                        >
+                            {m.hero.title}
+                        </h1>
 
-              {/* Image column */}
-              <div className="relative">
-                  <Image
-                      src="/license-card.png.jpg"
-                      loading="eager"
-                      width={520}
-                      height={340}
-                      alt="Sample Nepali driving license card"
-                      className="w-full h-auto rounded-sm shadow-[0_20px_40px_-15px_rgba(19,27,46,0.35)]"
-                  />
-              </div>
-          </div>
-      </div>
-  )
+                        {/* Description */}
+                        <p
+                            className="
+                                mt-5 sm:mt-6
+                                text-ly-muted
+                                text-base sm:text-lg
+                                leading-relaxed
+                                max-w-xl
+                            "
+                        >
+                            {m.hero.description}
+                        </p>
+
+                        {/* Yatra dotted route */}
+                        <div
+                            className="
+                                flex
+                                items-center
+                                gap-3
+                                mt-6
+                                mb-5
+                                w-full
+                                max-w-md
+                            "
+                            aria-hidden="true"
+                        >
+                            <span className="h-2 w-2 rounded-full bg-ly-gold shrink-0" />
+
+                            <span className="flex-1 border-t border-dotted border-ly-gold/50" />
+
+                            <span className="h-2 w-2 rounded-full bg-ly-brand shrink-0" />
+                        </div>
+
+                        {/* Second-language tagline: Nepali on the English site, English on the Nepali site */}
+                        <p
+                            lang={lang === "en" ? "ne" : "en"}
+                            className={`
+                                ${lang === "en" ? "font-devanagari" : ""}
+                                text-base sm:text-lg
+                                leading-relaxed
+                                text-ly-ink
+                                max-w-xl
+                            `}
+                        >
+                            {m.hero.tagline}
+                        </p>
+
+                        {/* CTA */}
+                        <button
+                            type="button"
+                            onClick={handleChange}
+                            className="
+                                mt-7 sm:mt-8
+                                inline-flex
+                                items-center
+                                justify-center
+                                gap-2
+                                bg-ly-brand
+                                hover:bg-ly-brand-hover
+                                text-[#FAF7F0]
+                                px-6 sm:px-7
+                                py-3 sm:py-3.5
+                                rounded-xl sm:rounded-2xl
+                                text-base sm:text-lg
+                                font-medium
+                                transition-all
+                                duration-200
+                                hover:-translate-y-0.5
+                                hover:shadow-lg
+                                active:translate-y-0
+                            "
+                        >
+                            {m.hero.cta}
+                        </button>
+                    </div>
+
+                    {/* =========================
+                        Image Column
+                    ========================== */}
+                    <div className="relative w-full flex justify-center md:justify-end">
+
+                        {/* Decorative background */}
+                        <div
+                            className="
+                                absolute
+                                -inset-4
+                                sm:-inset-6
+                                bg-ly-bg
+                                rounded-[2rem]
+                                rotate-2
+                                -z-10
+                            "
+                        />
+
+                        <Image
+                            src="/license-card.png.jpg"
+                            loading="eager"
+                            priority
+                            width={700}
+                            height={460}
+                            alt={m.hero.imageAlt}
+                            sizes="
+                                (max-width: 640px) 92vw,
+                                (max-width: 1024px) 45vw,
+                                600px
+                            "
+                            className="
+                                w-full
+                                max-w-[700px]
+                                h-auto
+                                rounded-xl
+                                shadow-[0_25px_60px_-20px_rgba(19,27,46,0.4)]
+                            "
+                        />
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    );
 }
