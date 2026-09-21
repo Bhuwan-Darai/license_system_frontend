@@ -10,7 +10,7 @@ export default function Hero() {
     const { m, lang } = useI18n();
 
     const handleChange = () => {
-        router.push("/login");
+        router.push("/contact");
     };
 
     return (
@@ -273,26 +273,27 @@ export default function Hero() {
                                 ease: "easeInOut",
                             }}
                         >
-                            <Image
-                                src="/license-card.png.jpg"
-                                loading="eager"
-                                priority
-                                width={700}
-                                height={460}
-                                alt={m.hero.imageAlt}
-                                sizes="
+                                    <Image
+                                        src="/license-card.png.jpg"
+                                        loading="eager"
+                                        priority
+                                        width={700}
+                                        height={460}
+                                        alt={m.hero.imageAlt}
+                                        sizes="
                                     (max-width: 640px) 92vw,
                                     (max-width: 1024px) 45vw,
                                     600px
                                 "
-                                className="
+                                        className="
+                                    brightness-100
                                     w-full
                                     max-w-[700px]
                                     h-auto
                                     rounded-xl
                                     shadow-[0_25px_60px_-20px_rgba(19,27,46,0.4)]
                                 "
-                            />
+                                    />
                         </motion.div>
                     </motion.div>
 
