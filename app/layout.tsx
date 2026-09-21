@@ -38,7 +38,13 @@ async function getLocale(): Promise<Locale> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = dictionaries[await getLocale()];
-  return { title: meta.title, description: meta.description };
+  return {
+    title: meta.title,
+    description: meta.description,
+    // Served from public/ — app/favicon.ico must not exist or it shadows this
+    icons: { icon: "/favicon.ico", shortcut: "/favicon.ico" },
+    manifest: "/manifest.json",
+  };
 }
 
 // axios.defaults.baseURL = "http://127.0.0.1:3000";
