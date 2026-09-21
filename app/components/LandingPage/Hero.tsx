@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import { useI18n } from "@/app/context/LanguageContext";
 
 export default function Hero() {
@@ -13,7 +14,7 @@ export default function Hero() {
     };
 
     return (
-        <section className="min-h-[calc(100svh-80px)] flex items-center">
+        <section className="min-h-[calc(100svh-80px)] flex items-center overflow-hidden">
             <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-20">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 xl:gap-24 items-center">
@@ -21,10 +22,18 @@ export default function Hero() {
                     {/* =========================
                         Text Column
                     ========================== */}
-                    <div className="flex flex-col items-start">
+                    <motion.div
+                        className="flex flex-col items-start"
+                        initial={{ opacity: 0, x: -40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                            duration: 0.8,
+                            ease: [0.22, 1, 0.36, 1],
+                        }}
+                    >
 
                         {/* Heading */}
-                        <h1
+                        <motion.h1
                             className="
                                 font-serif
                                 text-[clamp(2.25rem,5vw,4.5rem)]
@@ -33,12 +42,19 @@ export default function Hero() {
                                 text-ly-ink
                                 font-medium
                             "
+                            initial={{ opacity: 0, y: 25 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                                duration: 0.8,
+                                delay: 0.1,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
                         >
                             {m.hero.title}
-                        </h1>
+                        </motion.h1>
 
                         {/* Description */}
-                        <p
+                        <motion.p
                             className="
                                 mt-5 sm:mt-6
                                 text-ly-muted
@@ -46,11 +62,20 @@ export default function Hero() {
                                 leading-relaxed
                                 max-w-xl
                             "
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                                duration: 0.7,
+                                delay: 0.25,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
                         >
                             {m.hero.description}
-                        </p>
+                        </motion.p>
 
-                        {/* Yatra dotted route */}
+                        {/* =========================
+                            Yatra dotted route
+                        ========================== */}
                         <div
                             className="
                                 flex
@@ -63,15 +88,65 @@ export default function Hero() {
                             "
                             aria-hidden="true"
                         >
-                            <span className="h-2 w-2 rounded-full bg-ly-gold shrink-0" />
+                            {/* Start point */}
+                            <motion.span
+                                className="
+                                    h-2
+                                    w-2
+                                    rounded-full
+                                    bg-ly-gold
+                                    shrink-0
+                                "
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{
+                                    duration: 0.35,
+                                    delay: 0.7,
+                                    type: "spring",
+                                    stiffness: 300,
+                                }}
+                            />
 
-                            <span className="flex-1 border-t border-dotted border-ly-gold/50" />
+                            {/* Route */}
+                            <motion.span
+                                className="
+                                    flex-1
+                                    border-t
+                                    border-dotted
+                                    border-ly-gold/50
+                                    origin-left
+                                "
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: 1 }}
+                                transition={{
+                                    duration: 0.9,
+                                    delay: 0.8,
+                                    ease: [0.22, 1, 0.36, 1],
+                                }}
+                            />
 
-                            <span className="h-2 w-2 rounded-full bg-ly-brand shrink-0" />
+                            {/* Destination */}
+                            <motion.span
+                                className="
+                                    h-2
+                                    w-2
+                                    rounded-full
+                                    bg-ly-brand
+                                    shrink-0
+                                "
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{
+                                    duration: 0.35,
+                                    delay: 1.65,
+                                    type: "spring",
+                                    stiffness: 300,
+                                }}
+                            />
                         </div>
 
-                        {/* Second-language tagline: Nepali on the English site, English on the Nepali site */}
-                        <p
+                        {/* Second-language tagline */}
+                        <motion.p
                             lang={lang === "en" ? "ne" : "en"}
                             className={`
                                 ${lang === "en" ? "font-devanagari" : ""}
@@ -80,12 +155,19 @@ export default function Hero() {
                                 text-ly-ink
                                 max-w-xl
                             `}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                                duration: 0.6,
+                                delay: 1.75,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
                         >
                             {m.hero.tagline}
-                        </p>
+                        </motion.p>
 
                         {/* CTA */}
-                        <button
+                        <motion.button
                             type="button"
                             onClick={handleChange}
                             className="
@@ -108,50 +190,111 @@ export default function Hero() {
                                 hover:shadow-lg
                                 active:translate-y-0
                             "
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                                duration: 0.6,
+                                delay: 2,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
+                            whileHover={{
+                                y: -3,
+                            }}
+                            whileTap={{
+                                y: 0,
+                                scale: 0.98,
+                            }}
                         >
                             {m.hero.cta}
-                        </button>
-                    </div>
+                        </motion.button>
+                    </motion.div>
 
                     {/* =========================
                         Image Column
                     ========================== */}
-                    <div className="relative w-full flex justify-center md:justify-end">
+                    <motion.div
+                        className="
+                            relative
+                            w-full
+                            flex
+                            justify-center
+                            md:justify-end
+                        "
+                        initial={{
+                            opacity: 0,
+                            x: 50,
+                        }}
+                        animate={{
+                            opacity: 1,
+                            x: 0,
+                        }}
+                        transition={{
+                            duration: 1,
+                            delay: 0.3,
+                            ease: [0.22, 1, 0.36, 1],
+                        }}
+                    >
 
                         {/* Decorative background */}
-                        <div
+                        <motion.div
                             className="
                                 absolute
                                 -inset-4
                                 sm:-inset-6
                                 bg-ly-bg
                                 rounded-[2rem]
-                                rotate-2
                                 -z-10
                             "
+                            initial={{
+                                opacity: 0,
+                                rotate: 8,
+                                scale: 0.9,
+                            }}
+                            animate={{
+                                opacity: 1,
+                                rotate: 2,
+                                scale: 1,
+                            }}
+                            transition={{
+                                duration: 1,
+                                delay: 0.5,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
                         />
 
-                        <Image
-                            src="/license-card.png.jpg"
-                            loading="eager"
-                            priority
-                            width={700}
-                            height={460}
-                            alt={m.hero.imageAlt}
-                            sizes="
-                                (max-width: 640px) 92vw,
-                                (max-width: 1024px) 45vw,
-                                600px
-                            "
-                            className="
-                                w-full
-                                max-w-[700px]
-                                h-auto
-                                rounded-xl
-                                shadow-[0_25px_60px_-20px_rgba(19,27,46,0.4)]
-                            "
-                        />
-                    </div>
+                        {/* License card */}
+                        <motion.div
+                            animate={{
+                                y: [0, -8, 0],
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                            }}
+                        >
+                            <Image
+                                src="/license-card.png.jpg"
+                                loading="eager"
+                                priority
+                                width={700}
+                                height={460}
+                                alt={m.hero.imageAlt}
+                                sizes="
+                                    (max-width: 640px) 92vw,
+                                    (max-width: 1024px) 45vw,
+                                    600px
+                                "
+                                className="
+                                    w-full
+                                    max-w-[700px]
+                                    h-auto
+                                    rounded-xl
+                                    shadow-[0_25px_60px_-20px_rgba(19,27,46,0.4)]
+                                "
+                            />
+                        </motion.div>
+                    </motion.div>
 
                 </div>
             </div>

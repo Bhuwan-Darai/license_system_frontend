@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { useI18n } from "@/app/context/LanguageContext";
 
 export default function ServicesCompleted() {
@@ -11,24 +12,94 @@ export default function ServicesCompleted() {
             <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-12">
 
                 {/* Hero number */}
-                <div className="max-w-2xl">
+                <motion.div
+                    className="max-w-2xl"
+                    initial={{
+                        opacity: 0,
+                        y: 35,
+                    }}
+                    whileInView={{
+                        opacity: 1,
+                        y: 0,
+                    }}
+                    viewport={{
+                        amount: 0.3,
+                    }}
+                    transition={{
+                        duration: 0.7,
+                        ease: [0.22, 1, 0.36, 1],
+                    }}
+                >
                     <p className="text-ly-panel-ink/60 leading-relaxed">
                         {stats.intro}
                     </p>
 
-                    <p className="font-serif text-white text-6xl sm:text-7xl lg:text-8xl mt-4 leading-none">
+                    {/* Big number */}
+                    <motion.p
+                        className="
+                            font-serif
+                            text-white
+                            text-6xl
+                            sm:text-7xl
+                            lg:text-8xl
+                            mt-4
+                            leading-none
+                        "
+                        initial={{
+                            opacity: 0,
+                            scale: 0.85,
+                        }}
+                        whileInView={{
+                            opacity: 1,
+                            scale: 1,
+                        }}
+                        viewport={{
+                            amount: 0.5,
+                        }}
+                        transition={{
+                            duration: 0.8,
+                            delay: 0.15,
+                            ease: [0.22, 1, 0.36, 1],
+                        }}
+                    >
                         {n(stats.count)}
-                    </p>
+                    </motion.p>
 
                     <p className="text-ly-panel-ink/80 mt-3">
                         {stats.countLabel}
                     </p>
-                </div>
+                </motion.div>
 
                 {/* Supporting stats */}
-                <div className="mt-14 sm:mt-16 grid grid-cols-1 sm:grid-cols-3 border-t border-white/10">
+                <motion.div
+                    className="
+                        mt-14
+                        sm:mt-16
+                        grid
+                        grid-cols-1
+                        sm:grid-cols-3
+                        border-t
+                        border-white/10
+                    "
+                    initial={{
+                        opacity: 0,
+                        y: 25,
+                    }}
+                    whileInView={{
+                        opacity: 1,
+                        y: 0,
+                    }}
+                    viewport={{
+                        amount: 0.2,
+                    }}
+                    transition={{
+                        duration: 0.7,
+                        delay: 0.15,
+                        ease: [0.22, 1, 0.36, 1],
+                    }}
+                >
                     {stats.items.map((stat, index) => (
-                        <div
+                        <motion.div
                             key={stat.label}
                             className={`
                                 py-6 sm:py-8
@@ -37,21 +108,40 @@ export default function ServicesCompleted() {
                                 border-b sm:border-b-0 border-white/10
                                 ${index === 0 ? "sm:pl-0" : ""}
                             `}
+                            initial={{
+                                opacity: 0,
+                                y: 20,
+                            }}
+                            whileInView={{
+                                opacity: 1,
+                                y: 0,
+                            }}
+                            viewport={{
+                                amount: 0.4,
+                            }}
+                            transition={{
+                                duration: 0.5,
+                                delay: 0.25 + index * 0.12,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
                         >
                             <p className="font-serif text-white text-3xl sm:text-4xl">
                                 {n(stat.value)}
+
                                 {stat.unit && (
                                     <span className="text-ly-panel-ink/50 text-xl sm:text-2xl ml-1">
                                         {stat.unit}
                                     </span>
                                 )}
                             </p>
+
                             <p className="text-ly-panel-ink/60 text-sm mt-2">
                                 {stat.label}
                             </p>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
+
             </div>
         </section>
     );
