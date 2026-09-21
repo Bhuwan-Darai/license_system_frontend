@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="dddd">
+      <change afterPath="$PROJECT_DIR$/app/(public)/blog/layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(public)/blog/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/AuthGurad.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/AuthGurad.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/LandingPage/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/LandingPage/Header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/i18n/messages/en.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/i18n/messages/en.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/i18n/messages/ne.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/i18n/messages/ne.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/utils/axios.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/axios.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +20,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="124" />
+    <option name="cachedIndexableFilesCount" value="138" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,65 +43,65 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0000000000003728" />
-      <entry key="S5" value="1.0000106794731356" />
-      <entry key="S10" value="1.0032679463177523" />
-      <entry key="S30" value="1.1483969487290513" />
-      <entry key="S60" value="1.3852232453125644" />
-      <entry key="M2" value="1.6206640429681967" />
-      <entry key="M5" value="1.8308700987753999" />
-      <entry key="M10" value="2.024823193225213" />
-      <entry key="M15" value="2.410469888531116" />
-      <entry key="M30" value="5.513540380360717" />
-      <entry key="H1" value="21.2947864650366" />
-      <entry key="H2" value="76.28053469974991" />
-      <entry key="H4" value="180.62034199660582" />
-      <entry key="D1" value="419.4047333261559" />
-      <entry key="W1" value="489.97870267232116" />
+      <entry key="MS100" value="1.0000000131533135" />
+      <entry key="MS500" value="1.0282251494311787" />
+      <entry key="S2" value="1.6070376526047214" />
+      <entry key="S5" value="2.2774460496330855" />
+      <entry key="S10" value="2.8166649666096197" />
+      <entry key="S30" value="3.930523622476159" />
+      <entry key="S60" value="4.964434392267098" />
+      <entry key="M2" value="6.9446149561573005" />
+      <entry key="M5" value="11.00123401159308" />
+      <entry key="M10" value="13.844882394715805" />
+      <entry key="M15" value="15.312626325724263" />
+      <entry key="M30" value="19.307122465235512" />
+      <entry key="H1" value="34.68658874650057" />
+      <entry key="H2" value="88.33817718849365" />
+      <entry key="H4" value="192.1200923698263" />
+      <entry key="D1" value="433.68169368953346" />
+      <entry key="W1" value="505.6912935046113" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="0.0" />
-      <entry key="S5" value="0.0" />
-      <entry key="S10" value="2.480492641673279E-170" />
-      <entry key="S30" value="5.396672086657993E-57" />
-      <entry key="S60" value="1.5863921916652515E-28" />
-      <entry key="M2" value="3.3255963941797725E-14" />
-      <entry key="M5" value="1.5124516894751232E-5" />
-      <entry key="M10" value="0.012183203729768442" />
-      <entry key="M15" value="0.11666290604136183" />
-      <entry key="M30" value="1.3081107858509706" />
-      <entry key="H1" value="6.610197980526424" />
-      <entry key="H2" value="24.870648946389668" />
-      <entry key="H4" value="62.64437675287273" />
-      <entry key="D1" value="156.07915119902123" />
-      <entry key="W1" value="184.68739906962148" />
+      <entry key="MS500" value="1.0284572588285624E-188" />
+      <entry key="S2" value="1.0070396306352126E-47" />
+      <entry key="S5" value="1.5893466277679757E-19" />
+      <entry key="S10" value="3.986668564342748E-10" />
+      <entry key="S30" value="7.450802861312727E-4" />
+      <entry key="S60" value="0.030144680982189365" />
+      <entry key="M2" value="0.2196236333311103" />
+      <entry key="M5" value="0.7992999320009457" />
+      <entry key="M10" value="1.2636529031715484" />
+      <entry key="M15" value="1.5444623486322595" />
+      <entry key="M30" value="2.787734578210156" />
+      <entry key="H1" value="7.847158987298917" />
+      <entry key="H2" value="25.613580395853614" />
+      <entry key="H4" value="63.101100728984925" />
+      <entry key="D1" value="157.44155007216554" />
+      <entry key="W1" value="186.57960190944416" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9726549474122855" />
-      <entry key="MS500" value="0.9944701686732144" />
-      <entry key="S2" value="0.9986146661011336" />
-      <entry key="S5" value="0.9994520630749968" />
-      <entry key="S10" value="1.0022579527092716" />
-      <entry key="S30" value="1.1362620010070996" />
-      <entry key="S60" value="1.3692157800395932" />
-      <entry key="M2" value="1.6076466777556684" />
-      <entry key="M5" value="1.8238495737417526" />
-      <entry key="M10" value="2.0324143493140054" />
-      <entry key="M15" value="2.52267727015137" />
-      <entry key="M30" value="6.81508702176487" />
-      <entry key="H1" value="27.893142415546553" />
-      <entry key="H2" value="101.13181906674117" />
-      <entry key="H4" value="243.2427609105095" />
-      <entry key="D1" value="575.4756766413611" />
-      <entry key="W1" value="674.6647402069318" />
+      <entry key="MS100" value="1.6419714912459114E-8" />
+      <entry key="MS500" value="0.030360771968303977" />
+      <entry key="S2" value="0.7697574941865984" />
+      <entry key="S5" value="1.7490457833348145" />
+      <entry key="S10" value="2.490109267029599" />
+      <entry key="S30" value="3.790780682893834" />
+      <entry key="S60" value="4.910443948932974" />
+      <entry key="M2" value="7.105378938694195" />
+      <entry key="M5" value="11.76051200538522" />
+      <entry key="M10" value="15.081945582671565" />
+      <entry key="M15" value="16.836560494155332" />
+      <entry key="M30" value="22.07984078696532" />
+      <entry key="H1" value="42.51795834775089" />
+      <entry key="H2" value="113.93072673810086" />
+      <entry key="H4" value="255.1984538355998" />
+      <entry key="D1" value="591.114848656776" />
+      <entry key="W1" value="692.269503123624" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+    <option name="selectedTabId" value="AISelfReview" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2,
@@ -124,7 +128,7 @@
     "js.debugger.nextJs.config.created.client": "true",
     "js.debugger.nextJs.config.created.server": "true",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "D:/bhuwan-personal/license-system/license_system_frontend/public",
+    "last_opened_file_path": "D:/bhuwan-personal/license-system/license_system_frontend/app/(public)",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.jshint": "true",
     "node.js.detected.package.tslint": "true",
@@ -140,8 +144,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\public" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\(public)" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\public" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\(public)\about" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\public\img" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\categories\vehicle" />
@@ -196,7 +200,8 @@
       <workItem from="1789720994875" duration="7929000" />
       <workItem from="1789958256262" duration="4172000" />
       <workItem from="1789962466683" duration="613000" />
-      <workItem from="1789970498596" duration="12034000" />
+      <workItem from="1789970498596" duration="12571000" />
+      <workItem from="1789988531155" duration="696000" />
     </task>
     <task id="LOCAL-00001">
       <option name="closed" value="true" />

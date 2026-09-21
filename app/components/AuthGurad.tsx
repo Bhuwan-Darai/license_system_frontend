@@ -7,7 +7,7 @@ import { useAuthContext } from "@/app/context/AuthContext";
 import { Spin } from "antd";
 
 // Routes anyone can view, regardless of auth state — never redirected by this guard.
-const OPEN_ROUTES = ["/home", "/about", "/courses", "/contact", "/pricing"];
+const OPEN_ROUTES = ["/home", "/about", "/courses", "/contact", "/pricing","/blog"];
 // Routes only meaningful for signed-out users — redirected to /dashboard if already authenticated.
 const GUEST_ONLY_ROUTES = ["/login", "/register", "/forgot-password"];
 
