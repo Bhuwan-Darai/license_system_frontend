@@ -8,6 +8,7 @@ import {
   ShoppingCartOutlined,
   FileTextOutlined,
   SettingOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 
 export interface Route {
@@ -140,11 +141,32 @@ export const routes: Route[] = [
     permission: "view_orders",
   },
   {
+    key: "Exam",
+    label: "Exam",
+    icon: <ShoppingCartOutlined />,
+    path: "/dashboard/exam-manager",
+    permission: "view_orders",
+  },
+  {
     key: "reports",
     label: "Reports",
     icon: <FileTextOutlined />,
     path: "/dashboard/reports",
     permission: "view_reports",
+  },
+  {
+    key: "carousel",
+    label: "Carousel",
+    icon: <FileTextOutlined />,
+    path: "/dashboard/carousel-manager",
+    permission: "view_carousel",
+  },
+  {
+    key: "emergency-number",
+    label: "Emergency Number",
+    icon: <PhoneOutlined />,
+    path: "/dashboard/emergency-number",
+    permission: "view_emergency_number",
   },
   {
     key: "notification",
