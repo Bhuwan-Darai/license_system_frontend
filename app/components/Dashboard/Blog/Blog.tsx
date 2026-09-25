@@ -104,6 +104,7 @@ export default function BlogList() {
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
   const [viewingBlog, setViewingBlog] = useState<Blog | null>(null);
+  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
 
   const {
     addBlog,
@@ -112,8 +113,6 @@ export default function BlogList() {
     isAdding,
     isUpdating,
     isDeleting,
-    setEditingBlog,
-    editingBlog,
   } = useMutationBlog();
 
   const { blogs, isLoading, refetch } = useQueryBlog();
@@ -136,16 +135,14 @@ export default function BlogList() {
           id: editingBlog.blog_id,
           payload,
         });
-        message.success("Blog updated.");
       } else {
         await addBlog(payload);
-        message.success("Blog created.");
       }
 
       form.resetFields();
       setEditingBlog(null);
       hideModal();
-      refetch(); // Refresh the list
+     await refetch(); // Refresh the list
     } catch (error) {
       console.error("Failed to save blog:", error);
       message.error("Could not save the blog. Please try again.");
@@ -153,6 +150,7 @@ export default function BlogList() {
   };
 
   const handleEdit = (blog: Blog) => {
+    setEditingBlog(blog)
     form.setFieldsValue({
       title: blog.title,
       subtitle: blog.subtitle,
@@ -167,7 +165,7 @@ export default function BlogList() {
   const handleDelete = async (blog: Blog) => {
     try {
       await deleteBlog(blog.blog_id);
-      message.success("Blog deleted.");
+     await message.success("Blog deleted.");
       if (viewingBlog?.blog_id === blog.blog_id) {
         setViewingBlog(null);
       }
@@ -349,9 +347,9 @@ export default function BlogList() {
       ) : (
         <>
           <Row gutter={[24, 24]}>
-            {pagedBlogData.map((blog: Blog) => (
-              <Col xs={24} sm={12} md={8} key={blog.blog_id}>
-                <Card
+            {pagedBlogData.map((blog: Blog, index:number) => (
+              <Col xs={24} sm={12} md={8} key={index}>
+                <Card key={blog.blog_id}
                   hoverable
                   onClick={() => setViewingBlog(blog)}
                   style={{

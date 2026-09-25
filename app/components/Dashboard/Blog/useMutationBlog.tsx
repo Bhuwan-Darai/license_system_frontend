@@ -26,7 +26,7 @@ export interface BlogPayload {
 
 export const useMutationBlog = () => {
   const queryClient = useQueryClient();
-  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+
 
   const { mutateAsync: addBlog, isPending: isAdding } = useMutation({
     mutationFn: (payload: Omit<BlogPayload, "blog_id">) =>
@@ -48,23 +48,23 @@ export const useMutationBlog = () => {
       id: string;
       payload: Partial<BlogPayload>;
     }) => api.put(`/blogs/${id}`, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog"] });
-      message.success("Blog updated successfully!");
+    onSuccess: async () => {
+     await queryClient.invalidateQueries({ queryKey: ["blog"] });
+     await message.success("Blog updated successfully!");
     },
-    onError: () => {
-      message.error("Failed to update blog");
+    onError: async () => {
+      await message.error("Failed to update blog");
     },
   });
 
   const { mutateAsync: deleteBlog, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => api.delete(`/blogs/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog"] });
-      message.success("Blog deleted successfully!");
+    onSuccess: async () => {
+     await queryClient.invalidateQueries({ queryKey: ["blog"] });
+     await message.success("Blog deleted successfully!");
     },
-    onError: () => {
-      message.error("Failed to delete blog");
+    onError: async () => {
+     await message.error("Failed to delete blog");
     },
   });
 
@@ -74,8 +74,6 @@ export const useMutationBlog = () => {
     deleteBlog,
     isAdding,
     isUpdating,
-    isDeleting,
-    setEditingBlog,
-    editingBlog,
+    isDeleting
   };
 };

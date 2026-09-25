@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
         hostname: "www.google.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "aaitebbzendkkllhefpi.supabase.co",
+        port: "",
+        pathname: "/storage/v1/object/public/**",
+      },
     ],
   },
 };
