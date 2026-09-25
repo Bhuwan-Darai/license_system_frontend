@@ -23,6 +23,7 @@ const ne: Messages = {
     about: "हाम्रो बारेमा",
     pricing: "शुल्क",
     contact: "सम्पर्क",
+    blog: "ब्लग"
   },
 
   header: {

@@ -66,14 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     onSuccess: async (data) => {
       if (data.success) {
         await refetch();
-        message.success(data.message || "Login successful!");
+        await message.success(data.message || "Login successful!");
         router.push("/dashboard");
       } else {
-        message.error(data.message || "Login failed.");
+        await message.error(data.message || "Login failed.");
       }
     },
-    onError: (error: { response?: { data?: { message?: string } } }) => {
-      message.error(error.response?.data?.message || "Login failed");
+    onError: async (error: { response?: { data?: { message?: string } } }) => {
+      await message.error(error.response?.data?.message || "Login failed");
     },
   });
 

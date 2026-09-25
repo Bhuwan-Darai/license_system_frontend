@@ -51,7 +51,8 @@ api.interceptors.response.use(
         message.error("Server error. Please try again later.");
       }
     } else if (error.request) {
-      message.error("No response from server. Please check your connection.");
+      // message.error("No response from server. Please check your connection.");
+      console.log("No response returned");
     } else {
       message.error(error.message || "An error occurred");
     }

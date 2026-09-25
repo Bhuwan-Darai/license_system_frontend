@@ -12,12 +12,9 @@ interface Pagination {
 
 export const useQueryTrafficSignalCategories = (
   page: number = 1,
-  // Default to the backend's max page size so callers that just want "all
-  // categories" (e.g. a select dropdown) get them without paging through.
   pageSize: number = 100,
   search?: string,
 ) => {
-  // Fetch Categories (server-side pagination)
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["traffic-signal-categories", page, pageSize, search],
     queryFn: async () => {

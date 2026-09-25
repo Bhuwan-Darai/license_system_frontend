@@ -66,32 +66,32 @@ export default function BlogCategory() {
       id: string | number;
       payload: Partial<BlogCategory>;
     }) => api.put(`/blog-category/${id}`, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category updated successfully!");
+    onSuccess: async () => {
+     await queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
+    await  message.success("Category updated successfully!");
       form.resetFields();
       hideModal();
       setEditingCategory(null);
     },
-    onError: () => {
-      message.error("Failed to update category");
+    onError: async () => {
+     await message.error("Failed to update category");
     },
   });
 
   // Delete Mutation
   const { mutateAsync: deleteCategory, isPending: isDeleting } = useMutation({
     mutationFn: (id: string | number) => api.delete(`/blog-category/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-      message.success("Category deleted successfully");
+    onSuccess: async () => {
+     await queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
+     await message.success("Category deleted successfully");
       // Deleting the last row on a page beyond page 1 would otherwise leave
       // the user stranded on a now-empty page.
       if (categories.length === 1 && page > 1) {
         setPage(page - 1);
       }
     },
-    onError: () => {
-      message.error("Failed to delete category");
+    onError: async () => {
+     await message.error("Failed to delete category");
     },
   });
 

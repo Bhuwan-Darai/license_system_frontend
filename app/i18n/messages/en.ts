@@ -21,6 +21,7 @@ const en = {
     about: "About",
     pricing: "Pricing",
     contact: "Contact",
+    blog: "Blog",
   },
 
   header: {
