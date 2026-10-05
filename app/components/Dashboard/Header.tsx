@@ -1,4 +1,3 @@
-// components/dashboard/Header.tsx
 "use client";
 
 import React from "react";
@@ -10,10 +9,14 @@ import {
   LogoutOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
+  SunOutlined,
+  MoonOutlined,
 } from "@ant-design/icons";
+
 import { useRouter } from "next/navigation";
 import { User } from "@/app/hooks/usePermissions";
 import { useAuthContext } from "@/app/context/AuthContext";
+import { useTheme } from "@/app/context/ThemeContext";
 
 interface HeaderProps {
   user: User | null;
@@ -22,7 +25,8 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
   const router = useRouter();
-  const {logout}= useAuthContext();
+  const { logout } = useAuthContext();
+  const { setTheme, theme } = useTheme();
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   const toggleFullscreen = () => {
@@ -58,7 +62,6 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
       icon: <LogoutOutlined />,
       label: "Logout",
       onClick: async () => {
-        // Handle logout
         await logout();
       },
       danger: true,
@@ -83,24 +86,41 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
     },
   ];
 
+  const isThemeLight = theme === "light";
+  const headerBg = isThemeLight ? "#eee8dd" : "#131b2e";
+  const textColor = isThemeLight ? "#131b2e" : "#eee8dd";
+  const hoverColor = isThemeLight ? "#eee8dd" : "#131b2e";
+  const borderColor = isThemeLight ? "#d1d5db" : "#1e3a5f";
+
   return (
     <header
-      className={`h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 transition-all duration-300 ${
-        collapsed ? "ml-20" : "ml-64"
-      }`}
+      className={`h-16 border-b flex items-center justify-between px-6 transition-all duration-300 `}
+      style={{
+        backgroundColor: headerBg,
+        borderBottomColor: borderColor,
+        color: textColor,
+      }}
     >
       <div className="flex items-center gap-4">
-        <Breadcrumb items={[{ title: "Home" }, { title: "Dashboard" }]} />
+        <Breadcrumb
+          items={[{ title: "Home" }, { title: "Dashboard" }]}
+          style={{ color: textColor }}
+        />
       </div>
 
       <div className="flex items-center gap-4">
+        {isThemeLight ? (
+          <Button onClick={() => setTheme("dark")}><MoonOutlined />Dark</Button>
+        ) : (
+          <Button onClick={() => setTheme("light")}><SunOutlined />Light</Button>
+        )}
         <Button
           type="text"
           icon={
             isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />
           }
           onClick={toggleFullscreen}
-          className="text-gray-500 hover:text-gray-700"
+          style={{ color: textColor }}
         />
         <Dropdown
           menu={{ items: notificationItems }}
@@ -111,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
             <Button
               type="text"
               icon={<BellOutlined />}
-              className="text-gray-500 hover:text-gray-700"
+              style={{ color: textColor }}
             />
           </Badge>
         </Dropdown>
@@ -121,13 +141,19 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
           placement="bottomRight"
           trigger={["click"]}
         >
-          <Space className="cursor-pointer hover:bg-gray-50 px-3 py-1 rounded-lg transition-colors">
+          <Space
+            className="cursor-pointer px-3 py-1 rounded-lg transition-colors"
+            style={{ color: textColor }}
+          >
             <Avatar
               size="default"
               icon={<UserOutlined />}
               className="bg-gradient-to-r from-blue-500 to-purple-500"
             />
-            <span className="text-sm font-medium text-gray-700 hidden sm:inline">
+            <span
+              className="text-sm font-medium hidden sm:inline"
+              style={{ color: textColor }}
+            >
               {user?.name || "User"}
             </span>
           </Space>

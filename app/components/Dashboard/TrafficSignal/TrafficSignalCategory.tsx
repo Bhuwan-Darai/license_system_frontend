@@ -27,11 +27,17 @@ export interface TrafficSignalCategory {
 export default function TrafficSignalCategory() {
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
-    const [editingCategory, setEditingCategory] = useState<TrafficSignalCategory | null>(
-    null,
-  );
+  const [editingCategory, setEditingCategory] =
+    useState<TrafficSignalCategory | null>(null);
 
-  const { addCategory, updateCategory, deleteCategory, isAdding, isUpdating, isDeleting } = useMutationTrafficSignalCategory();
+  const {
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    isAdding,
+    isUpdating,
+    isDeleting,
+  } = useMutationTrafficSignalCategory();
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -43,11 +49,9 @@ export default function TrafficSignalCategory() {
     search,
   );
 
-  
-
   const onFinish = async (values: Omit<TrafficSignalCategory, "id">) => {
     if (editingCategory) {
-    const res =  await updateCategory({
+      const res = await updateCategory({
         id: editingCategory.TrafficSignalCategoryID,
         payload: values,
       });
@@ -55,9 +59,9 @@ export default function TrafficSignalCategory() {
       hideModal();
       setEditingCategory(null);
     } else {
-    const res =  await addCategory(values);
-    form.resetFields();
-    hideModal();
+      const res = await addCategory(values);
+      form.resetFields();
+      hideModal();
     }
   };
 
@@ -81,7 +85,7 @@ export default function TrafficSignalCategory() {
         if (categories.length === 1 && page > 1) {
           setPage(page - 1);
         }
-        },
+      },
     });
   };
 
@@ -170,7 +174,9 @@ export default function TrafficSignalCategory() {
       <Modal
         title={
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            {editingCategory ? "Edit traffic signal Category" : "Add traffic signal Category"}
+            {editingCategory
+              ? "Edit traffic signal Category"
+              : "Add traffic signal Category"}
           </span>
         }
         open={open}

@@ -5,9 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42885dfc-ec20-4561-a647-9de184d80e01" name="Changes" comment="dddd">
-      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Blog/Blog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Blog/Blog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Blog/Categories/Categories.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Blog/Categories/Categories.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Blog/useMutationBlog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Blog/useMutationBlog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/EmergencyNumber/EmergencyNumberManager.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/EmergencyNumber/EmergencyNumberManager.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/Sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/Sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/TrafficSignal/TrafficSignalCategory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/TrafficSignal/TrafficSignalCategory.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/Dashboard/TrafficSignal/useMutationTrafficSignlaCategory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/Dashboard/TrafficSignal/useMutationTrafficSignlaCategory.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/dashboard/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/dashboard/layout.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +21,10 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="147" />
+    <option name="cachedIndexableFilesCount" value="153" />
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -32,67 +41,70 @@
     &quot;accountId&quot;: &quot;25c19785-2651-48b7-80fa-0b2bd762987d&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/app/components/LandingPage/Hooks/useQuery.ts" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0002334456991333" />
-      <entry key="S2" value="1.1546633995991809" />
-      <entry key="S5" value="1.8673123486066563" />
-      <entry key="S10" value="2.7741737524851713" />
-      <entry key="S30" value="4.016031426502563" />
-      <entry key="S60" value="4.479065831388857" />
-      <entry key="M2" value="4.941693570986109" />
-      <entry key="M5" value="7.473788241633192" />
-      <entry key="M10" value="14.09376907855357" />
-      <entry key="M15" value="19.937674217706594" />
-      <entry key="M30" value="31.561443403029763" />
-      <entry key="H1" value="50.72536910410583" />
-      <entry key="H2" value="103.58118913891943" />
-      <entry key="H4" value="207.1671079624009" />
-      <entry key="D1" value="458.1904455296358" />
-      <entry key="W1" value="534.7775997150418" />
+      <entry key="MS100" value="1.119908014915658" />
+      <entry key="MS500" value="1.654289035727505" />
+      <entry key="S2" value="1.899378312147752" />
+      <entry key="S5" value="1.958466603853697" />
+      <entry key="S10" value="1.979229517880237" />
+      <entry key="S30" value="2.101007180906555" />
+      <entry key="S60" value="3.0056472071089315" />
+      <entry key="M2" value="5.8211998043975" />
+      <entry key="M5" value="12.610356440639029" />
+      <entry key="M10" value="21.618907871391176" />
+      <entry key="M15" value="29.60332847356208" />
+      <entry key="M30" value="50.50982906139902" />
+      <entry key="H1" value="89.86641542559842" />
+      <entry key="H2" value="162.8380259237958" />
+      <entry key="H4" value="288.29167246958315" />
+      <entry key="D1" value="659.6645304813217" />
+      <entry key="W1" value="794.0290298816263" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="3.705236433753E-312" />
-      <entry key="S2" value="1.387407319807619E-78" />
-      <entry key="S5" value="7.192528519042935E-32" />
-      <entry key="S10" value="2.6818889833553754E-16" />
-      <entry key="S30" value="6.44882015508588E-6" />
-      <entry key="S60" value="0.002539482400394743" />
-      <entry key="M2" value="0.050597311533682014" />
-      <entry key="M5" value="0.35769302321192614" />
-      <entry key="M10" value="0.9452327457971301" />
-      <entry key="M15" value="1.465611218933044" />
-      <entry key="M30" value="2.933936902173153" />
-      <entry key="H1" value="7.5125790259049285" />
-      <entry key="H2" value="23.94823249825995" />
-      <entry key="H4" value="60.56091214025134" />
-      <entry key="D1" value="157.5199204597566" />
-      <entry key="W1" value="188.25300808173944" />
+      <entry key="MS100" value="6.889080051327956E-246" />
+      <entry key="MS500" value="9.282283218357503E-50" />
+      <entry key="S2" value="5.9886343585698E-13" />
+      <entry key="S5" value="1.744336457419061E-5" />
+      <entry key="S10" value="0.00634363537576741" />
+      <entry key="S30" value="0.4210139583374265" />
+      <entry key="S60" value="1.446649349919705" />
+      <entry key="M2" value="3.1887641520542553" />
+      <entry key="M5" value="6.0268671040318855" />
+      <entry key="M10" value="8.474231799577257" />
+      <entry key="M15" value="10.349627547532117" />
+      <entry key="M30" value="15.32373255531656" />
+      <entry key="H1" value="25.068393662526006" />
+      <entry key="H2" value="43.73014124970466" />
+      <entry key="H4" value="80.4146896152163" />
+      <entry key="D1" value="207.9677880246319" />
+      <entry key="W1" value="257.3381136918109" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.0011140270662777572" />
-      <entry key="MS500" value="0.2566743755555865" />
-      <entry key="S2" value="0.7681135961583275" />
-      <entry key="S5" value="1.4901303929171121" />
-      <entry key="S10" value="2.4479988371305357" />
-      <entry key="S30" value="3.8444637767522214" />
-      <entry key="S60" value="4.384053726271863" />
-      <entry key="M2" value="4.937777857992556" />
-      <entry key="M5" value="7.798208476967456" />
-      <entry key="M10" value="15.008004097066246" />
-      <entry key="M15" value="21.37403752583432" />
-      <entry key="M30" value="34.47131586229497" />
-      <entry key="H1" value="58.21678319196967" />
-      <entry key="H2" value="127.50610095115418" />
-      <entry key="H4" value="267.70418198349756" />
-      <entry key="D1" value="615.7016037098391" />
-      <entry key="W1" value="723.0291504873164" />
+      <entry key="MS100" value="0.6062013978968999" />
+      <entry key="MS500" value="1.3113369182091934" />
+      <entry key="S2" value="1.7745793126368719" />
+      <entry key="S5" value="1.9043871598562012" />
+      <entry key="S10" value="1.9567194310884375" />
+      <entry key="S30" value="2.488235444221995" />
+      <entry key="S60" value="4.40075164974003" />
+      <entry key="M2" value="8.945929667183448" />
+      <entry key="M5" value="18.576656939313906" />
+      <entry key="M10" value="30.042699574215977" />
+      <entry key="M15" value="39.90846497524312" />
+      <entry key="M30" value="65.7969092831341" />
+      <entry key="H1" value="114.9011806452344" />
+      <entry key="H2" value="206.53564584731814" />
+      <entry key="H4" value="368.6758993758455" />
+      <entry key="D1" value="867.6201816082463" />
+      <entry key="W1" value="1051.3650470886241" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -131,7 +143,8 @@
     &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;D:\\bhuwan-personal\\license-system\\license_system_frontend\\node_modules\\prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;ts.external.directory.path&quot;: &quot;D:\\bhuwan-personal\\license-system\\license_system_frontend\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -146,11 +159,11 @@
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\categories\vehicle" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\(public)\blog\[id]" />
+      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\LandingPage\Hooks" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\public" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\LandingPage" />
       <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\(public)" />
-      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\dashboard\question" />
-      <recent name="D:\bhuwan-personal\license-system\license_system_frontend\app\components\Dashboard\Questions" />
     </key>
   </component>
   <component name="RunManager" selected="npm.Next.js: server-side">
@@ -199,6 +212,11 @@
       <workItem from="1789988531155" duration="930000" />
       <workItem from="1790043789399" duration="151000" />
       <workItem from="1790305196178" duration="3667000" />
+      <workItem from="1790317978864" duration="11478000" />
+      <workItem from="1790579257247" duration="40000" />
+      <workItem from="1790786854706" duration="3032000" />
+      <workItem from="1790864128258" duration="7498000" />
+      <workItem from="1790910539474" duration="5198000" />
     </task>
     <task id="LOCAL-00001">
       <option name="closed" value="true" />

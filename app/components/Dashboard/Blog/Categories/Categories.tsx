@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
@@ -35,11 +35,21 @@ export default function BlogCategory() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // debounce Search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1); // reset to first page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const { categories, pagination, isLoading } = useQueryBlogCategoires(
     page,
     pageSize,
-    search,
+    debouncedSearch,
   );
 
   // Add Mutation
@@ -67,14 +77,14 @@ export default function BlogCategory() {
       payload: Partial<BlogCategory>;
     }) => api.put(`/blog-category/${id}`, payload),
     onSuccess: async () => {
-     await queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-    await  message.success("Category updated successfully!");
+      await queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
+      await message.success("Category updated successfully!");
       form.resetFields();
       hideModal();
       setEditingCategory(null);
     },
     onError: async () => {
-     await message.error("Failed to update category");
+      await message.error("Failed to update category");
     },
   });
 
@@ -82,8 +92,8 @@ export default function BlogCategory() {
   const { mutateAsync: deleteCategory, isPending: isDeleting } = useMutation({
     mutationFn: (id: string | number) => api.delete(`/blog-category/${id}`),
     onSuccess: async () => {
-     await queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-     await message.success("Category deleted successfully");
+      await queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
+      await message.success("Category deleted successfully");
       // Deleting the last row on a page beyond page 1 would otherwise leave
       // the user stranded on a now-empty page.
       if (categories.length === 1 && page > 1) {
@@ -91,7 +101,7 @@ export default function BlogCategory() {
       }
     },
     onError: async () => {
-     await message.error("Failed to delete category");
+      await message.error("Failed to delete category");
     },
   });
 
@@ -126,6 +136,10 @@ export default function BlogCategory() {
   };
 
   const columns: ColumnsType<BlogCategory> = [
+    {
+      title: "S.N",
+      render: (value, record, index) => (page - 1) * pageSize + index + 1,
+    },
     {
       title: "Category",
       dataIndex: "Title",
@@ -168,6 +182,10 @@ export default function BlogCategory() {
 
   const isSubmitting = isAdding || isUpdating;
 
+  const handleSearch = (value: string) => {
+    setSearch(value);
+  };
+
   return (
     <div>
       <div
@@ -201,10 +219,7 @@ export default function BlogCategory() {
           setPage(nextPage);
           setPageSize(nextPageSize);
         }}
-        onSearch={(value) => {
-          setSearch(value);
-          setPage(1);
-        }}
+        onSearch={handleSearch}
       />
 
       <Modal

@@ -1,4 +1,3 @@
-// components/dashboard/Sidebar.tsx
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -12,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import { usePermissions, User } from "@/app/hooks/usePermissions";
 import { routes } from "@/config/route";
+import { useTheme } from "@/app/context/ThemeContext";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -24,6 +24,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { theme } = useTheme();
   const { filterRoutes, can } = usePermissions(user);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredRoutes, setFilteredRoutes] = useState(routes);
@@ -43,55 +44,62 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
     setFilteredRoutes(filtered);
   }, [user]);
 
-  // Recursively find the selected menu item + its parent chain based on pathname.
-  // Handles exact matches and nested/dynamic routes (prefix match).
   const findSelectedPath = (
     items: any[],
     currentPath: string,
-    parents: string[] = []
+    parents: string[] = [],
   ): { key: string; parentKeys: string[] } | null => {
-    let bestMatch: { key: string; parentKeys: string[]; matchLength: number } | null = null;
+    let bestMatch: {
+      key: string;
+      parentKeys: string[];
+      matchLength: number;
+    } | null = null;
 
     for (const item of items) {
-      // Check children first so the deepest/most specific match wins
       if (item.children && item.children.length > 0) {
-        const childResult = findSelectedPath(item.children, currentPath, [...parents, item.key]);
+        const childResult = findSelectedPath(item.children, currentPath, [
+          ...parents,
+          item.key,
+        ]);
         if (childResult) return childResult;
       }
 
       if (item.path) {
-        // Exact match: return immediately, nothing beats this
         if (item.path === currentPath) {
           return { key: item.key, parentKeys: parents };
         }
-        // Prefix match, e.g. item.path = "/users" matches "/users/123"
         if (
           currentPath.startsWith(`${item.path}/`) &&
           (!bestMatch || item.path.length > bestMatch.matchLength)
         ) {
-          bestMatch = { key: item.key, parentKeys: parents, matchLength: item.path.length };
+          bestMatch = {
+            key: item.key,
+            parentKeys: parents,
+            matchLength: item.path.length,
+          };
         }
       }
     }
 
-    return bestMatch ? { key: bestMatch.key, parentKeys: bestMatch.parentKeys } : null;
+    return bestMatch
+      ? { key: bestMatch.key, parentKeys: bestMatch.parentKeys }
+      : null;
   };
 
-  // Update selected keys + auto-expand parents based on pathname
   useEffect(() => {
     if (!pathname) return;
 
     const match = findSelectedPath(filteredRoutes, pathname);
     if (match) {
       setSelectedKeys([match.key]);
-      setOpenKeys((prev) => Array.from(new Set([...prev, ...match.parentKeys])));
+      setOpenKeys((prev) =>
+        Array.from(new Set([...prev, ...match.parentKeys])),
+      );
     } else {
-      // Fallback: no route matched, select pathname as-is (previous behavior)
       setSelectedKeys([pathname]);
     }
   }, [pathname, filteredRoutes]);
 
-  // Build menu items from routes
   const buildMenuItems = (items: any[]): MenuItem[] => {
     return items
       .map((item) => {
@@ -99,7 +107,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
           return null;
         }
 
-        // If item has children, recursively build them
         if (item.children && item.children.length > 0) {
           const children = buildMenuItems(item.children);
           if (children.length === 0) return null;
@@ -109,11 +116,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
             icon: item.icon,
             label: item.label,
             children: children,
-            // Remove onTitleClick for parent items with children
           } as MenuItem;
         }
 
-        // Leaf node: redirect on click
         return {
           key: item.key,
           icon: item.icon,
@@ -128,7 +133,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
       .filter((item): item is MenuItem => item !== null);
   };
 
-  // Filter menu items based on search
   const filterMenuItemsBySearch = (items: any[], search: string): any[] => {
     if (!search) return items;
 
@@ -168,8 +172,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
       });
       setOpenKeys((prev) => Array.from(new Set([...prev, ...searchKeys])));
     }
-    // Note: no more `else { setOpenKeys([]) }` — clearing search shouldn't
-    // collapse the submenu containing the currently active route.
 
     return buildMenuItems(items);
   }, [filteredRoutes, searchTerm, can]);
@@ -182,43 +184,85 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
     setOpenKeys(keys);
   };
 
+  const isThemeLight = theme === "light";
+
+  // Theme tokens
+  const sidebarBg = isThemeLight ? "#eee8dd" : "#131b2e";
+  const borderColor = isThemeLight ? "#d1d5db" : "#1e3a5f";
+  const textPrimary = isThemeLight ? "#1f2937" : "#e5e7eb";
+  const textSecondary = isThemeLight ? "#6b7280" : "#9ca3af";
+  const hoverBg = isThemeLight ? "#e0d9cb" : "#1c2740";
+  const activeBg = isThemeLight ? "#d6cfc0" : "#1e3a5f";
+  const inputBg = isThemeLight ? "#ffffff" : "#0f1a2e";
+  const inputBorder = isThemeLight ? "#d1d5db" : "#1e3a5f";
+  const inputText = isThemeLight ? "#1f2937" : "#e5e7eb";
+
   return (
     <div
-      className={`h-screen flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${collapsed ? "w-20" : "w-64"
-        }`}
+      className={`h-screen flex flex-col border-r transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
+      style={{
+        backgroundColor: sidebarBg,
+        borderRightColor: borderColor,
+      }}
     >
-      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 flex-shrink-0">
+      {/* Header / Logo */}
+      <div
+        className="flex items-center justify-between h-16 px-4 border-b flex-shrink-0"
+        style={{ borderBottomColor: borderColor }}
+      >
         {!collapsed && (
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-lg">D</span>
             </div>
-            <span className="text-lg font-bold text-gray-800 whitespace-nowrap">
+            <span
+              className="text-lg font-bold whitespace-nowrap"
+              style={{ color: textPrimary }}
+            >
               Dashboard
             </span>
           </div>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+          className="p-2 rounded-lg transition-colors flex-shrink-0"
+          style={{ color: textPrimary }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = hoverBg;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
         >
           {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </button>
       </div>
 
+      {/* Search */}
       {!collapsed && (
-        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <div
+          className="p-4 border-b flex-shrink-0"
+          style={{ borderBottomColor: borderColor }}
+        >
           <Input
             placeholder="Search menu..."
-            prefix={<SearchOutlined className="text-gray-400" />}
+            prefix={<SearchOutlined style={{ color: textSecondary }} />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="rounded-lg"
+            style={{
+              backgroundColor: inputBg,
+              borderColor: inputBorder,
+              color: inputText,
+            }}
             allowClear
           />
         </div>
       )}
 
+      {/* Menu */}
       <div className="flex-1 overflow-y-auto py-4">
         <Menu
           mode="inline"
@@ -229,20 +273,35 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
           inlineCollapsed={collapsed}
           items={menuItems}
           className="border-r-0"
+          style={{
+            backgroundColor: "transparent",
+            color: textPrimary,
+          }}
+          theme={isThemeLight ? "light" : "dark"}
         />
       </div>
 
+      {/* User footer */}
       {!collapsed && (
-        <div className="p-4 border-t border-gray-200 flex-shrink-0">
+        <div
+          className="p-4 border-t flex-shrink-0"
+          style={{ borderTopColor: borderColor }}
+        >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
               {user?.name?.charAt(0) || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-700 truncate">
+              <p
+                className="text-sm font-medium truncate"
+                style={{ color: textPrimary }}
+              >
                 {user?.name || "User"}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p
+                className="text-xs truncate"
+                style={{ color: textSecondary }}
+              >
                 {user?.role || "Guest"}
               </p>
             </div>

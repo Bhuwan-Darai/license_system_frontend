@@ -10,6 +10,7 @@ import LoadingSkeleton from "../components/ui/LoadingSkeleton";
 import Header from "../components/Dashboard/Header";
 import Footer from "../components/Dashboard/Footer";
 import { ProtectedRoute } from "../components/Route/ProtectedRoute";
+import { useTheme } from "../context/ThemeContext";
 
 // Mock user data for demo
 const mockUser: User = {
@@ -29,6 +30,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user] = useState<User | null>(mockUser);
   const pathname = usePathname();
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Simulate loading
@@ -49,6 +51,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }
     return "dashboard";
   };
+
+  const isThemeLight = theme === "light" ? true : false;
+
+  const background = isThemeLight ? "#eee8dd" : "#131b2e";
+  const textPrimary = isThemeLight ? "#131b2e" : "#eee8dd";
+  const textSecondary = isThemeLight ? "#6b7280" : "#9ca3af";
+  const hoverBg = isThemeLight ? "#e0d9cb" : "#1c2740";
 
   if (loading) {
     return (
@@ -73,7 +82,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} user={user} />
       <div className="flex-1 flex flex-col">
         <Header user={user} collapsed={collapsed} />
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+        <main style={{
+        backgroundColor: background,
+        color : textPrimary
+      }} className="flex-1 overflow-y-auto p-6">
           <ProtectedRoute>{children}</ProtectedRoute>
         </main>
         <Footer collapsed={collapsed} />
