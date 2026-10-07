@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TrafficSignalCategory } from "./TrafficSignalCategory";
 import api from "@/app/utils/axios";
 import { message } from "antd";
-import { useState } from "react";
 
 export const useMutationTrafficSignalCategory = () => {
   const queryClient = useQueryClient();
@@ -12,9 +11,10 @@ export const useMutationTrafficSignalCategory = () => {
     mutationFn: (payload: Omit<TrafficSignalCategory, "id">) =>
       api.post("/traffic-signal-category", payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["traffic-signal-categories"] });
+      queryClient.invalidateQueries({
+        queryKey: ["traffic-signal-categories"],
+      });
       message.success("Category added successfully!");
-
     },
     onError: () => {
       message.error("Failed to add category");
@@ -31,7 +31,9 @@ export const useMutationTrafficSignalCategory = () => {
       payload: Partial<TrafficSignalCategory>;
     }) => api.put(`/traffic-signal-category/${id}`, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["traffic-signal-categories"] });
+      queryClient.invalidateQueries({
+        queryKey: ["traffic-signal-categories"],
+      });
       message.success("Category updated successfully!");
     },
     onError: () => {
@@ -41,9 +43,12 @@ export const useMutationTrafficSignalCategory = () => {
 
   // Delete Mutation
   const { mutateAsync: deleteCategory, isPending: isDeleting } = useMutation({
-    mutationFn: (id: string | number) => api.delete(`/traffic-signal-category/${id}`),
+    mutationFn: (id: string | number) =>
+      api.delete(`/traffic-signal-category/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["traffic-signal-categories"] });
+      queryClient.invalidateQueries({
+        queryKey: ["traffic-signal-categories"],
+      });
       message.success("Category deleted successfully");
       // Deleting the last row on a page beyond page 1 would otherwise leave
       // the user stranded on a now-empty page.
@@ -59,7 +64,6 @@ export const useMutationTrafficSignalCategory = () => {
     updateCategory,
     isUpdating,
     deleteCategory,
-    isDeleting
-  }
-
-}
+    isDeleting,
+  };
+};

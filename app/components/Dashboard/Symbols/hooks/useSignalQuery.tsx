@@ -3,13 +3,14 @@
 import api from "@/app/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 
-export const useSignalQuery = () => {
+export const useSignalQuery = (enabled = true) => {
   const {
     data: signals = [],
     isLoading,
     error,
   } = useQuery({
     queryKey: ["traffic-signals"],
+        enabled,
     queryFn: async () => {
       const res = await api.get("/traffic-signal");
       return res.data || [];

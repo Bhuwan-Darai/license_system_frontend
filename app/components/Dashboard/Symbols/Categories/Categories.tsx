@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
-import { Button, Form, Input, Modal, Space } from "antd";
+import { Button, Form, Input, Modal, Result, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useSignalCategoryMutation } from "./useSignalCategoryMutation";
 import { useSignalCategoryQuery } from "./useSignalCategoryQuery";
@@ -36,6 +38,11 @@ export default function SignalCategory() {
     isDeleting,
   } = useSignalCategoryMutation();
 
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.LIST);
+  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.ADD);
+  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.UPDATE);
+  const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.DELETE);
   const { categories, isLoading } = useSignalCategoryQuery();
 
   const onFinish = async (
@@ -90,51 +97,71 @@ export default function SignalCategory() {
       dataIndex: "CreatedAt",
       key: "CreatedAt",
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 180,
-      render: (_, record) => (
-        <Space>
-          <Button type="primary" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: SignalCategory) => (
+              <Space>
+                {canUpdate && (
+                  <Button type="primary" onClick={() => handleEdit(record)}>
+                    Edit
+                  </Button>
+                )}
 
-          <Button
-            danger
-            type="primary"
-            loading={isDeleting}
-            onClick={() => handleDelete(record.TrafficSignalCategoryID)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
+                {canDelete && (
+                  <Button
+                    danger
+                    type="primary"
+                    loading={isDeleting}
+                    onClick={() => handleDelete(record.TrafficSignalCategoryID)}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const isSubmitting = isAdding || isUpdating;
 
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
+
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: 20,
-        }}
-      >
-        <Button
-          type="primary"
-          onClick={() => {
-            setEditingCategory(null);
-            form.resetFields();
-            showModal();
+      {canAdd && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: 20,
           }}
         >
-          Add Signal Category
-        </Button>
-      </div>
+          <Button
+            type="primary"
+            onClick={() => {
+              setEditingCategory(null);
+              form.resetFields();
+              showModal();
+            }}
+          >
+            Add Signal Category
+          </Button>
+        </div>
+      )}
 
       <CustomTable
         columns={columns}

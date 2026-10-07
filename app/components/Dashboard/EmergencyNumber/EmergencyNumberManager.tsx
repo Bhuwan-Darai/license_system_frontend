@@ -1,21 +1,19 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
-  Card,
-  Col,
-  Empty,
+  ConfigProvider,
   Form,
   Input,
-  Row,
-  Select,
-  Space,
+  Modal,
   Switch,
   Tag,
   Typography,
-  Popconfirm,
+  Space,
   message,
+  theme as antdTheme,
+  Result,
 } from "antd";
 
 import {
@@ -23,693 +21,488 @@ import {
   EditOutlined,
   PhoneOutlined,
   PlusOutlined,
-  SaveOutlined,
-  ArrowLeftOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+import type { ColumnsType } from "antd/es/table";
 
-/* =========================================================
-   TYPES
-========================================================= */
+import { useQueryEmergencyNumber } from "./useQueryEmergencyNumber";
+import { useMutationEmergencyNumber } from "./useMutationEmergencyNumber";
+import { useTheme } from "@/app/context/ThemeContext";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
+import useModal from "@/app/hooks/useModalHook";
+import CustomTable from "@/app/components/ui/CustomTable";
 
-type EmergencyNumber = {
-  id: string;
+const { Text } = Typography;
+
+type NumberData = {
+  id: number;
+  emergency_number_id: string;
   name: string;
-  number: string;
-  category: string;
-  description?: string;
+  emergency_number: string;
   display: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string | null;
 };
 
-/* =========================================================
-   CATEGORIES
-========================================================= */
-
-const categories = [
-  {
-    value: "police",
-    label: "Police",
-  },
-  {
-    value: "ambulance",
-    label: "Ambulance",
-  },
-  {
-    value: "fire",
-    label: "Fire Brigade",
-  },
-  {
-    value: "traffic",
-    label: "Traffic Police",
-  },
-  {
-    value: "hospital",
-    label: "Hospital",
-  },
-  {
-    value: "disaster",
-    label: "Disaster Management",
-  },
-  {
-    value: "other",
-    label: "Other",
-  },
-];
-
-/* =========================================================
-   MOCK DATA
-========================================================= */
-
-const initialEmergencyNumbers: EmergencyNumber[] = [
-  {
-    id: "1",
-    name: "Nepal Police",
-    number: "100",
-    category: "police",
-    description: "For police emergencies and immediate assistance.",
-    display: true,
-  },
-  {
-    id: "2",
-    name: "Ambulance",
-    number: "102",
-    category: "ambulance",
-    description: "For emergency medical transportation.",
-    display: true,
-  },
-  {
-    id: "3",
-    name: "Fire Brigade",
-    number: "101",
-    category: "fire",
-    description: "For fire and rescue emergencies.",
-    display: true,
-  },
-  {
-    id: "4",
-    name: "Traffic Police",
-    number: "103",
-    category: "traffic",
-    description: "For traffic-related emergencies and assistance.",
-    display: true,
-  },
-];
-
-/* =========================================================
-   COMPONENT
-========================================================= */
-
 const EmergencyNumberManager: React.FC = () => {
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.EMERGENCY_NUMBER.LIST);
+  const canAdd = isAllowed(PERM.EMERGENCY_NUMBER.ADD);
+  const canUpdate = isAllowed(PERM.EMERGENCY_NUMBER.UPDATE);
+  const canDelete = isAllowed(PERM.EMERGENCY_NUMBER.DELETE);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [numbers, setNumbers] = useState<EmergencyNumber[]>(
-    initialEmergencyNumbers
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // debounce Search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1); // reset to first page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { number, isLoading, error } = useQueryEmergencyNumber(
+    page,
+    pageSize,
+    debouncedSearch,
+    canList,
   );
 
-  const [search, setSearch] = useState("");
+  const {
+    addNumber,
+    updateNumber,
+    deleteNumber,
+    isAdding,
+    isUpdating,
+    isDeleting,
+  } = useMutationEmergencyNumber();
 
-  const [isCreating, setIsCreating] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const { open, showModal, hideModal } = useModal();
 
+  const [editingItem, setEditingItem] = useState<NumberData | null>(null);
   const [form] = Form.useForm();
 
-  /* =========================================================
-     FILTER
-  ========================================================= */
+  const colors = {
+    pageBg: isDark ? "#131b2e" : "#eee8dd",
+    cardBg: isDark ? "#1b2436" : "#ffffff",
+    cardBorder: isDark ? "#2a3446" : "#f0f0f0",
 
-  const filteredNumbers = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
+    text: isDark ? "#f5f5f5" : "#141414",
+    secondaryText: isDark ? "#a6a6a6" : "#666666",
 
-    if (!keyword) {
-      return numbers;
-    }
+    inputBg: isDark ? "#0f1626" : "#ffffff",
+    inputBorder: isDark ? "#2a3446" : "#d9d9d9",
+    inputText: isDark ? "#f5f5f5" : "#141414",
+    inputPlaceholder: isDark ? "#6b7280" : "#bfbfbf",
 
-    return numbers.filter(
-      (item) =>
-        item.name.toLowerCase().includes(keyword) ||
-        item.number.toLowerCase().includes(keyword) ||
-        item.category.toLowerCase().includes(keyword)
-    );
-  }, [numbers, search]);
+    modalBg: isDark ? "#1b2436" : "#ffffff",
+    modalHeaderBg: isDark ? "#1b2436" : "#ffffff",
+    modalFooterBg: isDark ? "#1b2436" : "#ffffff",
 
-  /* =========================================================
-     RESET
-  ========================================================= */
-
-  const resetForm = () => {
-    form.resetFields();
-
-    setEditingId(null);
-    setIsCreating(false);
+    tagHiddenBg: isDark ? "#2a3446" : "#fafafa",
+    tagHiddenBorder: isDark ? "#3a465c" : "#d9d9d9",
+    tagHiddenText: isDark ? "#c9c9c9" : "#595959",
   };
 
-  /* =========================================================
-     CREATE
-  ========================================================= */
+  const numbers: NumberData[] = number?.data ?? [];
+  const pagination = number?.pagination; // { total, page, pageSize, ... } — adjust to match your API
 
   const handleCreate = () => {
+    setEditingItem(null);
     form.resetFields();
-
-    form.setFieldsValue({
-      display: true,
-    });
-
-    setEditingId(null);
-    setIsCreating(true);
+    form.setFieldsValue({ display: true });
+    showModal();
   };
 
-  /* =========================================================
-     EDIT
-  ========================================================= */
-
-  const handleEdit = (item: EmergencyNumber) => {
+  const handleEdit = (item: NumberData) => {
+    setEditingItem(item);
     form.setFieldsValue({
       name: item.name,
-      number: item.number,
-      category: item.category,
-      description: item.description,
+      number: item.emergency_number,
       display: item.display,
     });
-
-    setEditingId(item.id);
-    setIsCreating(true);
+    showModal();
   };
 
-  /* =========================================================
-     SAVE
-  ========================================================= */
+  const handleClose = () => {
+    form.resetFields();
+    setEditingItem(null);
+    hideModal();
+  };
 
-  const handleSave = async () => {
-    try {
-      const values = await form.validateFields();
+  const onFinish = async (values: {
+    name: string;
+    number: string;
+    display: boolean;
+  }) => {
+    const payload = {
+      name: values.name,
+      number: values.number,
+      display: values.display,
+    };
 
-      if (editingId) {
-        setNumbers((previous) =>
-          previous.map((item) =>
-            item.id === editingId
-              ? {
-                  ...item,
-                  ...values,
-                }
-              : item
-          )
-        );
-
-        messageApi.success(
-          "Emergency number updated successfully."
-        );
-      } else {
-        const newNumber: EmergencyNumber = {
-          id: crypto.randomUUID(),
-          name: values.name,
-          number: values.number,
-          category: values.category,
-          description: values.description,
-          display: values.display ?? true,
-        };
-
-        setNumbers((previous) => [
-          ...previous,
-          newNumber,
-        ]);
-
-        messageApi.success(
-          "Emergency number added successfully."
-        );
-      }
-
-      resetForm();
-    } catch {
-      // Ant Design handles validation errors.
+    if (editingItem) {
+      await updateNumber({
+        emergency_number_id: editingItem.emergency_number_id,
+        payload,
+      });
+      handleClose();
+      message.success("Emergency number updated successfully.");
+    } else {
+      await addNumber(payload);
+      handleClose();
+      message.success("Emergency number added successfully.");
     }
   };
 
-  /* =========================================================
-     DELETE
-  ========================================================= */
-
   const handleDelete = (id: string) => {
-    setNumbers((previous) =>
-      previous.filter((item) => item.id !== id)
-    );
+    Modal.confirm({
+      title: "Are you sure you want to delete this emergency number?",
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      onOk: async () => {
+        await deleteNumber(id);
 
-    messageApi.success(
-      "Emergency number deleted successfully."
-    );
+        // If we just deleted the last row on the last page, step back one page
+        if (numbers.length === 1 && page > 1) {
+          setPage((prev) => prev - 1);
+        }
+
+        messageApi.success("Emergency number deleted successfully.");
+      },
+    });
   };
 
-  /* =========================================================
-     DISPLAY TOGGLE
-  ========================================================= */
-
-  const handleDisplayChange = (
-    id: string,
-    display: boolean
-  ) => {
-    setNumbers((previous) =>
-      previous.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              display,
-            }
-          : item
-      )
-    );
+  const handleDisplayChange = async (item: NumberData, display: boolean) => {
+    try {
+      await updateNumber({
+        emergency_number_id: item.emergency_number_id,
+        payload: {
+          name: item.name,
+          number: item.emergency_number,
+          display,
+        },
+      });
+      messageApi.success(
+        display
+          ? "Emergency number is now visible."
+          : "Emergency number is now hidden.",
+      );
+    } catch {
+      messageApi.error("Failed to update display status.");
+    }
   };
 
-  /* =========================================================
-     FORM PAGE
-  ========================================================= */
-
-  if (isCreating) {
-    return (
-      <>
-        {contextHolder}
-
-        <div
-          style={{
-            maxWidth: 900,
-            margin: "0 auto",
-            padding: 24,
-          }}
-        >
-          {/* Header */}
-
-          <Space
-            direction="vertical"
-            size={4}
+  const columns: ColumnsType<NumberData> = [
+    {
+      title: "S.N",
+      key: "S.N",
+      width: 70,
+      render: (_text, _record, index) => (page - 1) * pageSize + index + 1,
+    },
+    {
+      title: "Service",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (name: string) => (
+        <Space>
+          <div
             style={{
-              marginBottom: 24,
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: isDark ? "rgba(22, 119, 255, 0.15)" : "#eaf3ff",
             }}
           >
-            <Button
-              type="text"
-              icon={<ArrowLeftOutlined />}
-              onClick={resetForm}
+            <PhoneOutlined style={{ color: "#1677ff", fontSize: 14 }} />
+          </div>
+          <Text strong style={{ color: colors.text }}>
+            {name}
+          </Text>
+        </Space>
+      ),
+    },
+    {
+      title: "Phone Number",
+      dataIndex: "emergency_number",
+      key: "emergency_number",
+      render: (value: string) => (
+        <Text style={{ color: colors.secondaryText }}>{value}</Text>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "display",
+      key: "display",
+      width: 140,
+      render: (display: boolean, record) => (
+        <Space>
+          {display ? (
+            <Tag color="green">Visible</Tag>
+          ) : (
+            <Tag
               style={{
-                paddingLeft: 0,
+                background: colors.tagHiddenBg,
+                borderColor: colors.tagHiddenBorder,
+                color: colors.tagHiddenText,
               }}
             >
-              Back to Emergency Numbers
-            </Button>
-
-            <Title
-              level={2}
-              style={{
-                marginBottom: 0,
-              }}
-            >
-              {editingId
-                ? "Edit Emergency Number"
-                : "Add Emergency Number"}
-            </Title>
-
-            <Text type="secondary">
-              Add emergency contact information that will be
-              displayed to users.
-            </Text>
-          </Space>
-
-          {/* Form */}
-
-          <Card>
-            <Form
-              form={form}
-              layout="vertical"
-              initialValues={{
-                display: true,
-              }}
-            >
-              <Row gutter={24}>
-                {/* Name */}
-
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    label="Name"
-                    name="name"
-                    rules={[
-                      {
-                        required: true,
-                        message:
-                          "Please enter the emergency service name.",
-                      },
-                    ]}
-                  >
-                    <Input
-                      size="large"
-                      placeholder="e.g. Nepal Police"
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Number */}
-
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    label="Emergency Number"
-                    name="number"
-                    rules={[
-                      {
-                        required: true,
-                        message:
-                          "Please enter the emergency number.",
-                      },
-                    ]}
-                  >
-                    <Input
-                      size="large"
-                      placeholder="e.g. 100"
-                      prefix={<PhoneOutlined />}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Category */}
-
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    label="Category"
-                    name="category"
-                    rules={[
-                      {
-                        required: true,
-                        message:
-                          "Please select a category.",
-                      },
-                    ]}
-                  >
-                    <Select
-                      size="large"
-                      placeholder="Select category"
-                      options={categories}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Display */}
-
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    label="Display"
-                    name="display"
-                    valuePropName="checked"
-                  >
-                    <Switch
-                      checkedChildren="Visible"
-                      unCheckedChildren="Hidden"
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Description */}
-
-                <Col span={24}>
-                  <Form.Item
-                    label="Description"
-                    name="description"
-                  >
-                    <Input.TextArea
-                      rows={4}
-                      placeholder="Describe when users should call this number."
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              {/* Actions */}
-
-              <Row justify="end">
-                <Space>
-                  <Button onClick={resetForm}>
-                    Cancel
-                  </Button>
-
+              Hidden
+            </Tag>
+          )}
+          <Switch
+            size="small"
+            checked={display}
+            loading={isUpdating}
+            disabled={!canUpdate}
+            onChange={(checked) => handleDisplayChange(record, checked)}
+          />
+        </Space>
+      ),
+    },
+    {
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: 180,
+      render: (value: string) => (
+        <Text style={{ color: colors.secondaryText }}>
+          {value ? new Date(value).toLocaleDateString() : "—"}
+        </Text>
+      ),
+    },
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: NumberData) => (
+              <Space>
+                {canUpdate && (
                   <Button
                     type="primary"
-                    icon={<SaveOutlined />}
-                    onClick={handleSave}
+                    icon={<EditOutlined />}
+                    onClick={() => handleEdit(record)}
                   >
-                    {editingId
-                      ? "Update"
-                      : "Add Emergency Number"}
+                    Edit
                   </Button>
-                </Space>
-              </Row>
-            </Form>
-          </Card>
-        </div>
-      </>
+                )}
+                {canDelete && (
+                  <Button
+                    danger
+                    type="primary"
+                    icon={<DeleteOutlined />}
+                    loading={isDeleting}
+                    onClick={() => handleDelete(record.emergency_number_id)}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  const isSubmitting = isAdding || isUpdating;
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+  };
+
+  if (error) {
+    return <Result title={"Something went wrong"} />;
+  }
+
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
     );
   }
 
-  /* =========================================================
-     LIST PAGE
-  ========================================================= */
-
   return (
-    <>
+    <ConfigProvider
+      theme={{
+        algorithm: isDark
+          ? antdTheme.darkAlgorithm
+          : antdTheme.defaultAlgorithm,
+        token: {
+          colorBgElevated: colors.modalBg,
+          colorBgContainer: colors.inputBg,
+          colorBorder: colors.inputBorder,
+          colorText: colors.text,
+          colorTextPlaceholder: colors.inputPlaceholder,
+        },
+      }}
+    >
       {contextHolder}
 
       <div
         style={{
+          minHeight: "100vh",
           padding: 24,
+          background: colors.pageBg,
+          transition: "background 0.2s ease",
         }}
       >
-        {/* Header */}
-
-        <Row
-          justify="space-between"
-          align="middle"
+        <div
           style={{
-            marginBottom: 24,
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            marginBottom: 20,
           }}
         >
-          <Col>
-            <Title
-              level={2}
-              style={{
-                marginBottom: 4,
-              }}
-            >
-              Emergency Numbers
-            </Title>
-
-            <Text type="secondary">
-              Manage emergency contact numbers displayed to
-              users.
-            </Text>
-          </Col>
-
-          <Col>
+          {canAdd && (
             <Button
               type="primary"
-              size="large"
               icon={<PlusOutlined />}
               onClick={handleCreate}
             >
-              Add Emergency Number
+              Add Number
             </Button>
-          </Col>
-        </Row>
+          )}
+        </div>
 
-        {/* Search */}
-
-        <Card
-          style={{
-            marginBottom: 24,
+        <CustomTable
+          rowKey="emergency_number_id"
+          columns={columns}
+          dataSource={numbers}
+          loading={isLoading}
+          manualPagination
+          total={pagination?.total ?? 0}
+          currentPage={page}
+          initialPageSize={pageSize}
+          onPageChange={(nextPage, nextPageSize) => {
+            setPage(nextPage);
+            setPageSize(nextPageSize);
+          }}
+          onSearch={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+        />
+        <Modal
+          title={
+            <span style={{ color: colors.text, fontSize: 18, fontWeight: 600 }}>
+              {editingItem ? "Edit Emergency Number" : "Add Emergency Number"}
+            </span>
+          }
+          open={open}
+          footer={null}
+          onCancel={handleClose}
+          centered
+          width={480}
+          destroyOnHidden
+          styles={{
+            container: { background: colors.modalBg },
+            header: { background: colors.modalHeaderBg },
+            body: { background: colors.modalBg },
           }}
         >
-          <Input.Search
-            allowClear
-            size="large"
-            placeholder="Search by name, number or category..."
-            value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-          />
-        </Card>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            requiredMark="optional"
+          >
+            <Form.Item
+              label={<span style={{ color: colors.text }}>Name</span>}
+              name="name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the emergency service name",
+                },
+                { max: 100, message: "Name cannot exceed 100 characters" },
+              ]}
+            >
+              <Input
+                size="large"
+                placeholder="e.g. Nepal Police"
+                style={{
+                  background: colors.inputBg,
+                  borderColor: colors.inputBorder,
+                  color: colors.inputText,
+                }}
+              />
+            </Form.Item>
 
-        {/* Cards */}
+            <Form.Item
+              label={<span style={{ color: colors.text }}>Phone Number</span>}
+              name="number"
+              rules={[
+                { required: true, message: "Please enter the phone number" },
+                {
+                  pattern: /^\d{10}$/,
+                  message: "Phone number must be exactly 10 digits",
+                },
+              ]}
+            >
+              <Input
+                size="large"
+                placeholder="e.g. 9800000000"
+                prefix={<PhoneOutlined />}
+                maxLength={10}
+                style={{
+                  background: colors.inputBg,
+                  borderColor: colors.inputBorder,
+                  color: colors.inputText,
+                }}
+              />
+            </Form.Item>
 
-        {filteredNumbers.length === 0 ? (
-          <Card>
-            <Empty description="No emergency numbers found">
-              <Button
-                type="primary"
-                onClick={handleCreate}
+            <Form.Item
+              label={
+                <span style={{ color: colors.text }}>Display to Users</span>
+              }
+              name="display"
+              valuePropName="checked"
+              style={{ marginBottom: 24 }}
+            >
+              <Switch checkedChildren="Visible" unCheckedChildren="Hidden" />
+            </Form.Item>
+
+            <Form.Item style={{ marginBottom: 0 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 12,
+                }}
               >
-                Add Emergency Number
-              </Button>
-            </Empty>
-          </Card>
-        ) : (
-          <Row gutter={[20, 20]}>
-            {filteredNumbers.map((item) => {
-              const category = categories.find(
-                (category) =>
-                  category.value === item.category
-              );
-
-              return (
-                <Col
-                  xs={24}
-                  sm={12}
-                  lg={8}
-                  xl={6}
-                  key={item.id}
-                >
-                  <Card
-                    hoverable
-                    style={{
-                      height: "100%",
-                    }}
-                    actions={[
-                      <Button
-                        type="text"
-                        icon={<EditOutlined />}
-                        key="edit"
-                        onClick={() =>
-                          handleEdit(item)
-                        }
-                      >
-                        Edit
-                      </Button>,
-
-                      <Popconfirm
-                        key="delete"
-                        title="Delete emergency number?"
-                        description="This action cannot be undone."
-                        onConfirm={() =>
-                          handleDelete(item.id)
-                        }
-                        okText="Delete"
-                        cancelText="Cancel"
-                        okButtonProps={{
-                          danger: true,
-                        }}
-                      >
-                        <Button
-                          type="text"
-                          danger
-                          icon={<DeleteOutlined />}
-                        >
-                          Delete
-                        </Button>
-                      </Popconfirm>,
-                    ]}
-                  >
-                    <Space
-                      direction="vertical"
-                      size="middle"
-                      style={{
-                        width: "100%",
-                      }}
-                    >
-                      {/* Icon + Status */}
-
-                      <Row
-                        justify="space-between"
-                        align="middle"
-                      >
-                        <Col>
-                          <div
-                            style={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: 12,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: "#fff1f0",
-                              color: "#cf1322",
-                              fontSize: 22,
-                            }}
-                          >
-                            <PhoneOutlined />
-                          </div>
-                        </Col>
-
-                        <Col>
-                          <Switch
-                            size="small"
-                            checked={item.display}
-                            onChange={(checked) =>
-                              handleDisplayChange(
-                                item.id,
-                                checked
-                              )
-                            }
-                          />
-                        </Col>
-                      </Row>
-
-                      {/* Name */}
-
-                      <div>
-                        <Title
-                          level={4}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          {item.name}
-                        </Title>
-
-                        <Tag color="blue">
-                          {category?.label ||
-                            item.category}
-                        </Tag>
-                      </div>
-
-                      {/* Number */}
-
-                      <div>
-                        <Text
-                          style={{
-                            fontSize: 24,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {item.number}
-                        </Text>
-                      </div>
-
-                      {/* Description */}
-
-                      {item.description && (
-                        <Text type="secondary">
-                          {item.description}
-                        </Text>
-                      )}
-
-                      {/* Status */}
-
-                      <div>
-                        <Tag
-                          color={
-                            item.display
-                              ? "green"
-                              : "default"
-                          }
-                        >
-                          {item.display
-                            ? "Displayed"
-                            : "Hidden"}
-                        </Tag>
-                      </div>
-                    </Space>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-        )}
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button type="primary" htmlType="submit" loading={isSubmitting}>
+                  {editingItem ? "Update" : "Add"}
+                </Button>
+              </div>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
-    </>
+    </ConfigProvider>
   );
 };
 

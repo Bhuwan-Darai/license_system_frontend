@@ -1,7 +1,9 @@
 "use client";
-import { Button, Form, Input, Modal, Space } from "antd";
+import { Button, Form, Input, Modal, Result, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 import { useMutationIshiharaCategory } from "./useMutationIshiharaCategory";
@@ -34,8 +36,13 @@ export default function IshiharaCategory() {
     isDeleting,
     setEditingCategory,
     editingCategory,
-  } =   useMutationIshiharaCategory();
-  const { categories, isLoading } = useQueryIshiharaCategory();
+  } = useMutationIshiharaCategory();
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.ISHIHARA_CATEGORY.LIST);
+  const canAdd = isAllowed(PERM.ISHIHARA_CATEGORY.ADD);
+  const canUpdate = isAllowed(PERM.ISHIHARA_CATEGORY.UPDATE);
+  const canDelete = isAllowed(PERM.ISHIHARA_CATEGORY.DELETE);
+  const { categories, isLoading } = useQueryIshiharaCategory(canList);
 
   const onFinish = async (values: Omit<IshiharaCategory, "id">) => {
     if (editingCategory) {
@@ -87,51 +94,71 @@ export default function IshiharaCategory() {
       dataIndex: "CreatedAt",
       key: "CreatedAt",
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 180,
-      render: (_, record) => (
-        <Space>
-          <Button type="primary" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: IshiharaCategory) => (
+              <Space>
+                {canUpdate && (
+                  <Button type="primary" onClick={() => handleEdit(record)}>
+                    Edit
+                  </Button>
+                )}
 
-          <Button
-            danger
-            type="primary"
-            loading={isDeleting}
-            onClick={() => handleDelete(record.IshiharaCategoryID)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
+                {canDelete && (
+                  <Button
+                    danger
+                    type="primary"
+                    loading={isDeleting}
+                    onClick={() => handleDelete(record.IshiharaCategoryID)}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const isSubmitting = isAdding || isUpdating;
 
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
+
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: 20,
-        }}
-      >
-        <Button
-          type="primary"
-          onClick={() => {
-            setEditingCategory(null);
-            form.resetFields();
-            showModal();
+      {canAdd && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: 20,
           }}
         >
-          Add Ishihara Category
-        </Button>
-      </div>
+          <Button
+            type="primary"
+            onClick={() => {
+              setEditingCategory(null);
+              form.resetFields();
+              showModal();
+            }}
+          >
+            Add Ishihara Category
+          </Button>
+        </div>
+      )}
 
       <CustomTable
         columns={columns}

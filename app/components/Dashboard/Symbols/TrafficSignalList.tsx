@@ -1,5 +1,16 @@
 "use client";
-import { Spin, Button, Form, Input, Modal, Select, Pagination } from "antd";
+import {
+  Spin,
+  Button,
+  Form,
+  Input,
+  Modal,
+  Result,
+  Select,
+  Pagination,
+} from "antd";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import { useSignalMutation } from "./hooks/useSignalMutation";
 import { useSignalQuery } from "./hooks/useSignalQuery";
 import { useSignalCategoryQuery } from "./Categories/useSignalCategoryQuery";
@@ -22,11 +33,14 @@ type SymbolCategories = {
 };
 
 function TrafficSignalList() {
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.TRAFFIC_SIGNAL.LIST);
+  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL.ADD);
   const [form] = Form.useForm();
   const [mode, setMode] = useState("add");
   const { open, showModal, hideModal, setOpen } = useModal();
 
-  const { signals, isLoading, error } = useSignalQuery();
+  const { signals, isLoading, error } = useSignalQuery(canList);
   const { categories, isLoading: categoryLoading } = useSignalCategoryQuery();
 
   const {
@@ -93,27 +107,39 @@ function TrafficSignalList() {
     await deleteSignal(id);
   };
 
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "12px",
-        }}
-      >
-        <Button
-          onClick={() => {
-            form.resetFields();
-            setMode("add");
-            showModal();
+      {canAdd && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "12px",
           }}
-          type="primary"
-          icon={<PlusOutlined />}
         >
-          Add Traffic Signals
-        </Button>
-      </div>
+          <Button
+            onClick={() => {
+              form.resetFields();
+              setMode("add");
+              showModal();
+            }}
+            type="primary"
+            icon={<PlusOutlined />}
+          >
+            Add Traffic Signals
+          </Button>
+        </div>
+      )}
 
       {isLoading ? (
         <Spin size="large" />

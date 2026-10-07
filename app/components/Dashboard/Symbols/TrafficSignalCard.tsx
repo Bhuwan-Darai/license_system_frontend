@@ -9,6 +9,8 @@ import {
   Tooltip,
   Image,
 } from "antd";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -62,11 +64,7 @@ export interface GetSignalsParams {
 }
 
 export type CategoryType =
-  | "all"
-  | "Mandatory"
-  | "Warning"
-  | "Informative"
-  | "Other";
+  "all" | "Mandatory" | "Warning" | "Informative" | "Other";
 
 export const CATEGORIES: CategoryType[] = [
   "all",
@@ -91,6 +89,9 @@ function TrafficSignalCard({
   onDelete,
   loading = false,
 }: TrafficSignalCardProps) {
+  const { isAllowed } = useAuthContext();
+  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL.UPDATE);
+  const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL.DELETE);
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {
       Mandatory: "red",
@@ -167,31 +168,39 @@ function TrafficSignalCard({
           )}
         </div>
       }
-      actions={[
-        <Tooltip title="Edit signal" key="edit-tooltip">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => onEdit(signal)}
-            key="edit"
-          >
-            Edit
-          </Button>
-        </Tooltip>,
-        <Popconfirm
-          key="delete"
-          title="Delete Traffic Signal"
-          description={`Are you sure you want to delete "${signal.english_title}"?`}
-          onConfirm={() => onDelete(signal.traffic_signal_id)}
-          okText="Yes, Delete"
-          cancelText="Cancel"
-          okType="danger"
-        >
-          <Button type="text" danger icon={<DeleteOutlined />}>
-            Delete
-          </Button>
-        </Popconfirm>,
-      ]}
+      actions={
+        canUpdate || canDelete
+          ? [
+              canUpdate && (
+                <Tooltip title="Edit signal" key="edit-tooltip">
+                  <Button
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={() => onEdit(signal)}
+                    key="edit"
+                  >
+                    Edit
+                  </Button>
+                </Tooltip>
+              ),
+              canDelete && (
+                <Popconfirm
+                  key="delete"
+                  title="Delete Traffic Signal"
+                  description={`Are you sure you want to delete "${signal.english_title}"?`}
+                  onConfirm={() => onDelete(signal.traffic_signal_id)}
+                  okText="Yes, Delete"
+                  cancelText="Cancel"
+                  okType="danger"
+                >
+                  <Button type="text" danger icon={<DeleteOutlined />}>
+                    Delete
+                  </Button>
+                </Popconfirm>
+              ),
+            ].filter(Boolean)
+          : undefined
+      }
     >
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         <div

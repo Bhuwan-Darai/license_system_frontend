@@ -3,13 +3,14 @@
 import api from "@/app/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 
-export const useQueryQuestionBank = () => {
+export const useQueryQuestionBank = (enabled = true) => {
   const {
     data: questionBanks = [],
     isLoading,
     refetch,
   } = useQuery({
     queryKey: ["question-bank"],
+    enabled,
     queryFn: async () => {
       const res = await api.get("/question-bank");
       return res?.data ?? [];

@@ -3,9 +3,10 @@
 import api from "@/app/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 
-export const useQueryIshiharaCategory = () => {
+export const useQueryIshiharaCategory = (enabled = true) => {
     const { data: categories = [], isLoading } = useQuery({
         queryKey: ["ishihara-categories"],
+        enabled,
         queryFn: async () => {
             const res = await api.get("/ishihara-category");
             return res.data?.data || res.data || [];

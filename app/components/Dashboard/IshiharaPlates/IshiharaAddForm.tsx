@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, Input, Result, Select } from "antd";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import { useMutationIshihara } from "./useMutationIshihara";
 import ImageUpload from "../../ui/UploadImage";
 import { ImageValue } from "../VehicleCagetory/VehicleCategories";
@@ -47,6 +49,10 @@ export default function AddIshiharaPlates({
   initialData = null,
   onSuccess,
 }: AddIshiharaPlatesProps) {
+  const { isAllowed } = useAuthContext();
+  const canSubmit = isAllowed(
+    editMode ? PERM.ISHIHARA_PLATE.UPDATE : PERM.ISHIHARA_PLATE.ADD,
+  );
   const [imageUrl, setImageUrl] = useState<string>("");
   const [form] = Form.useForm();
 
@@ -97,6 +103,16 @@ export default function AddIshiharaPlates({
       // Error already handled in onError
     }
   };
+
+  if (!canSubmit) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
 
   return (
     <Form

@@ -16,6 +16,7 @@ export const useQueryBlogCategoires = (
   // categories" (e.g. a select dropdown) get them without paging through.
   pageSize: number = 100,
   search?: string,
+  enabled: boolean = true,
 ) => {
   // Fetch Categories (server-side pagination)
   const { data, isLoading, isFetching } = useQuery({
@@ -29,6 +30,7 @@ export const useQueryBlogCategoires = (
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
+    enabled,
   });
 
   return {

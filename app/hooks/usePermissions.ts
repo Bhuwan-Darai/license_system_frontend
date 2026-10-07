@@ -1,52 +1,27 @@
 // hooks/usePermissions.ts
+"use client";
+
 import { useMemo } from "react";
-import { ROLE_PERMISSIONS } from "../lib/permission";
+import { AuthUser, useAuthContext } from "../context/AuthContext";
+import type { Route } from "@/config/route";
 
-// types/index.ts
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "manager" | "user" | "viewer";
-  permissions: string[];
-}
+export type User = AuthUser;
 
-export interface Route {
-  key: string;
-  label: string;
-  icon: React.ReactNode;
-  path: string;
-  permission?: string;
-  children?: Route[];
-}
-
-export const usePermissions = (user: User | null) => {
-  const userPermissions = useMemo(() => {
-    if (!user) return [];
-    return ROLE_PERMISSIONS[user.role] || [];
-  }, [user]);
-
-  const can = useMemo(() => {
-    return (permission: string) => {
-      if (!user) return false;
-      if (user.role === "admin") return true;
-      return userPermissions.includes(permission);
-    };
-  }, [user, userPermissions]);
+/** Permission helpers for the signed-in user. */
+export const usePermissions = () => {
+  const { isAllowed, permissions } = useAuthContext();
 
   const filterRoutes = useMemo(() => {
-    return (routes: Route[]): Route[] => {
-      return routes
-        .filter((route) => {
-          if (!route.permission) return true;
-          return can(route.permission);
-        })
-        .map((route) => ({
-          ...route,
-          children: route.children ? filterRoutes(route.children) : undefined,
-        }));
-    };
-  }, [can]);
+    const filter = (items: Route[]): Route[] =>
+      items.flatMap((route) => {
+        if (route.permission && !isAllowed(route.permission)) return [];
+        if (!route.children) return [route];
+        // a group disappears when none of its entries are allowed
+        const children = filter(route.children);
+        return children.length ? [{ ...route, children }] : [];
+      });
+    return filter;
+  }, [isAllowed]);
 
-  return { can, userPermissions, filterRoutes };
+  return { can: isAllowed, userPermissions: permissions, filterRoutes };
 };

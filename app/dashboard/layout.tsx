@@ -3,22 +3,16 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { User } from "../hooks/usePermissions";
 import Sidebar from "../components/Dashboard/Sidebar";
 
 import LoadingSkeleton from "../components/ui/LoadingSkeleton";
 import Header from "../components/Dashboard/Header";
 import Footer from "../components/Dashboard/Footer";
 import { ProtectedRoute } from "../components/Route/ProtectedRoute";
-
-// Mock user data for demo
-const mockUser: User = {
-  id: "1",
-  name: "Admin User",
-  email: "admin@example.com",
-  role: "admin",
-  permissions: [],
-};
+import { RouteGuard } from "../components/Route/RouteGuard";
+import { useAuthContext } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { BreadcrumbProvider } from "../context/BreadcrumbContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,8 +21,9 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [user] = useState<User | null>(mockUser);
+  const { user } = useAuthContext();
   const pathname = usePathname();
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Simulate loading
@@ -50,6 +45,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     return "dashboard";
   };
 
+  const isThemeLight = theme === "light" ? true : false;
+
+  const background = isThemeLight ? "#eee8dd" : "#131b2e";
+  const textPrimary = isThemeLight ? "#131b2e" : "#eee8dd";
+  const textSecondary = isThemeLight ? "#6b7280" : "#9ca3af";
+  const hoverBg = isThemeLight ? "#e0d9cb" : "#1c2740";
+
   if (loading) {
     return (
       <div className="flex h-screen">
@@ -69,16 +71,23 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   }
 
   return (
+    <BreadcrumbProvider>
     <div className="flex h-screen">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} user={user} />
       <div className="flex-1 flex flex-col">
         <Header user={user} collapsed={collapsed} />
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
-          <ProtectedRoute>{children}</ProtectedRoute>
+        <main style={{
+        backgroundColor: background,
+        color : textPrimary
+      }} className="flex-1 overflow-y-auto p-6">
+          <ProtectedRoute>
+            <RouteGuard>{children}</RouteGuard>
+          </ProtectedRoute>
         </main>
         <Footer collapsed={collapsed} />
       </div>
     </div>
+    </BreadcrumbProvider>
   );
 };
 

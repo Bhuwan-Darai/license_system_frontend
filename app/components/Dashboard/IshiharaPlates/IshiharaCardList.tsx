@@ -11,6 +11,7 @@ import {
   Input,
   Modal,
   Pagination,
+  Result,
   Row,
   Select,
   Space,
@@ -24,6 +25,8 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import { useQueryIshihara } from "./useQueryIshihara";
 import { useMutationIshihara } from "./useMutationIshihara";
@@ -79,7 +82,12 @@ export default function IshiharaCardList() {
   const [mode, setMode] = useState<"add" | "edit">("add");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { open, showModal, hideModal } = useModal();
-  const { plates, isLoading: isPlateLoading } = useQueryIshihara();
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.ISHIHARA_PLATE.LIST);
+  const canAdd = isAllowed(PERM.ISHIHARA_PLATE.ADD);
+  const canUpdate = isAllowed(PERM.ISHIHARA_PLATE.UPDATE);
+  const canDelete = isAllowed(PERM.ISHIHARA_PLATE.DELETE);
+  const { plates, isLoading: isPlateLoading } = useQueryIshihara(canList);
   const [form] = Form.useForm();
   const {
     addPlate,
@@ -152,21 +160,33 @@ export default function IshiharaCardList() {
     }
   };
 
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
+
   return (
     <>
-      <Row justify="end" style={{ marginBottom: 20 }}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            setMode("add");
-            form.resetFields();
-            showModal();
-          }}
-        >
-          Add Ishihara Plate
-        </Button>
-      </Row>
+      {canAdd && (
+        <Row justify="end" style={{ marginBottom: 20 }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setMode("add");
+              form.resetFields();
+              showModal();
+            }}
+          >
+            Add Ishihara Plate
+          </Button>
+        </Row>
+      )}
 
       <Spin spinning={isPlateLoading}>
         {plates?.data?.length ? (
@@ -212,30 +232,36 @@ export default function IshiharaCardList() {
 
                       <Tag color="blue">{item.ishihara_category?.title}</Tag>
 
-                      <Space style={{ width: "100%" }}>
-                        <Button
-                          type="primary"
-                          icon={<EditOutlined />}
-                          block
-                          onClick={() => {
-                            handleEdit(item);
-                            showModal();
-                          }}
-                        >
-                          Edit
-                        </Button>
+                      {(canUpdate || canDelete) && (
+                        <Space style={{ width: "100%" }}>
+                          {canUpdate && (
+                            <Button
+                              type="primary"
+                              icon={<EditOutlined />}
+                              block
+                              onClick={() => {
+                                handleEdit(item);
+                                showModal();
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          )}
 
-                        <Button
-                          danger
-                          icon={<DeleteOutlined />}
-                          disabled={isDeleting}
-                          loading={isDeleting}
-                          block
-                          onClick={() => handleDelete(item.plate_id)}
-                        >
-                          Delete
-                        </Button>
-                      </Space>
+                          {canDelete && (
+                            <Button
+                              danger
+                              icon={<DeleteOutlined />}
+                              disabled={isDeleting}
+                              loading={isDeleting}
+                              block
+                              onClick={() => handleDelete(item.plate_id)}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </Space>
+                      )}
                     </Space>
                   </Card>
                 </Col>

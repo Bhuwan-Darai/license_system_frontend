@@ -9,14 +9,18 @@ import {
   FileTextOutlined,
   SettingOutlined,
   PhoneOutlined,
+  SafetyCertificateOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
+import { PERM, type PermissionRequirement } from "./permissions";
 
 export interface Route {
   key: string;
   label: string;
   icon: React.ReactNode;
   path: string;
-  permission?: string;
+  /** Needed to see the menu entry and open the page. A list means any one of them. */
+  permission?: PermissionRequirement;
   children?: Route[];
 }
 
@@ -26,7 +30,7 @@ export const routes: Route[] = [
     label: "Dashboard",
     icon: <DashboardOutlined />,
     path: "/dashboard",
-    permission: "view_dashboard",
+    permission: PERM.DASHBOARD.VIEW,
   },
 
   {
@@ -34,65 +38,63 @@ export const routes: Route[] = [
     label: "Categories",
     icon: <AreaChartOutlined />,
     path: "/dashboard/categories/blog",
-    permission: "view_analytics",
     children: [
       {
         key: "categories-blog",
         label: "Blog Category",
         path: "/dashboard/categories/blog",
-        permission: "view_analytics",
+        permission: PERM.BLOG_CATEGORY.LIST,
         icon: <AreaChartOutlined />,
       },
       {
         key: "categories-vehicle",
         label: "Vehicle Category",
         path: "/dashboard/categories/vehicle",
-        permission: "manage_analytics",
+        permission: PERM.VEHICLE_CATEGORY.LIST,
         icon: <AreaChartOutlined />,
       },
       {
         key: "categories-ishihara",
         label: "Ishihara Category",
         path: "/dashboard/categories/ishihara",
-        permission: "manage_analytics",
+        permission: PERM.ISHIHARA_CATEGORY.LIST,
         icon: <AreaChartOutlined />,
       },
       {
         key: "question-bank",
         label: "Question Bank",
         path: "/dashboard/categories/question-bank",
-        permission: "manage_analytics",
+        permission: PERM.QUESTION_BANK_CATEGORY.LIST,
         icon: <AreaChartOutlined />,
       },
       {
         key: "traffic-signal-category",
         label: "Traffic Signal Category",
         path: "/dashboard/categories/traffic-signal-category",
-        permission: "manage_analytics",
+        permission: PERM.TRAFFIC_SIGNAL_CATEGORY.LIST,
         icon: <AreaChartOutlined />,
       },
     ],
   },
   {
-    key: "users",
-    label: "Users",
-    icon: <UserOutlined />,
+    key: "access",
+    label: "Access Control",
+    icon: <SafetyCertificateOutlined />,
     path: "/dashboard/users",
-    permission: "view_users",
     children: [
       {
         key: "users-list",
-        label: "All Users",
+        label: "Users",
         path: "/dashboard/users",
-        permission: "view_users",
+        permission: PERM.USER.LIST,
         icon: <UserOutlined />,
       },
       {
-        key: "users-add",
-        label: "Add User",
-        path: "/dashboard/users/add",
-        permission: "manage_users",
-        icon: <UserOutlined />,
+        key: "roles-list",
+        label: "Roles",
+        path: "/dashboard/roles",
+        permission: PERM.ROLE.LIST,
+        icon: <TeamOutlined />,
       },
     ],
   },
@@ -101,20 +103,19 @@ export const routes: Route[] = [
     label: "Questions",
     icon: <ShoppingCartOutlined />,
     path: "/dashboard/question/question-bank",
-    permission: "view_orders",
     children: [
       {
         key: "questions-list",
         label: "Question Bank",
         path: "/dashboard/question/question-bank",
-        permission: "view_products",
+        permission: PERM.QUESTION_BANK.LIST,
         icon: <ShoppingOutlined />,
       },
       {
         key: "questions-add",
         label: "Add Question",
         path: "/dashboard/question/mcq",
-        permission: "view_products",
+        permission: [PERM.QUESTION.LIST, PERM.QUESTION.ADD, PERM.QUESTION.UPDATE],
         icon: <ShoppingOutlined />,
       },
     ],
@@ -124,78 +125,98 @@ export const routes: Route[] = [
     label: "Signals",
     icon: <ShoppingCartOutlined />,
     path: "/dashboard/signals",
-    permission: "view_orders",
+    permission: PERM.TRAFFIC_SIGNAL.LIST,
   },
   {
     key: "ishihara_plates",
     label: "Ishihara Plates",
     icon: <ShoppingCartOutlined />,
     path: "/dashboard/ishihara_plates",
-    permission: "view_orders",
+    permission: PERM.ISHIHARA_PLATE.LIST,
   },
   {
     key: "blog",
     label: "Blog",
     icon: <ShoppingCartOutlined />,
     path: "/dashboard/blog",
-    permission: "view_orders",
+    permission: PERM.BLOG.LIST,
   },
   {
     key: "Exam",
     label: "Exam",
     icon: <ShoppingCartOutlined />,
     path: "/dashboard/exam-manager",
-    permission: "view_orders",
+    permission: PERM.EXAM.LIST,
   },
   {
     key: "reports",
     label: "Reports",
     icon: <FileTextOutlined />,
     path: "/dashboard/reports",
-    permission: "view_reports",
   },
   {
     key: "carousel",
     label: "Carousel",
     icon: <FileTextOutlined />,
     path: "/dashboard/carousel-manager",
-    permission: "view_carousel",
+    permission: PERM.CAROUSEL.LIST,
   },
   {
     key: "emergency-number",
     label: "Emergency Number",
     icon: <PhoneOutlined />,
     path: "/dashboard/emergency-number",
-    permission: "view_emergency_number",
+    permission: PERM.EMERGENCY_NUMBER.LIST,
   },
   {
     key: "notification",
     label: "Notification",
     icon: <FileTextOutlined />,
     path: "/dashboard/notification",
-    permission: "view_reports",
   },
   {
     key: "settings",
     label: "Settings",
     icon: <SettingOutlined />,
     path: "/dashboard/settings",
-    permission: "view_settings",
     children: [
       {
         key: "settings-general",
         label: "General",
         path: "/dashboard/settings",
-        permission: "view_settings",
         icon: <SettingOutlined />,
       },
       {
         key: "settings-security",
         label: "Security",
         path: "/dashboard/settings/security",
-        permission: "manage_settings",
         icon: <SettingOutlined />,
       },
     ],
   },
 ];
+
+/** The menu entry that owns a path: the page itself, or the closest parent path. */
+export const findRouteForPath = (
+  pathname: string,
+  items: Route[] = routes,
+): Route | null => {
+  let best: Route | null = null;
+
+  const visit = (list: Route[]) => {
+    for (const item of list) {
+      if (item.children?.length) {
+        visit(item.children);
+        continue;
+      }
+      const matches =
+        pathname === item.path || pathname.startsWith(`${item.path}/`);
+      if (matches && (!best || item.path.length > best.path.length)) {
+        best = item;
+      }
+    }
+  };
+  visit(items);
+
+  return best;
+};

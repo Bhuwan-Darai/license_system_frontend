@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
-import { Button, Form, Input, Modal, Space, message } from "antd";
+import { Button, Form, Input, Modal, Result, Space, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
@@ -27,12 +29,23 @@ export interface TrafficSignalCategory {
 export default function TrafficSignalCategory() {
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
-    const [editingCategory, setEditingCategory] = useState<TrafficSignalCategory | null>(
-    null,
-  );
+  const [editingCategory, setEditingCategory] =
+    useState<TrafficSignalCategory | null>(null);
 
-  const { addCategory, updateCategory, deleteCategory, isAdding, isUpdating, isDeleting } = useMutationTrafficSignalCategory();
+  const {
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    isAdding,
+    isUpdating,
+    isDeleting,
+  } = useMutationTrafficSignalCategory();
 
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.LIST);
+  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.ADD);
+  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.UPDATE);
+  const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.DELETE);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
@@ -41,13 +54,12 @@ export default function TrafficSignalCategory() {
     page,
     pageSize,
     search,
+    canList,
   );
-
-  
 
   const onFinish = async (values: Omit<TrafficSignalCategory, "id">) => {
     if (editingCategory) {
-    const res =  await updateCategory({
+      const res = await updateCategory({
         id: editingCategory.TrafficSignalCategoryID,
         payload: values,
       });
@@ -55,9 +67,9 @@ export default function TrafficSignalCategory() {
       hideModal();
       setEditingCategory(null);
     } else {
-    const res =  await addCategory(values);
-    form.resetFields();
-    hideModal();
+      const res = await addCategory(values);
+      form.resetFields();
+      hideModal();
     }
   };
 
@@ -81,7 +93,7 @@ export default function TrafficSignalCategory() {
         if (categories.length === 1 && page > 1) {
           setPage(page - 1);
         }
-        },
+      },
     });
   };
 
@@ -103,51 +115,71 @@ export default function TrafficSignalCategory() {
       dataIndex: "CreatedAt",
       key: "CreatedAt",
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 180,
-      render: (_, record) => (
-        <Space>
-          <Button type="primary" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: TrafficSignalCategory) => (
+              <Space>
+                {canUpdate && (
+                  <Button type="primary" onClick={() => handleEdit(record)}>
+                    Edit
+                  </Button>
+                )}
 
-          <Button
-            danger
-            type="primary"
-            loading={isDeleting}
-            onClick={() => handleDelete(record.TrafficSignalCategoryID)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
+                {canDelete && (
+                  <Button
+                    danger
+                    type="primary"
+                    loading={isDeleting}
+                    onClick={() => handleDelete(record.TrafficSignalCategoryID)}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const isSubmitting = isAdding || isUpdating;
 
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
+
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: 20,
-        }}
-      >
-        <Button
-          type="primary"
-          onClick={() => {
-            setEditingCategory(null);
-            form.resetFields();
-            showModal();
+      {canAdd && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: 20,
           }}
         >
-          Add Traffic Signal Category
-        </Button>
-      </div>
+          <Button
+            type="primary"
+            onClick={() => {
+              setEditingCategory(null);
+              form.resetFields();
+              showModal();
+            }}
+          >
+            Add Traffic Signal Category
+          </Button>
+        </div>
+      )}
 
       <CustomTable
         columns={columns}
@@ -170,7 +202,9 @@ export default function TrafficSignalCategory() {
       <Modal
         title={
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            {editingCategory ? "Edit traffic signal Category" : "Add traffic signal Category"}
+            {editingCategory
+              ? "Edit traffic signal Category"
+              : "Add traffic signal Category"}
           </span>
         }
         open={open}
