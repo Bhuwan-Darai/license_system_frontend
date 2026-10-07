@@ -3,7 +3,7 @@
 import api from "@/app/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 
-export const useQueryBlog = () => {
+export const useQueryBlog = (enabled = true) => {
   const {
     data: blogs = [],
     isLoading,
@@ -17,6 +17,7 @@ export const useQueryBlog = () => {
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
+    enabled,
   });
 
   return { blogs, isLoading, refetch };

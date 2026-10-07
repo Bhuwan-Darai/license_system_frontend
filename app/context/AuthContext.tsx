@@ -1,22 +1,42 @@
 "use client";
 
-import React, { createContext, useContext } from "react";
+import React, { createContext, useCallback, useContext, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
 import { message } from "antd";
 import { useRouter } from "next/navigation";
+import type { PermissionRequirement } from "@/config/permissions";
+import {
+  clearAccessCache,
+  saveAccessCache,
+  useCachedPermissions,
+} from "@/app/lib/accessCache";
 
-interface User {
+export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  /** account type: "Admin" for panel users, "User" for app users */
   role: string;
+  /** name of the assigned role, "Super Admin" when the account has full access */
+  role_name: string;
+  is_super_admin: boolean;
+  permissions: string[];
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** Permission codes of the signed-in user. */
+  permissions: string[];
+  isSuperAdmin: boolean;
+  /**
+   * True when the user holds the permission. Pass a list to allow when any one
+   * of the codes is held. This only decides what the screen shows, the backend
+   * checks the permission again on every request.
+   */
+  isAllowed: (permission: PermissionRequirement) => boolean;
   refetchUser: () => void;
   login: (
     credentials: LoginCredentials,
@@ -30,6 +50,8 @@ interface LoginCredentials {
   password: string;
 }
 
+const NO_PERMISSIONS: string[] = [];
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -37,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const cachedPermissions = useCachedPermissions();
 
   const {
     data: user,
@@ -44,11 +67,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     refetch,
   } = useQuery({
     queryKey: ["user"],
-    queryFn: async () => {
+    queryFn: async (): Promise<AuthUser | null> => {
       try {
         const response = await api.get("/auth/me");
-        return response.data;
+        const me = response.data?.data as Partial<AuthUser> | undefined;
+        if (!me?.id) {
+          clearAccessCache();
+          return null;
+        }
+        const full: AuthUser = {
+          id: me.id,
+          name: me.name ?? "",
+          email: me.email ?? "",
+          role: me.role ?? "",
+          role_name: me.role_name ?? "",
+          is_super_admin: !!me.is_super_admin,
+          permissions: me.permissions ?? [],
+        };
+        saveAccessCache(full.id, full.permissions);
+        return full;
       } catch {
+        clearAccessCache();
         return null;
       }
     },
@@ -79,31 +118,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const isAuthenticated = !!user;
 
+  // While /auth/me is loading the cached codes keep the menu from flashing
+  // empty. Once it answers, the server's codes are the only ones used.
+  const permissions = isLoading
+    ? cachedPermissions
+    : (user?.permissions ?? NO_PERMISSIONS);
+  const isSuperAdmin = !!user?.is_super_admin;
+
+  const isAllowed = useCallback(
+    (permission: PermissionRequirement) => {
+      const required = typeof permission === "string" ? [permission] : permission;
+      return required.some((code) => isSuperAdmin || permissions.includes(code));
+    },
+    [isSuperAdmin, permissions],
+  );
+
   const logout = async () => {
     try {
       await api.post("/auth/logout");
     } catch (err) {
       console.error(err);
     }
+    clearAccessCache();
     queryClient.setQueryData(["user"], null);
     router.push("/login");
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user: user || null,
-        isLoading,
-        isAuthenticated,
-        refetchUser: refetch,
-        login: loginMutation.mutateAsync,
-        isLoginLoading: loginMutation.isPending,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user: user ?? null,
+      isLoading,
+      isAuthenticated,
+      permissions,
+      isSuperAdmin,
+      isAllowed,
+      refetchUser: refetch,
+      login: loginMutation.mutateAsync,
+      isLoginLoading: loginMutation.isPending,
+      logout,
+    }),
+    // logout only closes over stable references
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      user,
+      isLoading,
+      isAuthenticated,
+      permissions,
+      isSuperAdmin,
+      isAllowed,
+      refetch,
+      loginMutation.mutateAsync,
+      loginMutation.isPending,
+    ],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuthContext = () => {

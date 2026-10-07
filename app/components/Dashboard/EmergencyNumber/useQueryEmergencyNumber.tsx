@@ -7,6 +7,7 @@ export const useQueryEmergencyNumber = (
   page?: number,
   pageSize?: number,
   search?: string,
+  enabled = true,
 ) => {
   const {
     data: number = [],
@@ -24,6 +25,7 @@ export const useQueryEmergencyNumber = (
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
+    enabled,
   });
 
   return { number, isLoading, error, refetch };

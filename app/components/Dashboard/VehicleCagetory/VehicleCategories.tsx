@@ -1,6 +1,16 @@
 "use client";
 
-import { Button, Form, Image, Input, message, Modal, Space, Tag } from "antd";
+import {
+  Button,
+  Form,
+  Image,
+  Input,
+  message,
+  Modal,
+  Result,
+  Space,
+  Tag,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
@@ -10,6 +20,8 @@ import ImageUpload from "@/app/components/ui/UploadImage";
 import CustomTable from "@/app/components/ui/CustomTable";
 import { getImageUrl } from "@/app/utils/supabase";
 import { useState } from "react";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 
 const { TextArea } = Input;
 
@@ -44,6 +56,11 @@ export interface CreateVehicleCategoryPayload {
 }
 
 export default function VehicleCategories() {
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.VEHICLE_CATEGORY.LIST);
+  const canAdd = isAllowed(PERM.VEHICLE_CATEGORY.ADD);
+  const canUpdate = isAllowed(PERM.VEHICLE_CATEGORY.UPDATE);
+  const canDelete = isAllowed(PERM.VEHICLE_CATEGORY.DELETE);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm<VehicleCategoryFormValues>();
   const [mode, setMode] = useState<"add" | "edit">("add");
@@ -84,6 +101,7 @@ export default function VehicleCategories() {
   // get vehicle categories
   const { data, isLoading, error } = useQuery({
     queryKey: ["vehicle-categories"],
+    enabled: canList,
     queryFn: async () => {
       const res = await api.get("/vehicle-category");
       return res.data?.data;
@@ -107,6 +125,16 @@ export default function VehicleCategories() {
       message.success("Vehicle category updated successfully!");
     },
   });
+
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -188,27 +216,37 @@ export default function VehicleCategories() {
       key: "CreatedAt",
       sorter: (a, b) => a.CreatedAt.localeCompare(b.CreatedAt),
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 180,
-      render: (_, record) => (
-        <Space>
-          <Button type="primary" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: VehicleCategory) => (
+              <Space>
+                {canUpdate && (
+                  <Button type="primary" onClick={() => handleEdit(record)}>
+                    Edit
+                  </Button>
+                )}
 
-          <Button
-            danger
-            disabled={deletePending}
-            type="primary"
-            onClick={() => deleteVehicleCategory(record.VehicleCategoryID)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
+                {canDelete && (
+                  <Button
+                    danger
+                    disabled={deletePending}
+                    type="primary"
+                    onClick={() =>
+                      deleteVehicleCategory(record.VehicleCategoryID)
+                    }
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -220,9 +258,11 @@ export default function VehicleCategories() {
           marginBottom: 20,
         }}
       >
-        <Button type="primary" onClick={showModal}>
-          Add Vehicle Category
-        </Button>
+        {canAdd && (
+          <Button type="primary" onClick={showModal}>
+            Add Vehicle Category
+          </Button>
+        )}
       </div>
 
       <CustomTable

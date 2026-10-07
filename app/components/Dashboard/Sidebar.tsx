@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { theme } = useTheme();
-  const { filterRoutes, can } = usePermissions(user);
+  const { filterRoutes, can } = usePermissions();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredRoutes, setFilteredRoutes] = useState(routes);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   useEffect(() => {
     const filtered = filterRoutes(routes);
     setFilteredRoutes(filtered);
-  }, [user]);
+  }, [filterRoutes]);
 
   const findSelectedPath = (
     items: any[],
@@ -189,13 +189,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   // Theme tokens
   const sidebarBg = isThemeLight ? "#eee8dd" : "#131b2e";
   const borderColor = isThemeLight ? "#d1d5db" : "#1e3a5f";
-  const textPrimary = isThemeLight ? "#1f2937" : "#e5e7eb";
+  const textPrimary = isThemeLight ? "#1f2937" : "#eee8dd";
   const textSecondary = isThemeLight ? "#6b7280" : "#9ca3af";
   const hoverBg = isThemeLight ? "#e0d9cb" : "#1c2740";
   const activeBg = isThemeLight ? "#d6cfc0" : "#1e3a5f";
   const inputBg = isThemeLight ? "#ffffff" : "#0f1a2e";
   const inputBorder = isThemeLight ? "#d1d5db" : "#1e3a5f";
-  const inputText = isThemeLight ? "#1f2937" : "#e5e7eb";
+  const inputText = isThemeLight ? "#1f2937" : "#eee8dd";
 
   return (
     <div
@@ -302,7 +302,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
                 className="text-xs truncate"
                 style={{ color: textSecondary }}
               >
-                {user?.role || "Guest"}
+                {user?.role_name || user?.role || "Guest"}
               </p>
             </div>
             <Badge dot className="w-2 h-2 bg-green-500 flex-shrink-0" />

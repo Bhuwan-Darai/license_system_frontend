@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import {
   Avatar,
@@ -15,6 +17,7 @@ import {
   Modal,
   Pagination,
   Popconfirm,
+  Result,
   Row,
   Select,
   Space,
@@ -100,6 +103,11 @@ const formatDate = (iso: string) => {
 };
 
 export default function BlogList() {
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.BLOG.LIST);
+  const canAdd = isAllowed(PERM.BLOG.ADD);
+  const canUpdate = isAllowed(PERM.BLOG.UPDATE);
+  const canDelete = isAllowed(PERM.BLOG.DELETE);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
@@ -115,7 +123,7 @@ export default function BlogList() {
     isDeleting,
   } = useMutationBlog();
 
-  const { blogs, isLoading, refetch } = useQueryBlog();
+  const { blogs, isLoading, refetch } = useQueryBlog(canList);
   const { categories, isLoading: blogCategoryLoading } =
     useQueryBlogCategoires();
 
@@ -182,6 +190,16 @@ export default function BlogList() {
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
+
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
 
   if (viewingBlog) {
     return (
@@ -285,27 +303,39 @@ export default function BlogList() {
                 }}
               />
 
-              <Divider />
+              {(canUpdate || canDelete) && (
+                <>
+                  <Divider />
 
-              <Space>
-                <Button
-                  icon={<EditOutlined />}
-                  onClick={() => handleEdit(viewingBlog)}
-                >
-                  Edit
-                </Button>
-                <Popconfirm
-                  title="Delete this blog?"
-                  description="This action cannot be undone."
-                  okText="Delete"
-                  okButtonProps={{ danger: true }}
-                  onConfirm={() => handleDelete(viewingBlog)}
-                >
-                  <Button danger icon={<DeleteOutlined />} loading={isDeleting}>
-                    Delete
-                  </Button>
-                </Popconfirm>
-              </Space>
+                  <Space>
+                    {canUpdate && (
+                      <Button
+                        icon={<EditOutlined />}
+                        onClick={() => handleEdit(viewingBlog)}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Popconfirm
+                        title="Delete this blog?"
+                        description="This action cannot be undone."
+                        okText="Delete"
+                        okButtonProps={{ danger: true }}
+                        onConfirm={() => handleDelete(viewingBlog)}
+                      >
+                        <Button
+                          danger
+                          icon={<DeleteOutlined />}
+                          loading={isDeleting}
+                        >
+                          Delete
+                        </Button>
+                      </Popconfirm>
+                    )}
+                  </Space>
+                </>
+              )}
             </div>
           </Card>
         </div>
@@ -325,17 +355,16 @@ export default function BlogList() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           alignItems: "center",
           marginBottom: 8,
         }}
       >
-        <Typography.Title level={3} style={{ margin: 0, color: "#1a1a2e" }}>
-          Blog Posts
-        </Typography.Title>
-        <Button type="primary" size="middle" onClick={showModal}>
-          Add Blog
-        </Button>
+        {canAdd && (
+          <Button type="primary" size="middle" onClick={showModal}>
+            Add Blog
+          </Button>
+        )}
       </div>
 
       <Divider style={{ borderColor: "#e0e0e0" }} />
@@ -382,6 +411,7 @@ export default function BlogList() {
                     )
                   }
                   actions={[
+                    canUpdate && (
                     <Button
                       type="link"
                       key="edit"
@@ -392,7 +422,9 @@ export default function BlogList() {
                       }}
                     >
                       <EditOutlined /> Edit
-                    </Button>,
+                    </Button>
+                    ),
+                    canDelete && (
                     <Popconfirm
                       key="delete"
                       title="Delete this blog?"
@@ -414,8 +446,9 @@ export default function BlogList() {
                       >
                         <DeleteOutlined /> Delete
                       </Button>
-                    </Popconfirm>,
-                  ]}
+                    </Popconfirm>
+                    ),
+                  ].filter(Boolean)}
                 >
                   <div style={{ marginBottom: 10 }}>
                     <Tag

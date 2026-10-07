@@ -3,23 +3,16 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { User } from "../hooks/usePermissions";
 import Sidebar from "../components/Dashboard/Sidebar";
 
 import LoadingSkeleton from "../components/ui/LoadingSkeleton";
 import Header from "../components/Dashboard/Header";
 import Footer from "../components/Dashboard/Footer";
 import { ProtectedRoute } from "../components/Route/ProtectedRoute";
+import { RouteGuard } from "../components/Route/RouteGuard";
+import { useAuthContext } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-
-// Mock user data for demo
-const mockUser: User = {
-  id: "1",
-  name: "Admin User",
-  email: "admin@example.com",
-  role: "admin",
-  permissions: [],
-};
+import { BreadcrumbProvider } from "../context/BreadcrumbContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -28,7 +21,7 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [user] = useState<User | null>(mockUser);
+  const { user } = useAuthContext();
   const pathname = usePathname();
   const { theme } = useTheme();
 
@@ -78,6 +71,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   }
 
   return (
+    <BreadcrumbProvider>
     <div className="flex h-screen">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} user={user} />
       <div className="flex-1 flex flex-col">
@@ -86,11 +80,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         backgroundColor: background,
         color : textPrimary
       }} className="flex-1 overflow-y-auto p-6">
-          <ProtectedRoute>{children}</ProtectedRoute>
+          <ProtectedRoute>
+            <RouteGuard>{children}</RouteGuard>
+          </ProtectedRoute>
         </main>
         <Footer collapsed={collapsed} />
       </div>
     </div>
+    </BreadcrumbProvider>
   );
 };
 

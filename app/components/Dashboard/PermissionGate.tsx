@@ -3,24 +3,23 @@
 
 import React from "react";
 import { Result, Button } from "antd";
-import { usePermissions, User } from "@/app/hooks/usePermissions";
+import { useAuthContext } from "@/app/context/AuthContext";
+import type { PermissionRequirement } from "@/config/permissions";
 
 interface PermissionGateProps {
   children: React.ReactNode;
-  permission: string;
-  user: User | null;
+  permission: PermissionRequirement;
   fallback?: React.ReactNode;
 }
 
 const PermissionGate: React.FC<PermissionGateProps> = ({
   children,
   permission,
-  user,
   fallback,
 }) => {
-  const { can } = usePermissions(user);
+  const { isAllowed } = useAuthContext();
 
-  if (!can(permission)) {
+  if (!isAllowed(permission)) {
     return (
       fallback || (
         <Result

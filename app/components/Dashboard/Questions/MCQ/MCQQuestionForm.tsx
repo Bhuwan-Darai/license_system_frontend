@@ -1,62 +1,51 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Form,
-  Input,
+  Alert,
   Button,
   Card,
-  Space,
-  Radio,
-  Row,
   Col,
-  Typography,
-  message,
-  Alert,
-  Tag,
-  Tooltip,
-  Select,
+  Form,
+  Input,
   InputNumber,
-  Divider,
-  Splitter,
+  Popconfirm,
+  Radio,
+  Result,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Tag,
+  Typography,
 } from "antd";
 import {
-  PlusOutlined,
+  CheckCircleOutlined,
   DeleteOutlined,
-  FileAddOutlined,
-  EditOutlined,
-  HolderOutlined,
+  ExclamationCircleOutlined,
+  LoadingOutlined,
   MinusOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useQueryQuestionBank } from "../Bank/useQueryQuestionBank";
-import { QuestionBank } from "../Bank/QuestionBank";
-import {
-  useMutationQuestions,
-  useQueryQuestions,
-  DBQuestion,
-  CreateQuestionPayload,
-  UpdateQuestionPayload,
-} from "./useQuestions";
-import ImageUpload from "@/app/components/ui/UploadImage";
 import { useSearchParams } from "next/navigation";
+import api from "@/app/utils/axios";
+import ImageUpload from "@/app/components/ui/UploadImage";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
+import { DBQuestion } from "./useQuestions";
+import {
+  useQueryBankQuestions,
+  useQueryExamBanks,
+} from "../../ExamManager/useExam";
 
 const { Text } = Typography;
 const { TextArea } = Input;
+
+const MAX_FORMS_AT_ONCE = 50;
+const AUTOSAVE_DELAY_MS = 800;
+
+type Difficulty = "easy" | "medium" | "hard";
+type SyncStatus = "draft" | "incomplete" | "saving" | "saved" | "error";
 
 interface ImageValue {
   url: string;
@@ -64,796 +53,552 @@ interface ImageValue {
 }
 
 interface QuestionFormValues {
-  question_bank_id: string;
-  question_id: string;
   question: string;
   subtitle?: string;
   image?: ImageValue;
-  optionA_id?: string;
-  optionB_id?: string;
-  optionC_id?: string;
-  optionD_id?: string;
   optionA: string;
   optionB: string;
   optionC: string;
   optionD: string;
   correctAnswer: string; // "0" | "1" | "2" | "3"
-  difficulty?: "easy" | "medium" | "hard";
-  sortOrder?: number;
+  difficulty: Difficulty;
 }
 
-// ---------- Build an update payload from an existing DBQuestion ----------
-const buildPayloadFromQuestion = (
-  q: DBQuestion,
-  sortOrder: number,
-): UpdateQuestionPayload => {
-  const sortedOpts = [...(q.options || [])].sort(
-    (a, b) => a.sort_order - b.sort_order,
-  );
-  const correctIndex = sortedOpts.findIndex((o) => o.is_correct);
+type CardModel = {
+  key: string;
+  /** set for questions that already exist in the backend */
+  initial: DBQuestion | null;
+};
 
+const newCard = (): CardModel => ({ key: crypto.randomUUID(), initial: null });
+
+const OPTION_LETTERS = ["A", "B", "C", "D"] as const;
+
+const sortedOptions = (q: DBQuestion) =>
+  [...(q.options ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+
+const toFormValues = (q: DBQuestion): Partial<QuestionFormValues> => {
+  const opts = sortedOptions(q);
+  const correct = opts.findIndex((o) => o.is_correct);
   return {
-    question_bank_id: q.question_bank_id,
-    question_id: q.question_id,
-    title1: q.title,
-    title2: (q as any).subtitle || "",
-    title3: (q as any).image_url || "",
-    options: {
-      optionA_id: sortedOpts[0]?.option_id ?? "",
-      optionB_id: sortedOpts[1]?.option_id ?? "",
-      optionC_id: sortedOpts[2]?.option_id ?? "",
-      optionD_id: sortedOpts[3]?.option_id ?? "",
-      optionA: sortedOpts[0]?.option_text || "",
-      optionB: sortedOpts[1]?.option_text || "",
-      optionC: sortedOpts[2]?.option_text || "",
-      optionD: sortedOpts[3]?.option_text || "",
-      correct_option: (correctIndex >= 0 ? correctIndex : 0) + 1,
-    },
-    level: (q.difficulty_level || "MEDIUM").toUpperCase() as any,
-    sort_order: sortOrder,
+    question: q.title,
+    subtitle: q.subtitle ?? "",
+    image: q.image_url ? { url: q.image_url, path: "" } : undefined,
+    optionA: opts[0]?.option_text ?? "",
+    optionB: opts[1]?.option_text ?? "",
+    optionC: opts[2]?.option_text ?? "",
+    optionD: opts[3]?.option_text ?? "",
+    correctAnswer: String(correct >= 0 ? correct : 0),
+    difficulty: (q.difficulty_level || "MEDIUM").toLowerCase() as Difficulty,
   };
 };
 
-// ---------- Sortable wrapper for a single question card ----------
-interface SortableQuestionCardProps {
-  q: DBQuestion;
-  index: number;
-  onEdit: (q: DBQuestion) => void;
-  onDelete: (id: string) => void;
-  isDeleting: boolean;
-  getDifficultyColor: (level?: string) => string;
+const errorText = (err: unknown) => {
+  const data = (
+    err as { response?: { data?: { message?: string; error?: string } } }
+  )?.response?.data;
+  return data?.message || data?.error || "Could not sync this question";
+};
+
+const STATUS_TAG: Record<
+  SyncStatus,
+  { color: string; icon?: React.ReactNode; label: string }
+> = {
+  draft: { color: "default", label: "Draft" },
+  incomplete: { color: "warning", label: "Fill required fields to sync" },
+  saving: { color: "processing", icon: <LoadingOutlined />, label: "Saving…" },
+  saved: { color: "success", icon: <CheckCircleOutlined />, label: "Saved" },
+  error: {
+    color: "error",
+    icon: <ExclamationCircleOutlined />,
+    label: "Not saved",
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* One question form. It saves itself once every required field is    */
+/* filled, and keeps saving edits afterwards.                         */
+/* ------------------------------------------------------------------ */
+
+interface QuestionFormCardProps {
+  bankId: string;
+  number: number;
+  initial: DBQuestion | null;
+  onStatus: (status: SyncStatus) => void;
+  onRemove: () => void;
+  canAdd: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
-const SortableQuestionCard: React.FC<SortableQuestionCardProps> = ({
-  q,
-  index,
-  onEdit,
-  onDelete,
-  isDeleting,
-  getDifficultyColor,
+const QuestionFormCard: React.FC<QuestionFormCardProps> = ({
+  bankId,
+  number,
+  initial,
+  onStatus,
+  onRemove,
+  canAdd,
+  canUpdate,
+  canDelete,
 }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: q.question_id });
+  const editable = initial ? canUpdate : canAdd;
+  const [form] = Form.useForm<QuestionFormValues>();
+  const [status, setStatus] = useState<SyncStatus>(initial ? "saved" : "draft");
+  const [errorMessage, setErrorMessage] = useState("");
+  // true once the backend has a record, which decides Delete vs Remove
+  const [persisted, setPersisted] = useState(!!initial);
+  const [showOptional, setShowOptional] = useState(
+    !!(initial?.subtitle || initial?.image_url),
+  );
 
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+  // Ids of the backend records once this question has been created
+  const questionId = useRef<string | null>(initial?.question_id ?? null);
+  const optionIds = useRef<string[]>(
+    initial ? sortedOptions(initial).map((o) => o.option_id) : [],
+  );
+  const sortOrder = useRef<number>(initial?.sort_order ?? number);
+
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inFlight = useRef(false);
+  const dirtyWhileSaving = useRef(false);
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    onStatus(status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
+
+  const update = (next: SyncStatus, message = "") => {
+    if (!mounted.current) return;
+    setStatus(next);
+    setErrorMessage(message);
   };
 
-  const sortedOpts = [...(q.options || [])].sort(
-    (a, b) => a.sort_order - b.sort_order,
-  );
+  const sync = async () => {
+    if (inFlight.current) {
+      // edited while a save is running: save again once it finishes
+      dirtyWhileSaving.current = true;
+      return;
+    }
+
+    // Check completeness without painting error messages on a half-filled form
+    try {
+      await form.validateFields({ validateOnly: true });
+    } catch {
+      update(questionId.current ? "incomplete" : "draft");
+      return;
+    }
+
+    const values = form.getFieldsValue(true) as QuestionFormValues;
+    const common = {
+      question_bank_id: bankId,
+      title1: values.question.trim(),
+      title2: values.subtitle?.trim() ?? "",
+      title3: values.image?.url ?? "",
+      level: (values.difficulty || "medium").toUpperCase() as
+        | "EASY"
+        | "MEDIUM"
+        | "HARD",
+      sort_order: sortOrder.current,
+    };
+    const optionTexts = {
+      optionA: values.optionA.trim(),
+      optionB: values.optionB.trim(),
+      optionC: values.optionC.trim(),
+      optionD: values.optionD.trim(),
+      correct_option: parseInt(values.correctAnswer, 10) + 1,
+    };
+
+    inFlight.current = true;
+    dirtyWhileSaving.current = false;
+    update("saving");
+
+    try {
+      if (!questionId.current) {
+        const res = await api.post("/question", {
+          ...common,
+          options: optionTexts,
+        });
+        const created = res.data?.question as DBQuestion | undefined;
+        questionId.current = created?.question_id ?? null;
+        optionIds.current = created ? sortedOptions(created).map((o) => o.option_id) : [];
+        if (mounted.current) setPersisted(true);
+      } else {
+        await api.put(`/question/${questionId.current}`, {
+          ...common,
+          question_id: questionId.current,
+          options: {
+            ...optionTexts,
+            optionA_id: optionIds.current[0],
+            optionB_id: optionIds.current[1],
+            optionC_id: optionIds.current[2],
+            optionD_id: optionIds.current[3],
+          },
+        });
+      }
+      update("saved");
+    } catch (err) {
+      update("error", errorText(err));
+    } finally {
+      inFlight.current = false;
+      if (dirtyWhileSaving.current && mounted.current) sync();
+    }
+  };
+
+  const scheduleSync = () => {
+    if (!editable) return;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(sync, AUTOSAVE_DELAY_MS);
+  };
+
+  const remove = async () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (questionId.current) {
+      try {
+        await api.delete(`/question/${questionId.current}`);
+      } catch (err) {
+        update("error", errorText(err));
+        return;
+      }
+    }
+    onRemove();
+  };
+
+  const tag = STATUS_TAG[status];
 
   return (
-    <div ref={setNodeRef} style={style}>
-      <Card
-        size="small"
-        style={{
-          marginBottom: 12,
-          borderLeft: `4px solid ${getDifficultyColor(q.difficulty_level)}`,
-        }}
-      >
-        <Space orientation="vertical" style={{ width: "100%" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-            }}
-          >
-            <Space align="start">
-              <Tooltip title="Drag to reorder">
-                <span
-                  {...attributes}
-                  {...listeners}
-                  style={{ cursor: "grab", touchAction: "none", paddingTop: 4 }}
-                >
-                  <HolderOutlined />
-                </span>
-              </Tooltip>
-              <Text strong>
-                Q{index + 1}: {q.title}
-              </Text>
-            </Space>
-            <Space>
-              <Tooltip title="Edit">
-                <Button
-                  type="text"
-                  icon={<EditOutlined />}
-                  onClick={() => onEdit(q)}
-                  size="small"
-                />
-              </Tooltip>
-              <Tooltip title="Delete">
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  loading={isDeleting}
-                  onClick={() => onDelete(q.question_id)}
-                  size="small"
-                />
-              </Tooltip>
-            </Space>
-          </div>
-
-          <div style={{ paddingLeft: 8 }}>
-            {sortedOpts.map((opt, idx) => (
-              <div
-                key={opt.option_id}
-                style={{
-                  marginBottom: 4,
-                  color: opt.is_correct ? "#52c41a" : "inherit",
-                  fontWeight: opt.is_correct ? "bold" : "normal",
-                }}
-              >
-                {String.fromCharCode(65 + idx)}. {opt.option_text}
-                {opt.is_correct && " ✓"}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-            <Tag color={getDifficultyColor(q.difficulty_level)}>
-              {q.difficulty_level}
-            </Tag>
-            <Tag color="default">Sort: {q.sort_order}</Tag>
-            <Tag color={q.is_active ? "success" : "default"}>
-              {q.is_active ? "Active" : "Inactive"}
-            </Tag>
-          </div>
+    <Card
+      size="small"
+      style={{ marginBottom: 16 }}
+      title={
+        <Space>
+          <Text strong>Question {number}</Text>
+          <Tag color={tag.color} icon={tag.icon}>
+            {tag.label}
+          </Tag>
         </Space>
-      </Card>
-    </div>
+      }
+      extra={
+        persisted ? (
+          canDelete && (
+          <Popconfirm
+            title="Delete this question?"
+            description="It will be removed from the question set."
+            okText="Delete"
+            okButtonProps={{ danger: true }}
+            onConfirm={remove}
+          >
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              disabled={status === "saving"}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
+          )
+        ) : (
+          canAdd && (
+          <Button
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            disabled={status === "saving"}
+            onClick={remove}
+          >
+            Remove
+          </Button>
+          )
+        )
+      }
+    >
+      {status === "error" && (
+        <Alert
+          type="error"
+          showIcon
+          title={errorMessage}
+          style={{ marginBottom: 12 }}
+          action={
+            <Button size="small" onClick={sync}>
+              Retry
+            </Button>
+          }
+        />
+      )}
+
+      <Form
+        form={form}
+        layout="vertical"
+        disabled={!editable}
+        autoComplete="off"
+        requiredMark={false}
+        initialValues={
+          initial
+            ? toFormValues(initial)
+            : { difficulty: "medium", correctAnswer: undefined }
+        }
+        onValuesChange={scheduleSync}
+      >
+        <Form.Item
+          name="question"
+          label="प्रश्न (Question)"
+          rules={[
+            { required: true, whitespace: true, message: "Enter the question" },
+          ]}
+        >
+          <TextArea rows={2} placeholder="Enter question" maxLength={200} showCount />
+        </Form.Item>
+
+        <Button
+          type="dashed"
+          size="small"
+          disabled={false}
+          style={{ marginBottom: 16 }}
+          icon={showOptional ? <MinusOutlined /> : <PlusOutlined />}
+          onClick={() => setShowOptional((v) => !v)}
+        >
+          {showOptional ? "Hide subtitle & image" : "Add subtitle & image (optional)"}
+        </Button>
+
+        {/* Kept mounted so values survive hiding the section */}
+        <div style={{ display: showOptional ? "block" : "none" }}>
+          <Form.Item name="subtitle" label="उपशीर्षक (Subtitle)">
+            <TextArea rows={2} placeholder="Enter subtitle if any" maxLength={200} showCount />
+          </Form.Item>
+          <Form.Item name="image" label="प्रश्नको चित्र (Question Image)">
+            <ImageUpload />
+          </Form.Item>
+        </div>
+
+        <Row gutter={16}>
+          {OPTION_LETTERS.map((letter, i) => (
+            <Col xs={24} md={12} key={letter}>
+              <Form.Item
+                name={`option${letter}`}
+                label={`${["विकल्प क", "विकल्प ख", "विकल्प ग", "विकल्प घ"][i]} (Option ${letter})`}
+                rules={[
+                  { required: true, whitespace: true, message: "Required" },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+
+        <Row gutter={16} align="middle">
+          <Col xs={24} lg={14}>
+            <Form.Item
+              name="correctAnswer"
+              label="सही उत्तर (Correct Answer)"
+              rules={[{ required: true, message: "Select the correct answer" }]}
+            >
+              <Radio.Group>
+                <Radio value="0">A</Radio>
+                <Radio value="1">B</Radio>
+                <Radio value="2">C</Radio>
+                <Radio value="3">D</Radio>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+          <Col xs={24} lg={10}>
+            <Form.Item name="difficulty" label="Difficulty Level">
+              <Radio.Group>
+                <Radio.Button value="easy">Easy</Radio.Button>
+                <Radio.Button value="medium">Medium</Radio.Button>
+                <Radio.Button value="hard">Hard</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </Card>
   );
 };
 
-const MCQQuestionForm: React.FC = () => {
-  const [form] = Form.useForm<QuestionFormValues>();
-  const [editingId, setEditingId] = useState<string | null>(null); // question_id
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOptionalFields, setShowOptionalFields] = useState(false);
+/* ------------------------------------------------------------------ */
+/* Page                                                               */
+/* ------------------------------------------------------------------ */
 
-  const search = useSearchParams();
-  const bankIdFromUrl = search.get("bankId");
-  const [selectedBankId, setSelectedBankId] = useState<string | null>(
-    bankIdFromUrl,
+const MCQQuestionForm: React.FC = () => {
+  const { isAllowed } = useAuthContext();
+  const canAdd = isAllowed(PERM.QUESTION.ADD);
+  const canUpdate = isAllowed(PERM.QUESTION.UPDATE);
+  const canDelete = isAllowed(PERM.QUESTION.DELETE);
+  const canOpen = isAllowed([
+    PERM.QUESTION.LIST,
+    PERM.QUESTION.ADD,
+    PERM.QUESTION.UPDATE,
+  ]);
+  const bankIdFromUrl = useSearchParams().get("bankId");
+  const [bankId, setBankId] = useState<string | null>(bankIdFromUrl);
+  const [cards, setCards] = useState<CardModel[]>([]);
+  const [statuses, setStatuses] = useState<Record<string, SyncStatus>>({});
+  const [count, setCount] = useState<number>(1);
+
+  const { data: banks = [], isLoading: isBanksLoading } = useQueryExamBanks();
+  const { data: existing, isFetching } = useQueryBankQuestions(
+    bankId ?? "",
+    !!bankId,
   );
 
-  const { questionBanks, isLoading: isQuestionBankLoading } =
-    useQueryQuestionBank();
+  // Load the bank's existing questions into forms once per bank, from a fresh
+  // fetch, so later refetches never overwrite what is being typed.
+  const [hydratedBank, setHydratedBank] = useState<string | null>(null);
+  const isQuestionsLoading = !!bankId && hydratedBank !== bankId;
+  if (bankId && existing && !isFetching && hydratedBank !== bankId) {
+    const saved = [...existing]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((q) => ({ key: q.question_id, initial: q }));
+    setHydratedBank(bankId);
+    setCards(saved.length || !canAdd ? saved : [newCard()]);
+    setStatuses({});
+  }
 
-  const {
-    createQuestion,
-    updateQuestion,
-    deleteQuestion,
-    isUpdating,
-    isDeleting,
-  } = useMutationQuestions();
+  const addForms = (n: number) =>
+    canAdd &&
+    setCards((prev) => [...prev, ...Array.from({ length: n }, newCard)]);
 
-  // Fetch questions for the selected bank.
-  // `refetch` may or may not exist depending on how useQueryQuestions is
-  // implemented — we call it defensively with `?.()` everywhere below so
-  // this works whether or not the hook already invalidates its own cache.
-  const {
-    data: questionsResponse,
-    isLoading: isQuestionsLoading,
-    refetch: refetchQuestions,
-  } = useQueryQuestions(selectedBankId, {
-    page: 1,
-    limit: 50,
-    search: "",
-  });
+  const onBankChange = (id: string) => {
+    setHydratedBank(null);
+    setCards([]);
+    setStatuses({});
+    setBankId(id);
+  };
 
-  // Local ordered copy so drag-and-drop, add, edit, and delete can all
-  // update the screen instantly, ahead of / independent of any refetch.
-  const [orderedQuestions, setOrderedQuestions] = useState<DBQuestion[]>([]);
+  const values = Object.values(statuses);
+  const savedCount = values.filter((s) => s === "saved").length;
+  const pendingCount = values.filter(
+    (s) => s === "draft" || s === "incomplete",
+  ).length;
+  const errorCount = values.filter((s) => s === "error").length;
 
-  // Re-sync the local copy only when the query's data reference actually
-  // changes (a real fetch/refetch), not on every render.
-  const [syncedData, setSyncedData] = useState(questionsResponse?.data);
-  if (questionsResponse?.data !== syncedData) {
-    setSyncedData(questionsResponse?.data);
-    setOrderedQuestions(
-      [...(questionsResponse?.data ?? [])].sort(
-        (a, b) => a.sort_order - b.sort_order,
-      ),
+  if (!canOpen) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
     );
   }
 
-  // Pre-select bank from URL
-  useEffect(() => {
-    if (bankIdFromUrl) {
-      form.setFieldsValue({ question_bank_id: bankIdFromUrl });
-      setSelectedBankId(bankIdFromUrl);
-    }
-  }, [bankIdFromUrl, form]);
-
-  // ---------- Drag and drop sensors ----------
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 }, // avoid hijacking clicks on Edit/Delete
-    }),
-  );
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = orderedQuestions.findIndex(
-      (q) => q.question_id === active.id,
-    );
-    const newIndex = orderedQuestions.findIndex(
-      (q) => q.question_id === over.id,
-    );
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const previousOrder = orderedQuestions;
-    const reordered = arrayMove(orderedQuestions, oldIndex, newIndex);
-
-    // Optimistic UI update, re-numbering sort_order to match new positions
-    const renumbered = reordered.map((q, idx) => ({ ...q, sort_order: idx }));
-    setOrderedQuestions(renumbered);
-
-    try {
-      const toPersist = renumbered.filter((q) => {
-        const original = previousOrder.find(
-          (oq) => oq.question_id === q.question_id,
-        );
-        return original && original.sort_order !== q.sort_order;
-      });
-
-      await Promise.all(
-        toPersist.map((q) =>
-          updateQuestion(buildPayloadFromQuestion(q, q.sort_order)),
-        ),
-      );
-
-      // Reconcile with the server in the background
-      refetchQuestions?.();
-    } catch (error) {
-      console.error("Reorder error:", error);
-      message.error("Could not save the new order. Please try again.");
-      // Roll back to the previous order on failure
-      setOrderedQuestions(previousOrder);
-    }
-  };
-
-  // ---------- Submit (create or update) ----------
-  // ---------- Submit (create or update) ----------
-  const handleSubmit = async (values: QuestionFormValues) => {
-    setIsSubmitting(true);
-    try {
-      if (editingId) {
-        const payload: UpdateQuestionPayload = {
-          question_bank_id: values.question_bank_id,
-          question_id: values.question_id,
-          title1: values.question,
-          title2: values.subtitle || "",
-          title3: values.image?.url || "",
-          options: {
-            optionA_id: values.optionA_id ?? "",
-            optionB_id: values.optionB_id ?? "",
-            optionC_id: values.optionC_id ?? "",
-            optionD_id: values.optionD_id ?? "",
-            optionA: values.optionA,
-            optionB: values.optionB,
-            optionC: values.optionC,
-            optionD: values.optionD,
-            correct_option: parseInt(values.correctAnswer, 10) + 1,
-          },
-          level: (values.difficulty || "medium").toUpperCase() as any,
-          sort_order: values.sortOrder ?? 0,
-        };
-
-        const response = await updateQuestion(payload);
-        // Axios responses come back as { data: ... }; some APIs additionally
-        // wrap the payload in another `data` key. Unwrap defensively.
-        const updated: DBQuestion | undefined =
-          (response as any)?.data?.data ?? (response as any)?.data;
-
-        setOrderedQuestions((prev) =>
-          prev.map((q) =>
-            q.question_id === values.question_id
-              ? updated
-                ? { ...q, ...updated }
-                : q // no usable shape back — leave as-is, refetch will fix it
-              : q,
-          ),
-        );
-
-        setEditingId(null);
-        message.success("Question updated.");
-      } else {
-        const payload: CreateQuestionPayload = {
-          question_bank_id: values.question_bank_id,
-          question_id: values.question_id,
-          title1: values.question,
-          title2: values.subtitle || "",
-          title3: values.image?.url || "",
-          options: {
-            optionA: values.optionA,
-            optionB: values.optionB,
-            optionC: values.optionC,
-            optionD: values.optionD,
-            correct_option: parseInt(values.correctAnswer, 10) + 1,
-          },
-          level: (values.difficulty || "medium").toUpperCase() as any,
-          sort_order: values.sortOrder ?? 0,
-        };
-
-        const response = await createQuestion(payload);
-        const created: DBQuestion | undefined =
-          (response as any)?.data?.data ?? (response as any)?.data;
-
-        if (created) {
-          setOrderedQuestions((prev) =>
-            [...prev, created].sort((a, b) => a.sort_order - b.sort_order),
-          );
-        }
-        message.success("Question added.");
-      }
-
-      // Reconcile with the server regardless — this is what actually
-      // guarantees correctness if the unwrap shape above doesn't match
-      // your API's real response.
-      await refetchQuestions?.();
-
-      form.resetFields();
-      if (selectedBankId) {
-        form.setFieldsValue({ question_bank_id: selectedBankId });
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
-      message.error(
-        editingId
-          ? "Could not update the question. Please try again."
-          : "Could not add the question. Please try again.",
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // ---------- Delete ----------
-  const handleDelete = async (questionId: string) => {
-    const previous = orderedQuestions;
-
-    // Optimistic removal so the list responds instantly
-    setOrderedQuestions((prev) =>
-      prev.filter((q) => q.question_id !== questionId),
-    );
-
-    try {
-      await deleteQuestion(questionId);
-      message.success("Question deleted.");
-      await refetchQuestions?.();
-    } catch (e) {
-      console.error("Delete error:", e);
-      message.error("Could not delete the question. Please try again.");
-      setOrderedQuestions(previous); // roll back
-    }
-  };
-
-  // ---------- Edit – map API shape → form ----------
-  // const handleEdit = (q: DBQuestion) => {
-  //   setEditingId(q.question_id);
-
-  //   const sortedOpts = [...(q.options || [])].sort(
-  //     (a, b) => a.sort_order - b.sort_order,
-  //   );
-
-  //   const correctIndex = sortedOpts.findIndex((o) => o.is_correct);
-
-  //   form.setFieldsValue({
-  //     question_bank_id: q.question_bank_id,
-  //     question_id: q.question_id,
-  //     question: q.title,
-  //     subtitle: (q as any).subtitle || "",
-  //     optionA_id: sortedOpts[0]?.option_id,
-  //     optionB_id: sortedOpts[1]?.option_id,
-  //     optionC_id: sortedOpts[2]?.option_id,
-  //     optionD_id: sortedOpts[3]?.option_id,
-  //     optionA: sortedOpts[0]?.option_text || "",
-  //     optionB: sortedOpts[1]?.option_text || "",
-  //     optionC: sortedOpts[2]?.option_text || "",
-  //     optionD: sortedOpts[3]?.option_text || "",
-  //     correctAnswer: correctIndex >= 0 ? String(correctIndex) : "0",
-  //     difficulty: (q.difficulty_level || "MEDIUM").toLowerCase() as any,
-  //     sortOrder: q.sort_order,
-  //   });
-  // };
-  const handleEdit = (q: DBQuestion) => {
-    setEditingId(q.question_id);
-
-    const sortedOpts = [...(q.options || [])].sort(
-      (a, b) => a.sort_order - b.sort_order,
-    );
-
-    const correctIndex = sortedOpts.findIndex((o) => o.is_correct);
-
-    const hasSubtitle = !!(q as any).subtitle;
-    const hasImage = !!(q as any).image_url;
-    setShowOptionalFields(hasSubtitle || hasImage);
-
-    form.setFieldsValue({
-      question_bank_id: q.question_bank_id,
-      question_id: q.question_id,
-      question: q.title,
-      subtitle: (q as any).subtitle || "",
-      image: (q as any).image_url
-        ? { url: (q as any).image_url, path: (q as any).image_path || "" }
-        : undefined,
-      optionA_id: sortedOpts[0]?.option_id,
-      optionB_id: sortedOpts[1]?.option_id,
-      optionC_id: sortedOpts[2]?.option_id,
-      optionD_id: sortedOpts[3]?.option_id,
-      optionA: sortedOpts[0]?.option_text || "",
-      optionB: sortedOpts[1]?.option_text || "",
-      optionC: sortedOpts[2]?.option_text || "",
-      optionD: sortedOpts[3]?.option_text || "",
-      correctAnswer: correctIndex >= 0 ? String(correctIndex) : "0",
-      difficulty: (q.difficulty_level || "MEDIUM").toLowerCase() as any,
-      sortOrder: q.sort_order,
-    });
-  };
-
-  // const handleCancelEdit = () => {
-  //   setEditingId(null);
-  //   form.resetFields();
-  //   if (selectedBankId) {
-  //     form.setFieldsValue({ question_bank_id: selectedBankId });
-  //   }
-  // };
-
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setShowOptionalFields(false);
-    form.resetFields();
-    if (selectedBankId) {
-      form.setFieldsValue({ question_bank_id: selectedBankId });
-    }
-  };
-
-  const getDifficultyColor = (level?: string) => {
-    switch ((level || "").toUpperCase()) {
-      case "EASY":
-        return "green";
-      case "HARD":
-      case "EXPERT":
-        return "red";
-      default:
-        return "blue";
-    }
-  };
-
   return (
-    <div style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <Splitter style={{ height: "calc(100vh - 24px)" }}>
-        {/* ========== LEFT: Form ========== */}
-        <Splitter.Panel defaultSize="42%" min="30%" max="65%">
-          <div style={{ paddingRight: 16, height: "100%" }}>
-            <Card
-              title={
-                <Space>
-                  {editingId ? <EditOutlined /> : <FileAddOutlined />}
-                  {editingId ? "Edit Question" : "Add New Question"}
-                </Space>
-              }
-              variant="borderless"
-              style={{
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                height: "100%",
-              }}
-            >
-              <div
-                style={{
-                  maxHeight: "calc(100vh - 220px)",
-                  overflowY: "auto",
-                  paddingRight: 4,
-                }}
+    <div style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
+      <Text type="secondary">
+        Each question is saved automatically as soon as all of its required
+        fields are filled.
+      </Text>
+
+      <Card style={{ margin: "24px 0" }}>
+        <Row gutter={[16, 16]} align="bottom">
+          <Col xs={24} md={12}>
+            <Text strong>Question set</Text>
+            <Select
+              showSearch
+              style={{ width: "100%", marginTop: 8 }}
+              optionFilterProp="label"
+              placeholder="Select a question set"
+              loading={isBanksLoading}
+              value={bankId ?? undefined}
+              onChange={onBankChange}
+              options={banks.map((b) => ({
+                value: b["Question Bank Id"],
+                label: b.Title,
+              }))}
+            />
+          </Col>
+          {canAdd && (
+          <Col xs={24} md={12}>
+            <Text strong>Number of question forms</Text>
+            <Space.Compact style={{ width: "100%", marginTop: 8 }}>
+              <InputNumber
+                min={1}
+                max={MAX_FORMS_AT_ONCE}
+                value={count}
+                onChange={(v) => setCount(v ?? 1)}
+                style={{ width: 100 }}
+                disabled={!bankId}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                disabled={!bankId}
+                onClick={() => addForms(count)}
               >
-                <Form
-                  form={form}
-                  layout="vertical"
-                  onFinish={handleSubmit}
-                  autoComplete="off"
-                >
-                  <Form.Item
-                    name="question_bank_id"
-                    label="Question Bank"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please select a Question bank",
-                      },
-                    ]}
-                  >
-                    <Select
-                      showSearch
-                      optionFilterProp="label"
-                      placeholder="Search to Select"
-                      loading={isQuestionBankLoading}
-                      onChange={(value: string) => setSelectedBankId(value)}
-                      getPopupContainer={() => document.body}
-                      options={questionBanks?.data?.map((b: QuestionBank) => ({
-                        value: b["Question Bank Id"],
-                        label: b.Title,
-                      }))}
-                    />
-                  </Form.Item>
+                Add {count} form{count > 1 ? "s" : ""}
+              </Button>
+            </Space.Compact>
+          </Col>
+          )}
+        </Row>
+      </Card>
 
-                  <Form.Item
-                    name="question"
-                    label="प्रश्न (Question)"
-                    rules={[
-                      { required: true, message: "Please enter the question" },
-                    ]}
-                  >
-                    <TextArea
-                      rows={3}
-                      placeholder="Enter question"
-                      showCount
-                      maxLength={200}
-                    />
-                  </Form.Item>
+      {!bankId ? (
+        <Alert
+          type="info"
+          showIcon
+          title="Select a question set to start adding questions."
+        />
+      ) : (
+        <Spin spinning={isQuestionsLoading}>
+          <Space style={{ marginBottom: 16 }} wrap>
+            <Tag color="success">{savedCount} saved</Tag>
+            {pendingCount > 0 && (
+              <Tag color="warning">{pendingCount} not complete</Tag>
+            )}
+            {errorCount > 0 && <Tag color="error">{errorCount} failed</Tag>}
+          </Space>
 
-                  <Form.Item
-                    style={{ marginBottom: showOptionalFields ? 12 : 24 }}
-                  >
-                    <Button
-                      type="dashed"
-                      size="small"
-                      icon={
-                        showOptionalFields ? (
-                          <MinusOutlined />
-                        ) : (
-                          <PlusOutlined />
-                        )
-                      }
-                      onClick={() => setShowOptionalFields((prev) => !prev)}
-                    >
-                      {showOptionalFields
-                        ? "Hide subtitle & image"
-                        : "Add subtitle & image (optional)"}
-                    </Button>
-                  </Form.Item>
-
-                  {showOptionalFields && (
-                    <>
-                      <Form.Item name="subtitle" label="उपशीर्षक (Subtitle)">
-                        <TextArea
-                          rows={2}
-                          placeholder="Enter subtitle if any"
-                          showCount
-                          maxLength={200}
-                        />
-                      </Form.Item>
-
-                      <Form.Item
-                        name="image"
-                        label="प्रश्नको चित्र (Question Image)"
-                      >
-                        <ImageUpload />
-                      </Form.Item>
-                    </>
-                  )}
-                  {/* <Form.Item name="subtitle" label="उपशीर्षक (Subtitle)">
-                    <TextArea
-                      rows={2}
-                      placeholder="Enter subtitle if any"
-                      showCount
-                      maxLength={200}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    name="image"
-                    label="प्रश्नको चित्र (Question Image)"
-                  >
-                    <ImageUpload />
-                  </Form.Item> */}
-
-                  <Form.Item name="question_id" hidden>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="optionA_id" hidden>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="optionB_id" hidden>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="optionC_id" hidden>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="optionD_id" hidden>
-                    <Input />
-                  </Form.Item>
-
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="optionA"
-                        label="विकल्प क (Option A)"
-                        rules={[{ required: true, message: "Required" }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name="optionB"
-                        label="विकल्प ख (Option B)"
-                        rules={[{ required: true, message: "Required" }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="optionC"
-                        label="विकल्प ग (Option C)"
-                        rules={[{ required: true, message: "Required" }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name="optionD"
-                        label="विकल्प घ (Option D)"
-                        rules={[{ required: true, message: "Required" }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <Form.Item
-                    name="correctAnswer"
-                    label="सही उत्तर (Correct Answer)"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please select correct answer",
-                      },
-                    ]}
-                  >
-                    <Radio.Group>
-                      <Radio value="0">विकल्प क (A)</Radio>
-                      <Radio value="1">विकल्प ख (B)</Radio>
-                      <Radio value="2">विकल्प ग (C)</Radio>
-                      <Radio value="3">विकल्प घ (D)</Radio>
-                    </Radio.Group>
-                  </Form.Item>
-
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item name="difficulty" label="Difficulty Level">
-                        <Radio.Group>
-                          <Radio.Button value="easy">Easy</Radio.Button>
-                          <Radio.Button value="medium">Medium</Radio.Button>
-                          <Radio.Button value="hard">Hard</Radio.Button>
-                        </Radio.Group>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="sortOrder" label="Sort Order">
-                        <InputNumber min={0} style={{ width: "100%" }} />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <Form.Item>
-                    <Space>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        icon={editingId ? <EditOutlined /> : <PlusOutlined />}
-                        loading={isSubmitting || isUpdating}
-                      >
-                        {editingId ? "Update Question" : "Add Question"}
-                      </Button>
-                      {editingId && (
-                        <Button onClick={handleCancelEdit}>Cancel Edit</Button>
-                      )}
-                    </Space>
-                  </Form.Item>
-                </Form>
-              </div>
-            </Card>
-          </div>
-        </Splitter.Panel>
-
-        {/* ========== RIGHT: List ========== */}
-        <Splitter.Panel>
-          <div style={{ paddingLeft: 16, height: "100%" }}>
-            <Card
-              title={
-                <Space orientation="horizontal">
-                  <Text>Questions List</Text>
-                  <Tag color="blue">{orderedQuestions.length} questions</Tag>
-                </Space>
+          {cards.map((card, index) => (
+            <QuestionFormCard
+              key={`${bankId}-${card.key}`}
+              bankId={bankId}
+              number={index + 1}
+              initial={card.initial}
+              onStatus={(status) =>
+                setStatuses((prev) =>
+                  prev[card.key] === status
+                    ? prev
+                    : { ...prev, [card.key]: status },
+                )
               }
-              variant="borderless"
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)", height: "100%" }}
+              canAdd={canAdd}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
+              onRemove={() => {
+                setCards((prev) => prev.filter((c) => c.key !== card.key));
+                setStatuses((prev) => {
+                  const rest = { ...prev };
+                  delete rest[card.key];
+                  return rest;
+                });
+              }}
+            />
+          ))}
+
+          {canAdd && !isQuestionsLoading && (
+            <Button
+              type="dashed"
+              block
+              size="large"
+              icon={<PlusOutlined />}
+              onClick={() => addForms(1)}
             >
-              {isQuestionsLoading ? (
-                <div style={{ textAlign: "center", padding: "40px 0" }}>
-                  Loading questions...
-                </div>
-              ) : orderedQuestions.length === 0 ? (
-                <Alert
-                  message="No questions yet"
-                  description="Add your first MCQ question on the left."
-                  type="info"
-                  showIcon
-                />
-              ) : (
-                <div
-                  style={{
-                    maxHeight: "calc(100vh - 220px)",
-                    overflowY: "auto",
-                  }}
-                >
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={orderedQuestions.map((q) => q.question_id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {orderedQuestions.map((q, index) => (
-                        <SortableQuestionCard
-                          key={q.question_id}
-                          q={q}
-                          index={index}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          isDeleting={isDeleting}
-                          getDifficultyColor={getDifficultyColor}
-                        />
-                      ))}
-                    </SortableContext>
-                  </DndContext>
-                </div>
-              )}
-            </Card>
-          </div>
-        </Splitter.Panel>
-      </Splitter>
+              Add another question
+            </Button>
+          )}
+        </Spin>
+      )}
     </div>
   );
 };

@@ -28,10 +28,12 @@ import type { ColumnsType } from "antd/es/table";
 import { useQueryEmergencyNumber } from "./useQueryEmergencyNumber";
 import { useMutationEmergencyNumber } from "./useMutationEmergencyNumber";
 import { useTheme } from "@/app/context/ThemeContext";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 type NumberData = {
   id: number;
@@ -46,6 +48,11 @@ type NumberData = {
 };
 
 const EmergencyNumberManager: React.FC = () => {
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.EMERGENCY_NUMBER.LIST);
+  const canAdd = isAllowed(PERM.EMERGENCY_NUMBER.ADD);
+  const canUpdate = isAllowed(PERM.EMERGENCY_NUMBER.UPDATE);
+  const canDelete = isAllowed(PERM.EMERGENCY_NUMBER.DELETE);
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState<number>(1);
@@ -66,6 +73,7 @@ const EmergencyNumberManager: React.FC = () => {
     page,
     pageSize,
     debouncedSearch,
+    canList,
   );
 
   const {
@@ -262,6 +270,7 @@ const EmergencyNumberManager: React.FC = () => {
             size="small"
             checked={display}
             loading={isUpdating}
+            disabled={!canUpdate}
             onChange={(checked) => handleDisplayChange(record, checked)}
           />
         </Space>
@@ -278,31 +287,39 @@ const EmergencyNumberManager: React.FC = () => {
         </Text>
       ),
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 180,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Edit
-          </Button>
-          <Button
-            danger
-            type="primary"
-            icon={<DeleteOutlined />}
-            loading={isDeleting}
-            onClick={() => handleDelete(record.emergency_number_id)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: NumberData) => (
+              <Space>
+                {canUpdate && (
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => handleEdit(record)}
+                  >
+                    Edit
+                  </Button>
+                )}
+                {canDelete && (
+                  <Button
+                    danger
+                    type="primary"
+                    icon={<DeleteOutlined />}
+                    loading={isDeleting}
+                    onClick={() => handleDelete(record.emergency_number_id)}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const isSubmitting = isAdding || isUpdating;
@@ -313,6 +330,16 @@ const EmergencyNumberManager: React.FC = () => {
 
   if (error) {
     return <Result title={"Something went wrong"} />;
+  }
+
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
   }
 
   return (
@@ -343,23 +370,20 @@ const EmergencyNumberManager: React.FC = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
             marginBottom: 20,
           }}
         >
-          <div>
-            <Title level={3} style={{ margin: 0, color: colors.text }}>
-              Emergency Numbers
-            </Title>
-            <Text style={{ color: colors.secondaryText }}>
-              Manage emergency contact numbers displayed to users.
-            </Text>
-          </div>
-
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-            Add Number
-          </Button>
+          {canAdd && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreate}
+            >
+              Add Number
+            </Button>
+          )}
         </div>
 
         <CustomTable

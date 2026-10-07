@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, Modal, Space } from "antd";
+import { Button, Form, Input, Modal, Result, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 import { useMutationQuestionBankCategories } from "./useMutationQuestionBank";
 import { useQueryQuestionBankCategories } from "./useQueryQuestionBank";
+import { useAuthContext } from "@/app/context/AuthContext";
+import { PERM } from "@/config/permissions";
 
 const { TextArea } = Input;
 
@@ -39,6 +41,11 @@ export interface CreateQuestionBankCategoryPayload {
 }
 
 export default function QuestionBankCategories() {
+  const { isAllowed } = useAuthContext();
+  const canList = isAllowed(PERM.QUESTION_BANK_CATEGORY.LIST);
+  const canAdd = isAllowed(PERM.QUESTION_BANK_CATEGORY.ADD);
+  const canUpdate = isAllowed(PERM.QUESTION_BANK_CATEGORY.UPDATE);
+  const canDelete = isAllowed(PERM.QUESTION_BANK_CATEGORY.DELETE);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm<QuestionBankCategoryFormValues>();
   const [mode, setMode] = useState<"add" | "edit">("add");
@@ -52,7 +59,17 @@ export default function QuestionBankCategories() {
     deleteQuestionBankCategory,
     deletePending,
   } = useMutationQuestionBankCategories();
-  const { data, isLoading, error } = useQueryQuestionBankCategories();
+  const { data, isLoading, error } = useQueryQuestionBankCategories(canList);
+
+  if (!canList) {
+    return (
+      <Result
+        status="403"
+        title="403"
+        subTitle="You don't have permission to view this."
+      />
+    );
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -107,29 +124,37 @@ export default function QuestionBankCategories() {
       key: "CreatedAt",
       sorter: (a, b) => a.CreatedAt.localeCompare(b.CreatedAt),
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 180,
-      render: (_, record) => (
-        <Space>
-          <Button type="primary" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
+    ...(canUpdate || canDelete
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            width: 180,
+            render: (_: unknown, record: QuestionBankCategory) => (
+              <Space>
+                {canUpdate && (
+                  <Button type="primary" onClick={() => handleEdit(record)}>
+                    Edit
+                  </Button>
+                )}
 
-          <Button
-            danger
-            disabled={deletePending}
-            type="primary"
-            onClick={() =>
-              deleteQuestionBankCategory(record.QuestionBankCategoryID)
-            }
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
+                {canDelete && (
+                  <Button
+                    danger
+                    disabled={deletePending}
+                    type="primary"
+                    onClick={() =>
+                      deleteQuestionBankCategory(record.QuestionBankCategoryID)
+                    }
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -141,9 +166,11 @@ export default function QuestionBankCategories() {
           marginBottom: 20,
         }}
       >
-        <Button type="primary" onClick={showModal}>
-          Add Question Bank Category
-        </Button>
+        {canAdd && (
+          <Button type="primary" onClick={showModal}>
+            Add Question Bank Category
+          </Button>
+        )}
       </div>
 
       <CustomTable
