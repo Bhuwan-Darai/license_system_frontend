@@ -181,6 +181,18 @@ const en = {
     message: "Message",
     messagePlaceholder: "Tell us how we can help...",
     send: "Send Message",
+    sending: "Sending...",
+    success: "Thank you! Your message has been sent. We will get back to you soon.",
+    error: "We could not send your message. Please try again in a moment.",
+    tooMany: "You have sent too many messages. Please try again later.",
+    errors: {
+      name: "Enter your name (2 to 100 characters).",
+      phone: "Enter a valid phone number.",
+      email: "Enter a valid email address or leave it empty.",
+      help: "Select what you need help with.",
+      message: "Write a message of 10 to 2000 characters.",
+      markup: "Please remove the < and > characters.",
+    },
   },
 
   footer: {

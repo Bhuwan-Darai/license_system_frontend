@@ -19,7 +19,6 @@ import {
   List,
   Image,
   Space,
-  Result,
 } from "antd";
 import { useState, useEffect } from "react";
 import { useMutationQuestions, useQueryQuestions } from "../MCQ/useQuestions";
@@ -34,8 +33,6 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 
 export type QuestionBank = {
   id: number;
@@ -74,17 +71,6 @@ type Category = {
 };
 
 export default function QuestionBank() {
-  const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.QUESTION_BANK.LIST);
-  const canAdd = isAllowed(PERM.QUESTION_BANK.ADD);
-  const canUpdate = isAllowed(PERM.QUESTION_BANK.UPDATE);
-  const canDelete = isAllowed(PERM.QUESTION_BANK.DELETE);
-  const canViewQuestions = isAllowed(PERM.QUESTION.LIST);
-  const canOpenQuestions = isAllowed([
-    PERM.QUESTION.LIST,
-    PERM.QUESTION.ADD,
-    PERM.QUESTION.UPDATE,
-  ]);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
@@ -104,7 +90,7 @@ export default function QuestionBank() {
     editingQuestionBank,
   } = useMutationQuestionBank();
 
-  const { questionBanks, isLoading, refetch } = useQueryQuestionBank(canList);
+  const { questionBanks, isLoading, refetch } = useQueryQuestionBank();
   const { data: categoriesData, isLoading: isCategoriesLoading } =
     useQueryQuestionBankCategories();
 
@@ -127,7 +113,6 @@ export default function QuestionBank() {
   useEffect(() => {
     if (!open) {
       form.resetFields();
-      setIsEditMode(false);
       setCurrentQuestionBankId(null);
       setEditingQuestionBank(null);
     }
@@ -143,7 +128,6 @@ export default function QuestionBank() {
         total_marks: editingQuestionBank["Total Marks"],
         passing_marks: editingQuestionBank["Pass Marks"],
       });
-      setIsEditMode(true);
       setCurrentQuestionBankId(editingQuestionBank["Question Bank Id"]);
     }
   }, [editingQuestionBank, open, form]);
@@ -190,31 +174,20 @@ export default function QuestionBank() {
   const router = useRouter();
   const { setQuestionBankId, setParams } = useMutationQuestions();
 
-  if (!canList) {
-    return (
-      <Result
-        status="403"
-        title="403"
-        subTitle="You don't have permission to view this."
-      />
-    );
-  }
-
   return (
     <div style={{ padding: "24px" }}>
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 24,
         }}
       >
-        {canAdd && (
-          <Button type="primary" onClick={handleAddNew}>
-            Add Question Bank
-          </Button>
-        )}
+        <h1 style={{ margin: 0 }}>Question Bank</h1>
+        <Button type="primary" onClick={handleAddNew}>
+          Add Question Bank
+        </Button>
       </div>
 
       <Spin spinning={isLoading} description="Loading question banks...">
@@ -237,60 +210,50 @@ export default function QuestionBank() {
           {questionBanks?.data?.map((item: QuestionBank) => (
             <Col xs={24} sm={12} lg={8} key={item?.["Question Bank Id"]}>
               <Card
-                onClick={
-                  canOpenQuestions
-                    ? () => {
-                        setQuestionBankId(item?.["Question Bank Id"]);
-                        router.push(
-                          `/dashboard/question/mcq?bankId=${item?.["Question Bank Id"]}`,
-                        );
-                      }
-                    : undefined
-                }
-                hoverable={canOpenQuestions}
+                onClick={() => {
+                  setQuestionBankId(item?.["Question Bank Id"]);
+                  router.push(
+                    `/dashboard/question/mcq?bankId=${item?.["Question Bank Id"]}`,
+                  );
+                }}
+                hoverable
                 title={item.Title}
                 extra={<Tag color="blue">{item?.Category.title}</Tag>}
                 actions={[
-                  canViewQuestions && (
-                    <Button
-                      type="text"
-                      icon={<EyeOutlined />}
-                      key="view"
-                      onClick={() => {
-                        setViewBank(item);
-                        setViewQuestionsPage(1);
-                        setViewQuestionsSearch("");
-                      }}
-                    >
-                      View
+                  <Button
+                    type="text"
+                    icon={<EyeOutlined />}
+                    key="view"
+                    onClick={() => {
+                      setViewBank(item);
+                      setViewQuestionsPage(1);
+                      setViewQuestionsSearch("");
+                    }}
+                  >
+                    View
+                  </Button>,
+                  <Button
+                    type="text"
+                    icon={<EditOutlined />}
+                    key="edit"
+                    onClick={() => handleEdit(item)}
+                  >
+                    Edit
+                  </Button>,
+                  <Popconfirm
+                    key="delete"
+                    title="Delete Question Bank"
+                    description="Are you sure you want to delete this question bank?"
+                    onConfirm={() => handleDelete(item["Question Bank Id"])}
+                    okText="Yes"
+                    cancelText="No"
+                    okButtonProps={{ loading: isDeleting }}
+                  >
+                    <Button type="text" danger icon={<DeleteOutlined />}>
+                      Delete
                     </Button>
-                  ),
-                  canUpdate && (
-                    <Button
-                      type="text"
-                      icon={<EditOutlined />}
-                      key="edit"
-                      onClick={() => handleEdit(item)}
-                    >
-                      Edit
-                    </Button>
-                  ),
-                  canDelete && (
-                    <Popconfirm
-                      key="delete"
-                      title="Delete Question Bank"
-                      description="Are you sure you want to delete this question bank?"
-                      onConfirm={() => handleDelete(item["Question Bank Id"])}
-                      okText="Yes"
-                      cancelText="No"
-                      okButtonProps={{ loading: isDeleting }}
-                    >
-                      <Button type="text" danger icon={<DeleteOutlined />}>
-                        Delete
-                      </Button>
-                    </Popconfirm>
-                  ),
-                ].filter(Boolean) as React.ReactNode[]}
+                  </Popconfirm>,
+                ]}
               >
                 <div
                   style={{

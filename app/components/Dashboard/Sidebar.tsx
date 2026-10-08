@@ -213,15 +213,15 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
         style={{ borderBottomColor: borderColor }}
       >
         {!collapsed && (
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-lg">D</span>
+          <div className="flex items-center gap-2 overflow-hidden m-4">
+            <div className="border-1 bg-ly-panel-ink rounded-xl sm:rounded-2xl w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center text-[#7A1F2B] p-2">
+              <span className="text-xl sm:text-2xl font-bold">LY</span>
             </div>
             <span
               className="text-lg font-bold whitespace-nowrap"
               style={{ color: textPrimary }}
             >
-              Dashboard
+              Likhit Yatra
             </span>
           </div>
         )}
@@ -298,10 +298,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
               >
                 {user?.name || "User"}
               </p>
-              <p
-                className="text-xs truncate"
-                style={{ color: textSecondary }}
-              >
+              <p className="text-xs truncate" style={{ color: textSecondary }}>
                 {user?.role_name || user?.role || "Guest"}
               </p>
             </div>

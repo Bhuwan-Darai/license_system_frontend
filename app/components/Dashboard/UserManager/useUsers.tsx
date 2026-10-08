@@ -12,6 +12,8 @@ export interface PanelUser {
   role_id: string | null;
   role_name: string;
   is_super_admin: boolean;
+  /** ADMIN = dashboard staff, USER = mobile app customer */
+  account_type: "ADMIN" | "USER";
   created_at: string;
 }
 
@@ -37,12 +39,13 @@ export const useQueryUsers = (
   limit: number,
   search: string,
   enabled = true,
+  type?: "ADMIN" | "USER",
 ) =>
   useQuery({
-    queryKey: ["users", page, limit, search],
+    queryKey: ["users", page, limit, search, type],
     queryFn: async () => {
       const res = await api.get("/user", {
-        params: { page, limit, search: search || undefined },
+        params: { page, limit, search: search || undefined, type },
       });
       return res.data as {
         data: PanelUser[];

@@ -9,6 +9,9 @@ import {
   FileTextOutlined,
   SettingOutlined,
   PhoneOutlined,
+  MessageOutlined,
+  IdcardOutlined,
+  MailOutlined,
   SafetyCertificateOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
@@ -99,6 +102,21 @@ export const routes: Route[] = [
     ],
   },
   {
+    key: "registration",
+    label: "Registration",
+    icon: <IdcardOutlined />,
+    path: "/dashboard/registration/new-license",
+    children: [
+      {
+        key: "registration-new-license",
+        label: "New License",
+        path: "/dashboard/registration/new-license",
+        permission: PERM.REGISTRATION.LIST,
+        icon: <IdcardOutlined />,
+      },
+    ],
+  },
+  {
     key: "question",
     label: "Questions",
     icon: <ShoppingCartOutlined />,
@@ -160,6 +178,27 @@ export const routes: Route[] = [
     icon: <FileTextOutlined />,
     path: "/dashboard/carousel-manager",
     permission: PERM.CAROUSEL.LIST,
+  },
+  {
+    key: "message",
+    label: "Message",
+    icon: <MessageOutlined />,
+    path: "/dashboard/message",
+    permission: PERM.MESSAGE.VIEW,
+  },
+  {
+    key: "inquiry",
+    label: "Inquiries",
+    icon: <MailOutlined />,
+    path: "/dashboard/inquiry",
+    permission: PERM.INQUIRY.LIST,
+  },
+  {
+    key: "news",
+    label: "News & Notices",
+    icon: <FileTextOutlined />,
+    path: "/dashboard/news-manager",
+    permission: PERM.NEWS.LIST,
   },
   {
     key: "emergency-number",
