@@ -1,11 +1,48 @@
 "use client";
 
+import { useState } from "react";
 import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import { useI18n } from "@/app/context/LanguageContext";
+import { sendInquiry, validateInquiry, type InquiryValues } from "@/app/utils/inquiry";
 
 export default function ContactUs() {
     const { m } = useI18n();
     const { contact } = m;
+
+    const empty: InquiryValues = { name: "", phone: "", email: "", help_type: "", message: "" };
+    const [values, setValues] = useState<InquiryValues>(empty);
+    // honeypot: hidden from people, bots tend to fill it
+    const [website, setWebsite] = useState("");
+    const [errors, setErrors] = useState<string[]>([]);
+    const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+    const [serverMessage, setServerMessage] = useState("");
+
+    const onChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    ) => {
+        setValues((v) => ({ ...v, [e.target.name]: e.target.value }));
+        if (status !== "sending") setStatus("idle");
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (status === "sending") return;
+
+        // same rules as the server; the server is still the one that enforces them
+        const problems = validateInquiry(values).map((key) => contact.errors[key]);
+        setErrors(problems);
+        if (problems.length > 0) return;
+
+        setStatus("sending");
+        const result = await sendInquiry(values, website);
+        if (result.ok) {
+            setValues(empty);
+            setStatus("success");
+        } else {
+            setServerMessage(result.tooMany ? contact.tooMany : contact.error);
+            setStatus("error");
+        }
+    };
 
     return (
         <section className="w-full bg-ly-surface">
@@ -119,7 +156,22 @@ export default function ContactUs() {
                             {contact.formSubtitle}
                         </p>
 
-                        <form className="mt-7 space-y-5">
+                        <form onSubmit={handleSubmit} noValidate className="mt-7 space-y-5">
+
+                            {/* Honeypot: invisible to people, ignored by screen readers */}
+                            <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                                <label htmlFor="website">Website</label>
+                                <input
+                                    id="website"
+                                    name="website"
+                                    type="text"
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                    value={website}
+                                    onChange={(e) => setWebsite(e.target.value)}
+                                />
+                            </div>
+
 
                             {/* Name + Phone */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -132,7 +184,7 @@ export default function ContactUs() {
                                     </label>
 
                                     <input
-                                        id="name"
+                                        id="name" name="name" value={values.name} onChange={onChange} maxLength={100} autoComplete="name"
                                         type="text"
                                         placeholder={contact.namePlaceholder}
                                         className="
@@ -162,7 +214,7 @@ export default function ContactUs() {
                                     </label>
 
                                     <input
-                                        id="phone"
+                                        id="phone" name="phone" value={values.phone} onChange={onChange} maxLength={20} autoComplete="tel"
                                         type="tel"
                                         placeholder="98XXXXXXXX"
                                         className="
@@ -197,7 +249,7 @@ export default function ContactUs() {
                                 </label>
 
                                 <input
-                                    id="email"
+                                    id="email" name="email" value={values.email} onChange={onChange} maxLength={254} autoComplete="email"
                                     type="email"
                                     placeholder="you@example.com"
                                     className="
@@ -228,8 +280,8 @@ export default function ContactUs() {
                                 </label>
 
                                 <select
-                                    id="help"
-                                    defaultValue=""
+                                    id="help" name="help_type" value={values.help_type} onChange={onChange}
+                                    
                                     className="
                                         w-full
                                         bg-ly-surface
@@ -276,7 +328,7 @@ export default function ContactUs() {
                                 </label>
 
                                 <textarea
-                                    id="message"
+                                    id="message" name="message" value={values.message} onChange={onChange} maxLength={2000}
                                     rows={5}
                                     placeholder={contact.messagePlaceholder}
                                     className="
@@ -298,9 +350,29 @@ export default function ContactUs() {
                                 />
                             </div>
 
+                            {/* Validation + result messages */}
+                            {errors.length > 0 && (
+                                <ul role="alert" className="text-sm text-red-600 list-disc pl-5 space-y-1">
+                                    {errors.map((err) => (
+                                        <li key={err}>{err}</li>
+                                    ))}
+                                </ul>
+                            )}
+                            {status === "success" && (
+                                <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                                    {contact.success}
+                                </p>
+                            )}
+                            {status === "error" && (
+                                <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                                    {serverMessage}
+                                </p>
+                            )}
+
                             {/* Submit */}
                             <button
                                 type="submit"
+                                disabled={status === "sending"}
                                 className="
                                     w-full
                                     sm:w-auto
@@ -321,7 +393,7 @@ export default function ContactUs() {
                                     hover:shadow-lg
                                 "
                             >
-                                {contact.send}
+                                {status === "sending" ? contact.sending : contact.send}
                                 <ArrowRight className="w-4 h-4" />
                             </button>
 

@@ -20,6 +20,8 @@ import { useAuthContext } from "@/app/context/AuthContext";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useBreadcrumbExtra } from "@/app/context/BreadcrumbContext";
 import { Route, routes } from "@/config/route";
+import { PERM } from "@/config/permissions";
+import { HELP_TYPE_OPTIONS, useQueryInquiries } from "./Inquiry/useInquiry";
 
 type Crumb = { label: string; path: string };
 
@@ -60,7 +62,16 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { label: extraLabel, hasBack, goBack } = useBreadcrumbExtra();
-  const { logout } = useAuthContext();
+  const { logout, isAllowed } = useAuthContext();
+
+  // new website inquiries, refreshed every 30s; only for staff who may view them
+  const canSeeInquiries = isAllowed(PERM.INQUIRY.LIST);
+  const { data: newInquiries } = useQueryInquiries(
+    { page: 1, pageSize: 5, search: "", status: "NEW" },
+    canSeeInquiries,
+    30_000,
+  );
+  const newInquiryCount = newInquiries?.pagination?.total ?? 0;
   const { setTheme, theme } = useTheme();
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
@@ -103,22 +114,46 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
     },
   ];
 
+  const timeAgo = (iso: string) => {
+    const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min ago`;
+    if (mins < 1440) return `${Math.round(mins / 60)} h ago`;
+    return `${Math.round(mins / 1440)} d ago`;
+  };
+
+  // text only: names and messages come from the public form, never rendered as HTML
   const notificationItems = [
-    {
-      key: "1",
-      label: "New user registered",
-      description: "John Doe created an account",
-    },
-    {
-      key: "2",
-      label: "Order #1234 completed",
-      description: "Order has been delivered",
-    },
-    {
-      key: "3",
-      label: "System update",
-      description: "New version 2.0.1 available",
-    },
+    ...(newInquiries?.data ?? []).map((q) => ({
+      key: q.inquiry_id,
+      label: (
+        <div style={{ maxWidth: 280 }}>
+          <div>
+            <b>{q.name}</b>{" "}
+            <span style={{ opacity: 0.6, fontSize: 12 }}>
+              {HELP_TYPE_OPTIONS.find((o) => o.value === q.help_type)?.label ?? q.help_type} · {timeAgo(q.created_at)}
+            </span>
+          </div>
+          <div style={{ opacity: 0.75, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {q.message}
+          </div>
+        </div>
+      ),
+      onClick: () => router.push("/dashboard/inquiry"),
+    })),
+    ...(newInquiryCount === 0
+      ? [{ key: "empty", label: "No new notifications", disabled: true }]
+      : []),
+    ...(canSeeInquiries
+      ? [
+          { type: "divider" as const },
+          {
+            key: "all-inquiries",
+            label: newInquiryCount > 5 ? `View all ${newInquiryCount} new inquiries` : "Open inquiries",
+            onClick: () => router.push("/dashboard/inquiry"),
+          },
+        ]
+      : []),
   ];
 
   const isThemeLight = theme === "light";
@@ -192,7 +227,7 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
           placement="bottomRight"
           trigger={["click"]}
         >
-          <Badge count={5} size="small" className="cursor-pointer">
+          <Badge count={newInquiryCount} size="small" className="cursor-pointer">
             <Button
               type="text"
               icon={<BellOutlined />}

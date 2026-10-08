@@ -52,8 +52,9 @@ export default function UserManager() {
   const [editing, setEditing] = useState<PanelUser | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [type, setType] = useState<"ADMIN" | "USER" | undefined>();
 
-  const { data, isLoading } = useQueryUsers(page, PAGE_SIZE, search.trim(), canList);
+  const { data, isLoading } = useQueryUsers(page, PAGE_SIZE, search.trim(), canList, type);
   const { data: roles = [], isLoading: isRolesLoading } = useQueryRoles(
     open && (canAdd || canUpdate),
   );
@@ -150,6 +151,20 @@ export default function UserManager() {
             setPage(1);
           }}
         />
+        <Select
+          allowClear
+          placeholder="All accounts"
+          style={{ width: 180 }}
+          value={type}
+          options={[
+            { value: "ADMIN", label: "Staff" },
+            { value: "USER", label: "App users" },
+          ]}
+          onChange={(v) => {
+            setType(v);
+            setPage(1);
+          }}
+        />
         {canAdd && (
           <Button type="primary" icon={<PlusOutlined />} onClick={() => openForm(null)}>
             Add User
@@ -181,7 +196,9 @@ export default function UserManager() {
             title: "Role",
             dataIndex: "role_name",
             render: (name: string, user) => (
-              <Tag color={user.is_super_admin ? "gold" : "blue"}>{name}</Tag>
+              <Tag color={user.account_type === "USER" ? "green" : user.is_super_admin ? "gold" : "blue"}>
+                {name}
+              </Tag>
             ),
           },
           {
@@ -196,6 +213,8 @@ export default function UserManager() {
                   title: "Actions",
                   width: 190,
                   render: (_: unknown, user: PanelUser) => (
+                    // app users are customers: their account is managed through Registration
+                    user.account_type === "USER" ? null : (
                     <Space>
                       {canUpdate && (
                         <Button
@@ -221,6 +240,7 @@ export default function UserManager() {
                         </Popconfirm>
                       )}
                     </Space>
+                    )
                   ),
                 },
               ]

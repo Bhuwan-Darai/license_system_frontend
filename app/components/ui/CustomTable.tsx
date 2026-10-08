@@ -48,6 +48,36 @@ const defaultComparator = (key: string) => (a: any, b: any) => {
   return String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: 'base' });
 };
 
+// Wraps a cell so long content is cut off with an ellipsis. The full text is
+// shown in a tooltip, but only when something is actually cut off.
+const TruncatedCell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [full, setFull] = useState('');
+
+  const check = () => {
+    const el = ref.current;
+    if (!el) return;
+    const cut =
+      el.scrollWidth > el.clientWidth ||
+      Array.from(el.querySelectorAll<HTMLElement>('*')).some((c) => c.scrollWidth > c.clientWidth);
+    setFull(cut ? (el.innerText || '').trim() : '');
+  };
+
+  return (
+    <Tooltip title={full || undefined} placement="topLeft" styles={{ root: { maxWidth: 420, wordBreak: 'break-word' } }}>
+      <div ref={ref} className="ct-trunc" onMouseEnter={check}>
+        {children}
+      </div>
+    </Tooltip>
+  );
+};
+
+// columns that must never be clipped (buttons) or that opt out explicitly
+const isTruncatable = (col: any) =>
+  col.ellipsis !== false && !col.fixed && col.key !== 'action' && col.title !== 'Action';
+
+const DEFAULT_COLUMN_WIDTH = 160;
+
 // Custom Table Component
 const CustomTable = <T extends object = any>({
   columns: initialColumns,
@@ -76,10 +106,6 @@ const CustomTable = <T extends object = any>({
     value: col.dataIndex || col.key,
   }));
 
-  const hasEllipsisColumn = useMemo(() => {
-    return initialColumns.some((col) => Boolean(col.ellipsis));
-  }, [initialColumns]);
-
   const displayedColumns = useMemo(() => {
     return initialColumns
       .filter((col) => {
@@ -88,38 +114,29 @@ const CustomTable = <T extends object = any>({
       })
       .map((col) => {
         const key = col.dataIndex || col.key;
-        const isEllipsis = Boolean(col.ellipsis);
+        const truncate = isTruncatable(col);
 
-        // Configure ellipsis: show native title tooltip or customized
-        const ellipsisConfig = col.ellipsis === true ? { showTitle: true } : col.ellipsis;
+        // Every column gets a width so one long value cannot stretch the table;
+        // the table scrolls sideways instead when the columns do not fit.
+        const width = col.width !== undefined ? col.width : DEFAULT_COLUMN_WIDTH;
 
-        // If non-ellipsis column and no explicit width provided, assign 'max-content'
-        // so it squeezes to its content/header width instead of taking equal column flex.
-        const width =
-          col.width !== undefined
-            ? col.width
-            : !isEllipsis && hasEllipsisColumn
-              ? 'max-content'
-              : undefined;
-
-        // Custom render for string/number ellipsis fields to add rich Ant Design Tooltip if no custom render was defined
-        let render = col.render;
-        if (isEllipsis && !render) {
-          render = (text: any) => {
-            if (text === null || text === undefined || text === '') return '-';
-            const str = String(text);
-            return (
-              <Tooltip title={str} placement="topLeft">
-                <span>{str}</span>
-              </Tooltip>
-            );
-          };
-        }
+        // Cut long values with an ellipsis; the tooltip is handled by TruncatedCell.
+        const baseRender = col.render;
+        const render = truncate
+          ? (text: any, record: any, index: number) => {
+              const content = baseRender
+                ? baseRender(text, record, index)
+                : text === null || text === undefined || text === ''
+                  ? '-'
+                  : String(text);
+              return <TruncatedCell>{content as React.ReactNode}</TruncatedCell>;
+            }
+          : baseRender;
 
         return {
           ...col,
           width,
-          ellipsis: ellipsisConfig,
+          ellipsis: false,
           // Keep an explicit custom sorter if provided, otherwise fall back to a generic one
           // so every column is actually sortable rather than just showing a dead sort icon.
           sorter:
@@ -132,7 +149,7 @@ const CustomTable = <T extends object = any>({
           render,
         };
       });
-  }, [initialColumns, visibleColumns, sortedInfo, hasEllipsisColumn]);
+  }, [initialColumns, visibleColumns, sortedInfo]);
 
   // Client-side search + sort + pagination
   const filteredData = useMemo(() => {
@@ -300,7 +317,7 @@ const CustomTable = <T extends object = any>({
   );
 
   return (
-    <div className="custom-table-wrapper">
+    <div className="custom-table-wrapper" style={{ minWidth: 0, maxWidth: '100%' }}>
       {/* Scoped styles: tighter cell padding + blue header */}
       <style>{`
         .custom-table-wrapper .ant-table-thead > tr > th {
@@ -327,11 +344,17 @@ const CustomTable = <T extends object = any>({
         .custom-table-wrapper .ant-table-thead > tr > th.ant-table-column-has-sorters:hover {
           background-color: #0958d9;
         }
-        .custom-table-wrapper .ant-table-thead > tr > th:not(.ant-table-cell-ellipsis),
-        .custom-table-wrapper .ant-table-tbody > tr > td:not(.ant-table-cell-ellipsis) {
+        .custom-table-wrapper .ant-table-thead > tr > th,
+        .custom-table-wrapper .ant-table-tbody > tr > td {
           white-space: nowrap;
         }
-        .custom-table-wrapper .ant-table-cell-ellipsis {
+        .custom-table-wrapper .ct-trunc {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .custom-table-wrapper .ct-trunc div,
+        .custom-table-wrapper .ct-trunc p {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;

@@ -60,7 +60,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           setCollapsed={setCollapsed}
           user={user}
         />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 min-w-0 flex flex-col">
           <Header user={user} collapsed={collapsed} />
           <main className="flex-1 overflow-y-auto bg-gray-50">
             <LoadingSkeleton type={getSkeletonType()} />
@@ -74,12 +74,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <BreadcrumbProvider>
     <div className="flex h-screen">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} user={user} />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col">
         <Header user={user} collapsed={collapsed} />
         <main style={{
         backgroundColor: background,
         color : textPrimary
-      }} className="flex-1 overflow-y-auto p-6">
+      }} className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-6">
           <ProtectedRoute>
             <RouteGuard>{children}</RouteGuard>
           </ProtectedRoute>
