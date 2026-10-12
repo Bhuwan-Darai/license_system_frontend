@@ -3,50 +3,21 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * The signed-in user's permission codes, kept in localStorage so the menu can
- * render straight away while /auth/me is still loading.
+ * The signed-in user's permission codes, kept in localStorage as a stringified
+ * array of strings so the menu can render straight away while /auth/me loads.
  *
- * This is a cache, not a source of truth: it is overwritten by every /auth/me
- * response, cleared on logout, never used to decide who is logged in, and every
- * API call is checked again by the backend. The checksum only detects casual
- * edits or corruption, it cannot stop someone who is determined, because
- * anything stored in the browser can be rewritten by whoever owns the browser.
+ * This is only a cache: it is overwritten on login, by every /auth/me response
+ * and by the permission stream, cleared on logout, and every API call is
+ * checked again by the backend.
  */
-const KEY = "license_access";
-const VERSION = 1;
-const SALT = "license-access-v1";
+const KEY = "permissions";
 const CHANGE_EVENT = "license-access-change";
-
-interface Stored {
-  v: number;
-  uid: string;
-  perms: string[];
-  sig: string;
-}
-
-// cyrb53, a small non-cryptographic hash. Enough for tamper evidence.
-const hash = (input: string) => {
-  let h1 = 0xdeadbeef;
-  let h2 = 0x41c6ce57;
-  for (let i = 0; i < input.length; i++) {
-    const ch = input.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
-};
-
-const sign = (uid: string, perms: string[]) =>
-  hash(`${SALT}|${uid}|${[...perms].sort().join(",")}`);
 
 const EMPTY: string[] = [];
 
-export function saveAccessCache(uid: string, perms: string[]) {
+export function saveAccessCache(perms: string[]) {
   try {
-    const value: Stored = { v: VERSION, uid, perms, sig: sign(uid, perms) };
-    localStorage.setItem(KEY, JSON.stringify(value));
+    localStorage.setItem(KEY, JSON.stringify(perms));
     window.dispatchEvent(new Event(CHANGE_EVENT));
   } catch {
     // storage can be unavailable (private mode, quota), the cache is optional
@@ -80,15 +51,12 @@ function readPerms(): string[] {
   if (!raw) return lastPerms;
 
   try {
-    const parsed = JSON.parse(raw) as Stored;
-    const valid =
-      parsed.v === VERSION &&
-      typeof parsed.uid === "string" &&
-      Array.isArray(parsed.perms) &&
-      parsed.perms.every((p) => typeof p === "string") &&
-      parsed.sig === sign(parsed.uid, parsed.perms);
-    if (valid) lastPerms = parsed.perms;
-    else localStorage.removeItem(KEY); // edited or corrupted, discard it
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.every((p) => typeof p === "string")) {
+      lastPerms = parsed;
+    } else {
+      localStorage.removeItem(KEY);
+    }
   } catch {
     localStorage.removeItem(KEY);
   }

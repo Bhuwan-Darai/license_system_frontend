@@ -50,8 +50,8 @@ type NumberData = {
 const EmergencyNumberManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.EMERGENCY_NUMBER.LIST);
-  const canAdd = isAllowed(PERM.EMERGENCY_NUMBER.ADD);
-  const canUpdate = isAllowed(PERM.EMERGENCY_NUMBER.UPDATE);
+  const canAdd = isAllowed(PERM.EMERGENCY_NUMBER.CREATE);
+  const canUpdate = isAllowed(PERM.EMERGENCY_NUMBER.EDIT);
   const canDelete = isAllowed(PERM.EMERGENCY_NUMBER.DELETE);
   const [messageApi, contextHolder] = message.useMessage();
 

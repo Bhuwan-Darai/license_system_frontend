@@ -28,8 +28,8 @@ const NewLicenseList: React.FC = () => {
   const searchParams = useSearchParams();
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.REGISTRATION.LIST);
-  const canAdd = isAllowed(PERM.REGISTRATION.ADD);
-  const canUpdate = isAllowed(PERM.REGISTRATION.UPDATE);
+  const canAdd = isAllowed(PERM.REGISTRATION.CREATE);
+  const canUpdate = isAllowed(PERM.REGISTRATION.EDIT);
   const canDelete = isAllowed(PERM.REGISTRATION.DELETE);
   const [messageApi, contextHolder] = message.useMessage();
 

@@ -2,7 +2,8 @@
 //
 // The catalog itself (groups, sub groups, titles) is served by the backend at
 // GET /permission, so the role form can never offer a code the backend rejects.
-// The codes below must match backend pkg/permissions.
+// The codes below must match backend pkg/permissions. They are written out in
+// full, <MODULE>_<ENTITY>_<ACTION>, in the same order as the sidebar menu.
 
 export interface Permission {
   title: string;
@@ -15,38 +16,139 @@ export interface Permission {
   }[];
 }
 
-const crud = <R extends string>(resource: R) =>
-  ({
-    LIST: `${resource}.list` as `${R}.list`,
-    ADD: `${resource}.add` as `${R}.add`,
-    UPDATE: `${resource}.update` as `${R}.update`,
-    DELETE: `${resource}.delete` as `${R}.delete`,
-  }) as const;
-
 export const PERM = {
+  // Dashboard
   DASHBOARD: {
-    VIEW: "dashboard.view",
-    SERVER_STATUS: "dashboard.server_status",
+    LIST: "DASHBOARD_STATS_LIST",
+    SERVER_STATUS: "DASHBOARD_SERVER_STATUS_LIST",
   },
-  QUESTION_BANK_CATEGORY: crud("question_bank_category"),
-  QUESTION_BANK: crud("question_bank"),
-  QUESTION: crud("question"),
-  EXAM: { ...crud("exam"), VISIBILITY: "exam.visibility" },
-  BLOG: crud("blog"),
-  BLOG_CATEGORY: crud("blog_category"),
-  CAROUSEL: { ...crud("carousel"), DISPLAY: "carousel.display" },
-  EMERGENCY_NUMBER: crud("emergency_number"),
-  NEWS: crud("news"),
-  INQUIRY: { LIST: "inquiry.list", UPDATE: "inquiry.update", DELETE: "inquiry.delete" },
-  REGISTRATION: { ...crud("registration"), STATUS: "registration.status" },
-  MESSAGE: { VIEW: "message.view", SEND: "message.send" },
-  ISHIHARA_CATEGORY: crud("ishihara_category"),
-  ISHIHARA_PLATE: crud("ishihara_plate"),
-  TRAFFIC_SIGNAL_CATEGORY: crud("traffic_signal_category"),
-  TRAFFIC_SIGNAL: crud("traffic_signal"),
-  VEHICLE_CATEGORY: crud("vehicle_category"),
-  USER: crud("user"),
-  ROLE: crud("role"),
+  // Categories
+  BLOG_CATEGORY: {
+    LIST: "CATEGORY_BLOG_LIST",
+    CREATE: "CATEGORY_BLOG_CREATE",
+    EDIT: "CATEGORY_BLOG_EDIT",
+    DELETE: "CATEGORY_BLOG_DELETE",
+  },
+  VEHICLE_CATEGORY: {
+    LIST: "CATEGORY_VEHICLE_LIST",
+    CREATE: "CATEGORY_VEHICLE_CREATE",
+    EDIT: "CATEGORY_VEHICLE_EDIT",
+    DELETE: "CATEGORY_VEHICLE_DELETE",
+  },
+  ISHIHARA_CATEGORY: {
+    LIST: "CATEGORY_ISHIHARA_LIST",
+    CREATE: "CATEGORY_ISHIHARA_CREATE",
+    EDIT: "CATEGORY_ISHIHARA_EDIT",
+    DELETE: "CATEGORY_ISHIHARA_DELETE",
+  },
+  QUESTION_BANK_CATEGORY: {
+    LIST: "CATEGORY_QUESTION_BANK_LIST",
+    CREATE: "CATEGORY_QUESTION_BANK_CREATE",
+    EDIT: "CATEGORY_QUESTION_BANK_EDIT",
+    DELETE: "CATEGORY_QUESTION_BANK_DELETE",
+  },
+  TRAFFIC_SIGNAL_CATEGORY: {
+    LIST: "CATEGORY_TRAFFIC_SIGNAL_LIST",
+    CREATE: "CATEGORY_TRAFFIC_SIGNAL_CREATE",
+    EDIT: "CATEGORY_TRAFFIC_SIGNAL_EDIT",
+    DELETE: "CATEGORY_TRAFFIC_SIGNAL_DELETE",
+  },
+  // Access Control
+  USER: {
+    LIST: "ACCESS_USER_LIST",
+    CREATE: "ACCESS_USER_CREATE",
+    EDIT: "ACCESS_USER_EDIT",
+    DELETE: "ACCESS_USER_DELETE",
+  },
+  ROLE: {
+    LIST: "ACCESS_ROLE_LIST",
+    CREATE: "ACCESS_ROLE_CREATE",
+    EDIT: "ACCESS_ROLE_EDIT",
+    DELETE: "ACCESS_ROLE_DELETE",
+  },
+  // Registration
+  REGISTRATION: {
+    LIST: "REGISTRATION_NEW_LICENSE_LIST",
+    CREATE: "REGISTRATION_NEW_LICENSE_CREATE",
+    EDIT: "REGISTRATION_NEW_LICENSE_EDIT",
+    DELETE: "REGISTRATION_NEW_LICENSE_DELETE",
+    STATUS: "REGISTRATION_NEW_LICENSE_STATUS",
+  },
+  // Questions
+  QUESTION_BANK: {
+    LIST: "QUESTION_BANK_LIST",
+    CREATE: "QUESTION_BANK_CREATE",
+    EDIT: "QUESTION_BANK_EDIT",
+    DELETE: "QUESTION_BANK_DELETE",
+  },
+  QUESTION: {
+    LIST: "QUESTION_MCQ_LIST",
+    CREATE: "QUESTION_MCQ_CREATE",
+    EDIT: "QUESTION_MCQ_EDIT",
+    DELETE: "QUESTION_MCQ_DELETE",
+  },
+  // Signals
+  TRAFFIC_SIGNAL: {
+    LIST: "SIGNAL_TRAFFIC_SIGNAL_LIST",
+    CREATE: "SIGNAL_TRAFFIC_SIGNAL_CREATE",
+    EDIT: "SIGNAL_TRAFFIC_SIGNAL_EDIT",
+    DELETE: "SIGNAL_TRAFFIC_SIGNAL_DELETE",
+  },
+  // Ishihara Plates
+  ISHIHARA_PLATE: {
+    LIST: "ISHIHARA_PLATE_LIST",
+    CREATE: "ISHIHARA_PLATE_CREATE",
+    EDIT: "ISHIHARA_PLATE_EDIT",
+    DELETE: "ISHIHARA_PLATE_DELETE",
+  },
+  // Blog
+  BLOG: {
+    LIST: "BLOG_BLOG_LIST",
+    CREATE: "BLOG_BLOG_CREATE",
+    EDIT: "BLOG_BLOG_EDIT",
+    DELETE: "BLOG_BLOG_DELETE",
+  },
+  // Exam
+  EXAM: {
+    LIST: "EXAM_EXAM_LIST",
+    CREATE: "EXAM_EXAM_CREATE",
+    EDIT: "EXAM_EXAM_EDIT",
+    DELETE: "EXAM_EXAM_DELETE",
+    VISIBILITY: "EXAM_EXAM_VISIBILITY",
+  },
+  // Carousel
+  CAROUSEL: {
+    LIST: "CAROUSEL_CAROUSEL_LIST",
+    CREATE: "CAROUSEL_CAROUSEL_CREATE",
+    EDIT: "CAROUSEL_CAROUSEL_EDIT",
+    DELETE: "CAROUSEL_CAROUSEL_DELETE",
+    DISPLAY: "CAROUSEL_CAROUSEL_DISPLAY",
+  },
+  // Message
+  MESSAGE: {
+    LIST: "MESSAGE_MESSAGE_LIST",
+    SEND: "MESSAGE_MESSAGE_SEND",
+  },
+  // Inquiries
+  INQUIRY: {
+    LIST: "INQUIRY_INQUIRY_LIST",
+    EDIT: "INQUIRY_INQUIRY_EDIT",
+    DELETE: "INQUIRY_INQUIRY_DELETE",
+  },
+  // News & Notices
+  NEWS: {
+    LIST: "NEWS_NEWS_LIST",
+    CREATE: "NEWS_NEWS_CREATE",
+    EDIT: "NEWS_NEWS_EDIT",
+    DELETE: "NEWS_NEWS_DELETE",
+  },
+  // Emergency Number
+  EMERGENCY_NUMBER: {
+    LIST: "EMERGENCY_NUMBER_LIST",
+    CREATE: "EMERGENCY_NUMBER_CREATE",
+    EDIT: "EMERGENCY_NUMBER_EDIT",
+    DELETE: "EMERGENCY_NUMBER_DELETE",
+  },
 } as const;
 
 /** One code, or a list where holding any one of them is enough. */

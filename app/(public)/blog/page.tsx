@@ -1,11 +1,16 @@
+import type { Metadata } from "next";
+import { API_BASE_URL } from "@/app/lib/seo";
 import Header from "@/app/components/LandingPage/Header";
 import Footer from "@/app/components/LandingPage/Footer";
 import Blog from "@/app/components/LandingPage/Blog";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_API_URL
-    : "http://localhost:3030/api/v1";
+export const metadata: Metadata = {
+  title: "Blog",
+  description:
+    "Guides, tips and updates on getting your driving license in Nepal: registration, written exam, trial and more.",
+  alternates: { canonical: "/blog" },
+  openGraph: { url: "/blog", title: "Blog" },
+};
 
 async function getBlogs() {
   try {
@@ -23,7 +28,6 @@ async function getBlogs() {
 
 export default async function Page() {
   const initialBlogs = await getBlogs();
-  console.log("initial blogs", initialBlogs);
 
   return (
     <>

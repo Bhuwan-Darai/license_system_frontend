@@ -58,8 +58,8 @@ export interface CreateVehicleCategoryPayload {
 export default function VehicleCategories() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.VEHICLE_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.VEHICLE_CATEGORY.ADD);
-  const canUpdate = isAllowed(PERM.VEHICLE_CATEGORY.UPDATE);
+  const canAdd = isAllowed(PERM.VEHICLE_CATEGORY.CREATE);
+  const canUpdate = isAllowed(PERM.VEHICLE_CATEGORY.EDIT);
   const canDelete = isAllowed(PERM.VEHICLE_CATEGORY.DELETE);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm<VehicleCategoryFormValues>();

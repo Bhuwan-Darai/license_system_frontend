@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "./lib/seo";
 import Providers from "./utils/providers";
 import axios from "axios";
 import { themeInitScript } from "./context/ThemeContext";
@@ -37,13 +38,31 @@ async function getLocale(): Promise<Locale> {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { meta } = dictionaries[await getLocale()];
+  const lang = await getLocale();
+  const { meta } = dictionaries[lang];
   return {
-    title: meta.title,
+    metadataBase: new URL(SITE_URL),
+    title: { default: meta.title, template: `%s | ${SITE_NAME}` },
     description: meta.description,
+    applicationName: SITE_NAME,
     // Served from public/ — app/favicon.ico must not exist or it shadows this
     icons: { icon: "/favicon.ico", shortcut: "/favicon.ico" },
     manifest: "/manifest.json",
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      title: meta.title,
+      description: meta.description,
+      locale: lang === "ne" ? "ne_NP" : "en_US",
+      images: [{ url: DEFAULT_OG_IMAGE }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+      images: [DEFAULT_OG_IMAGE],
+    },
+    robots: { index: true, follow: true },
   };
 }
 

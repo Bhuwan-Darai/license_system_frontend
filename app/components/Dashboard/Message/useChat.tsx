@@ -84,7 +84,15 @@ export const useChatMutations = () => {
     onSettled: () => refresh(),
   });
 
+  const syncFacebook = useMutation({
+    mutationFn: async () =>
+      (await api.post("/chat/sync/facebook")).data.data as { imported: number; conversations: number },
+    onSettled: () => refresh(),
+  });
+
   return {
+    syncFacebook: syncFacebook.mutateAsync,
+    isSyncing: syncFacebook.isPending,
     sendMessage: send.mutateAsync,
     isSending: send.isPending,
     startChat: start.mutateAsync,

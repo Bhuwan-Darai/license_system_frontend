@@ -40,8 +40,8 @@ export default function SignalCategory() {
 
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.ADD);
-  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.UPDATE);
+  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.CREATE);
+  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.EDIT);
   const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.DELETE);
   const { categories, isLoading } = useSignalCategoryQuery();
 

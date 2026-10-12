@@ -11,6 +11,7 @@ import {
   saveAccessCache,
   useCachedPermissions,
 } from "@/app/lib/accessCache";
+import { usePermissionStream } from "@/app/lib/usePermissionStream";
 
 export interface AuthUser {
   id: string;
@@ -18,9 +19,8 @@ export interface AuthUser {
   email: string;
   /** account type: "Admin" for panel users, "User" for app users */
   role: string;
-  /** name of the assigned role, "Super Admin" when the account has full access */
+  /** name of the assigned role, empty when the account has none */
   role_name: string;
-  is_super_admin: boolean;
   permissions: string[];
 }
 
@@ -30,7 +30,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   /** Permission codes of the signed-in user. */
   permissions: string[];
-  isSuperAdmin: boolean;
   /**
    * True when the user holds the permission. Pass a list to allow when any one
    * of the codes is held. This only decides what the screen shows, the backend
@@ -81,10 +80,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           email: me.email ?? "",
           role: me.role ?? "",
           role_name: me.role_name ?? "",
-          is_super_admin: !!me.is_super_admin,
           permissions: me.permissions ?? [],
         };
-        saveAccessCache(full.id, full.permissions);
+        saveAccessCache(full.permissions);
         return full;
       } catch {
         clearAccessCache();
@@ -100,6 +98,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
       const response = await api.post("/auth/login", credentials);
+
+      if (response.data?.success) {
+        // fetch the role's permissions and store them straight away
+        const me = await api.get("/auth/me");
+        // if (me)  await api.post(`/role/${response?.data?.id}`);
+        saveAccessCache(me.data?.data?.permissions ?? []);
+      }
       return response.data;
     },
     onSuccess: async (data) => {
@@ -118,19 +123,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const isAuthenticated = !!user;
 
+  // Role edits reach an open session through this stream, no re-login needed.
+  usePermissionStream(
+    isAuthenticated,
+    queryClient,
+    () => message.info("Your access was updated by an administrator."),
+    () => {
+      message.warning("Your account is no longer available.");
+      router.push("/login");
+    },
+  );
+
   // While /auth/me is loading the cached codes keep the menu from flashing
   // empty. Once it answers, the server's codes are the only ones used.
   const permissions = isLoading
     ? cachedPermissions
     : (user?.permissions ?? NO_PERMISSIONS);
-  const isSuperAdmin = !!user?.is_super_admin;
 
   const isAllowed = useCallback(
     (permission: PermissionRequirement) => {
-      const required = typeof permission === "string" ? [permission] : permission;
-      return required.some((code) => isSuperAdmin || permissions.includes(code));
+      const required =
+        typeof permission === "string" ? [permission] : permission;
+      // no account is exempt: every check is against the role's codes
+      return required.some((code) => permissions.includes(code));
     },
-    [isSuperAdmin, permissions],
+    [permissions],
   );
 
   const logout = async () => {
@@ -150,7 +167,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       isLoading,
       isAuthenticated,
       permissions,
-      isSuperAdmin,
       isAllowed,
       refetchUser: refetch,
       login: loginMutation.mutateAsync,
@@ -164,7 +180,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       isLoading,
       isAuthenticated,
       permissions,
-      isSuperAdmin,
       isAllowed,
       refetch,
       loginMutation.mutateAsync,

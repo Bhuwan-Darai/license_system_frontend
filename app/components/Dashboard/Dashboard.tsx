@@ -7,7 +7,7 @@ import { PERM } from "@/config/permissions";
 
 export default function Dashboard() {
   const { isAllowed } = useAuthContext();
-  const canView = isAllowed(PERM.DASHBOARD.VIEW);
+  const canView = isAllowed(PERM.DASHBOARD.LIST);
 
   return (
     <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>

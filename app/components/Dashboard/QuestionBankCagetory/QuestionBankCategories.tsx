@@ -43,8 +43,8 @@ export interface CreateQuestionBankCategoryPayload {
 export default function QuestionBankCategories() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.QUESTION_BANK_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.QUESTION_BANK_CATEGORY.ADD);
-  const canUpdate = isAllowed(PERM.QUESTION_BANK_CATEGORY.UPDATE);
+  const canAdd = isAllowed(PERM.QUESTION_BANK_CATEGORY.CREATE);
+  const canUpdate = isAllowed(PERM.QUESTION_BANK_CATEGORY.EDIT);
   const canDelete = isAllowed(PERM.QUESTION_BANK_CATEGORY.DELETE);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm<QuestionBankCategoryFormValues>();

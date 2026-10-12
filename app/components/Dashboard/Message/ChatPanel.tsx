@@ -14,7 +14,7 @@ import {
   Typography,
   message as antMessage,
 } from "antd";
-import { PlusOutlined, SendOutlined } from "@ant-design/icons";
+import { PlusOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 
 import { useAuthContext } from "@/app/context/AuthContext";
 import { PERM } from "@/config/permissions";
@@ -67,7 +67,7 @@ const ChatPanel: React.FC<Props> = ({ channel, configured, setupHint }) => {
 
   const conversations = useConversations(channel, debounced);
   const thread = useThread(selected);
-  const { sendMessage, isSending, startChat, isStarting } = useChatMutations();
+  const { sendMessage, isSending, startChat, isStarting, syncFacebook, isSyncing } = useChatMutations();
 
   // keep the newest message in view
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -85,6 +85,16 @@ const ChatPanel: React.FC<Props> = ({ channel, configured, setupHint }) => {
     } catch (e) {
       const err = e as { response?: { data?: { message?: string } } };
       api.error(err.response?.data?.message ?? "Failed to send the message.");
+    }
+  };
+
+  const handleSync = async () => {
+    try {
+      const res = await syncFacebook();
+      api.success(`Synced ${res.imported} new message(s) from ${res.conversations} conversation(s).`);
+    } catch (e) {
+      const err = e as { response?: { data?: { message?: string } } };
+      api.error(err.response?.data?.message ?? "Failed to sync from Facebook.");
     }
   };
 
@@ -143,6 +153,14 @@ const ChatPanel: React.FC<Props> = ({ channel, configured, setupHint }) => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            {channel === "FACEBOOK" && process.env.NODE_ENV !== "production" && (
+              <Button
+                icon={<SyncOutlined spin={isSyncing} />}
+                onClick={handleSync}
+                disabled={isSyncing}
+                title="Sync from Facebook (development only)"
+              />
+            )}
             {channel === "WHATSAPP" && canSend && (
               <Button
                 type="primary"

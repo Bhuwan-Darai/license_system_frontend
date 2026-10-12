@@ -90,7 +90,7 @@ function TrafficSignalCard({
   loading = false,
 }: TrafficSignalCardProps) {
   const { isAllowed } = useAuthContext();
-  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL.UPDATE);
+  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL.EDIT);
   const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL.DELETE);
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {

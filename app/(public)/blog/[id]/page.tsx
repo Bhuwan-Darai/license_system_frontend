@@ -1,43 +1,46 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Tag } from "lucide-react";
+import { getBlog } from "@/app/lib/blogs";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, jsonLd, toDescription } from "@/app/lib/seo";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_API_URL
-    : "http://localhost:3030/api/v1";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const blog = await getBlog(id);
 
-type Blog = {
-  ID: number;
-  BlogID: string;
-  BlogCategoryID: string;
-  Title: string;
-  ImageURL: string;
-  Subtitle: string;
-  BlogContent: string;
-};
+  // unknown or unpublished: keep it out of search results
+  if (!blog) return { title: "Blog not found", robots: { index: false, follow: false } };
 
-type BlogResponse = {
-  data: Blog;
-  success?: boolean;
-};
+  const description = toDescription(blog.Subtitle || blog.BlogContent);
+  const image = blog.ImageURL || DEFAULT_OG_IMAGE;
+  const path = `/blog/${blog.BlogID}`;
 
-async function getBlogDetails(id: string): Promise<Blog | undefined> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/public/blogs/${id}`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      return undefined;
-    }
-
-    const response: BlogResponse = await res.json();
-
-    return response.data;
-  } catch {
-    return undefined;
-  }
+  return {
+    title: blog.Title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      url: path,
+      title: blog.Title,
+      description,
+      siteName: SITE_NAME,
+      images: [{ url: image, alt: blog.Title }],
+      publishedTime: blog.CreatedAt,
+      modifiedTime: blog.UpdatedAt || blog.CreatedAt,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blog.Title,
+      description,
+      images: [image],
+    },
+  };
 }
 
 export default async function Page({
@@ -47,15 +50,30 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const blog = await getBlogDetails(id);
+  const blog = await getBlog(id);
 
   if (!blog) {
     notFound();
   }
 
+  const url = `${SITE_URL}/blog/${blog.BlogID}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: blog.Title,
+    description: toDescription(blog.Subtitle || blog.BlogContent),
+    image: blog.ImageURL ? [blog.ImageURL] : undefined,
+    datePublished: blog.CreatedAt,
+    dateModified: blog.UpdatedAt || blog.CreatedAt,
+    mainEntityOfPage: url,
+    url,
+    publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+  };
+
   return (
     <main className="min-h-screen bg-ly-bg">
-      <article className="mx-auto max-w-5xl px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
+      <article className="mx-auto w-full px-6 py-12 lg:w-[80%] lg:px-0">
         {/* Back */}
         <Link
           href="/blog"
@@ -88,7 +106,11 @@ export default async function Page({
           {/* Date */}
           <div className="mt-5 flex items-center gap-2 text-sm text-ly-muted">
             <Calendar size={16} />
-            <span>Published</span>
+            <time dateTime={blog.CreatedAt}>
+              {blog.CreatedAt
+                ? new Date(blog.CreatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+                : "Published"}
+            </time>
           </div>
         </header>
 
@@ -106,7 +128,7 @@ export default async function Page({
         {/* Content */}
         <div
           className="
-            prose prose-lg max-w-none
+            quill-content prose prose-lg max-w-none
             prose-headings:text-ly-ink
             prose-p:text-ly-muted
             prose-p:leading-8

@@ -11,7 +11,6 @@ export interface PanelUser {
   phone: string;
   role_id: string | null;
   role_name: string;
-  is_super_admin: boolean;
   /** ADMIN = dashboard staff, USER = mobile app customer */
   account_type: "ADMIN" | "USER";
   created_at: string;
@@ -23,7 +22,7 @@ export interface UserPayload {
   phone: string;
   /** left empty on edit keeps the current password */
   password: string;
-  /** empty means super admin (full access) */
+  /** required, access comes only from the role */
   role_id: string;
 }
 
