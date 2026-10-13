@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { User } from "@/app/hooks/usePermissions";
+import api from "@/app/utils/axios";
 import { useAuthContext } from "@/app/context/AuthContext";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useBreadcrumbExtra } from "@/app/context/BreadcrumbContext";
@@ -62,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { label: extraLabel, hasBack, goBack } = useBreadcrumbExtra();
-  const { logout, isAllowed } = useAuthContext();
+  const { logout, isAllowed, refetchUser } = useAuthContext();
 
   // new website inquiries, refreshed every 30s; only for staff who may view them
   const canSeeInquiries = isAllowed(PERM.INQUIRY.LIST);
@@ -73,6 +74,21 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
   );
   const newInquiryCount = newInquiries?.pagination?.total ?? 0;
   const { setTheme, theme } = useTheme();
+
+  // Switching theme updates localStorage right away (via the theme context) and,
+  // for users allowed to edit settings, the account as well so it survives a
+  // refresh and other devices.
+  const canSaveSettings = isAllowed(PERM.SETTINGS_GENERAL.EDIT);
+  const changeTheme = async (next: "light" | "dark") => {
+    setTheme(next);
+    if (!canSaveSettings) return;
+    try {
+      await api.patch("/auth/preferences", { theme: next });
+      refetchUser();
+    } catch {
+      // the local choice still applies
+    }
+  };
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   const toggleFullscreen = () => {
@@ -158,7 +174,7 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
 
   const isThemeLight = theme === "light";
   const headerBg = isThemeLight ? "#eee8dd" : "#131b2e";
-  const textColor = isThemeLight ? "#131b2e" : "#ece6da";
+  const textColor = isThemeLight ? "#131b2e" : "#f5f5f5";
   const hoverColor = isThemeLight ? "#eee8dd" : "#131b2e";
   const borderColor = isThemeLight ? "#d1d5db" : "#1e3a5f";
 
@@ -204,12 +220,12 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
 
       <div className="flex items-center gap-4">
         {isThemeLight ? (
-          <Button onClick={() => setTheme("dark")}>
+          <Button onClick={() => changeTheme("dark")}>
             <MoonOutlined />
             Dark
           </Button>
         ) : (
-          <Button onClick={() => setTheme("light")}>
+          <Button onClick={() => changeTheme("light")}>
             <SunOutlined />
             Light
           </Button>

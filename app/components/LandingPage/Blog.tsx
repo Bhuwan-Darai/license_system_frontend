@@ -1,10 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { Search, ArrowRight } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useI18n } from "@/app/context/LanguageContext";
 
 type ApiBlog = {
   id: number;
@@ -86,62 +82,38 @@ type BlogListResponse = {
   success?: boolean;
 };
 
+// Server component: the search box and category picker are a plain GET form,
+// so filtering happens on the server from the URL (/blog?q=...&category=...)
+// and the page ships no JavaScript of its own.
 export default function Blog({
   initialBlogs,
+  search = "",
+  category = "All",
 }: {
   initialBlogs?: BlogListResponse;
-} = {}) {
-  const { m } = useI18n();
-
-  console.log("initialBlogs", initialBlogs);
-
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
-
-  // const { blog, isLoading, pagination, error } = useQueryDashboard(
-  //   1,
-  //   100,
-  //   undefined,
-  //   initialBlogs,
-  // );
-
-  /*
-   * API:
-   *
-   * {
-   *   data: [...]
-   *   pagination: {...}
-   *   success: true
-   * }
-   *
-   * Depending on your hook implementation, `blog`
-   * appears to already contain the `data` array.
-   *
-
-   */
-
+  search?: string;
+  category?: string;
+}) {
   const blog = initialBlogs?.data;
   const blogs: ApiBlog[] = Array.isArray(blog) ? blog : [];
 
   const pagination = initialBlogs?.pagination;
 
-  const filteredBlogs = useMemo(() => {
-    const query = search.trim().toLowerCase();
+  const query = search.trim().toLowerCase();
 
-    return blogs.filter((item) => {
-      const blogCategory = item.category?.title || "";
+  const filteredBlogs = blogs.filter((item) => {
+    const blogCategory = item.category?.title || "";
 
-      const matchesCategory = category === "All" || blogCategory === category;
+    const matchesCategory = category === "All" || blogCategory === category;
 
-      const matchesSearch =
-        !query ||
-        item.title?.toLowerCase().includes(query) ||
-        item.subtitle?.toLowerCase().includes(query) ||
-        blogCategory.toLowerCase().includes(query);
+    const matchesSearch =
+      !query ||
+      item.title?.toLowerCase().includes(query) ||
+      item.subtitle?.toLowerCase().includes(query) ||
+      blogCategory.toLowerCase().includes(query);
 
-      return matchesCategory && matchesSearch;
-    });
-  }, [blogs, search, category]);
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <section className="w-full bg-ly-surface">
@@ -167,7 +139,7 @@ export default function Blog({
         {/* =========================
             Search / Filter
         ========================== */}
-        <div className="max-w-4xl mx-auto mb-12">
+        <form action="/blog" method="get" className="max-w-4xl mx-auto mb-12">
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
@@ -185,8 +157,8 @@ export default function Blog({
 
               <input
                 type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                name="q"
+                defaultValue={search}
                 placeholder="Search articles..."
                 className="
                   w-full
@@ -208,8 +180,8 @@ export default function Blog({
 
             {/* Category */}
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              name="category"
+              defaultValue={category}
               className="
                 h-12
                 sm:w-56
@@ -230,8 +202,26 @@ export default function Blog({
                 </option>
               ))}
             </select>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              className="
+                h-12
+                px-6
+                rounded-xl
+                bg-ly-brand
+                hover:bg-ly-brand-hover
+                text-white
+                font-medium
+                transition-colors
+                cursor-pointer
+              "
+            >
+              Search
+            </button>
           </div>
-        </div>
+        </form>
 
         {/* =========================
             Content + Ad Rails

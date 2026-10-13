@@ -1,10 +1,8 @@
-"use client";
+import * as motion from "motion/react-client";
+import { getI18n } from "@/app/i18n/server";
 
-import { motion } from "motion/react";
-import { useI18n } from "@/app/context/LanguageContext";
-
-export default function ServicesCompleted() {
-    const { m, n } = useI18n();
+export default async function ServicesCompleted() {
+    const { m, n } = await getI18n();
     const { stats } = m;
 
     return (

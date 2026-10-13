@@ -149,6 +149,34 @@ export const PERM = {
     EDIT: "EMERGENCY_NUMBER_EDIT",
     DELETE: "EMERGENCY_NUMBER_DELETE",
   },
+  // Policy & About Us
+  POLICY: {
+    LIST: "POLICY_LIST",
+    CREATE: "POLICY_CREATE",
+    EDIT: "POLICY_EDIT",
+    DELETE: "POLICY_DELETE",
+  },
+  // Notification (email and app push)
+  NOTIFICATION: {
+    LIST: "NOTIFICATION_NOTIFICATION_LIST",
+    CREATE: "NOTIFICATION_NOTIFICATION_CREATE",
+    EDIT: "NOTIFICATION_NOTIFICATION_EDIT",
+    DELETE: "NOTIFICATION_NOTIFICATION_DELETE",
+    SEND: "NOTIFICATION_NOTIFICATION_SEND",
+  },
+  // Settings > General (own fiscal year, theme and font size)
+  SETTINGS_GENERAL: {
+    LIST: "SETTINGS_GENERAL_LIST",
+    EDIT: "SETTINGS_GENERAL_EDIT",
+  },
+  // Settings > Fiscal Year
+  FISCAL_YEAR: {
+    LIST: "FISCAL_YEAR_LIST",
+    CREATE: "FISCAL_YEAR_CREATE",
+    EDIT: "FISCAL_YEAR_EDIT",
+    DELETE: "FISCAL_YEAR_DELETE",
+    SELECT: "FISCAL_YEAR_SELECT",
+  },
 } as const;
 
 /** One code, or a list where holding any one of them is enough. */

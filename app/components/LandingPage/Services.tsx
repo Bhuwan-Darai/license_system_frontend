@@ -1,15 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { motion } from "motion/react";
-import { useI18n } from "@/app/context/LanguageContext";
+import * as motion from "motion/react-client";
+import { getI18n } from "@/app/i18n/server";
 
 // Index of the highlighted step (Free License Practice)
 const FEATURED_INDEX = 1;
 
-export default function ServicesGrid() {
-    const { m, n } = useI18n();
+export default async function ServicesGrid() {
+    const { m, n } = await getI18n();
     const { services } = m;
 
     return (

@@ -22,6 +22,11 @@ export interface AuthUser {
   /** name of the assigned role, empty when the account has none */
   role_name: string;
   permissions: string[];
+  /** fiscal year the user works in */
+  fiscal_year_id: string;
+  theme: "light" | "dark";
+  font_size: "small" | "medium" | "large";
+  language: "en" | "ne";
 }
 
 interface AuthContextType {
@@ -81,6 +86,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           role: me.role ?? "",
           role_name: me.role_name ?? "",
           permissions: me.permissions ?? [],
+          fiscal_year_id: me.fiscal_year_id ?? "",
+          theme: me.theme === "dark" ? "dark" : "light",
+          font_size:
+            me.font_size === "small" || me.font_size === "large"
+              ? me.font_size
+              : "medium",
+          language: me.language === "ne" ? "ne" : "en",
         };
         saveAccessCache(full.permissions);
         return full;

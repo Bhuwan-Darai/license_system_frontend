@@ -208,10 +208,18 @@ export const routes: Route[] = [
     permission: PERM.EMERGENCY_NUMBER.LIST,
   },
   {
+    key: "policy",
+    label: "Policy & About Us",
+    icon: <SafetyCertificateOutlined />,
+    path: "/dashboard/policy",
+    permission: PERM.POLICY.LIST,
+  },
+  {
     key: "notification",
     label: "Notification",
     icon: <FileTextOutlined />,
     path: "/dashboard/notification",
+    permission: PERM.NOTIFICATION.LIST,
   },
   {
     key: "settings",
@@ -224,6 +232,14 @@ export const routes: Route[] = [
         label: "General",
         path: "/dashboard/settings",
         icon: <SettingOutlined />,
+        permission: PERM.SETTINGS_GENERAL.LIST,
+      },
+      {
+        key: "settings-fiscal-year",
+        label: "Fiscal Year",
+        path: "/dashboard/settings/fiscal-year",
+        icon: <SettingOutlined />,
+        permission: PERM.FISCAL_YEAR.LIST,
       },
       {
         key: "settings-security",

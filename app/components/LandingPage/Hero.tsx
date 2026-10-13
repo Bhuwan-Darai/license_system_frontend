@@ -1,17 +1,10 @@
-"use client";
-
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
-import { useI18n } from "@/app/context/LanguageContext";
+import Link from "next/link";
+import * as motion from "motion/react-client";
+import { getI18n } from "@/app/i18n/server";
 
-export default function Hero() {
-    const router = useRouter();
-    const { m, lang } = useI18n();
-
-    const handleChange = () => {
-        router.push("/contact");
-    };
+export default async function Hero() {
+    const { m, lang } = await getI18n();
 
     return (
         <section className="min-h-[calc(100svh-80px)] flex items-center overflow-hidden">
@@ -167,29 +160,8 @@ export default function Hero() {
                         </motion.p>
 
                         {/* CTA */}
-                        <motion.button
-                            type="button"
-                            onClick={handleChange}
-                            className="
-                                mt-7 sm:mt-8
-                                inline-flex
-                                items-center
-                                justify-center
-                                gap-2
-                                bg-ly-brand
-                                hover:bg-ly-brand-hover
-                                text-[#FAF7F0]
-                                px-6 sm:px-7
-                                py-3 sm:py-3.5
-                                rounded-xl sm:rounded-2xl
-                                text-base sm:text-lg
-                                font-medium
-                                transition-all
-                                duration-200
-                                hover:-translate-y-0.5
-                                hover:shadow-lg
-                                active:translate-y-0
-                            "
+                        <motion.div
+                            className="mt-7 sm:mt-8"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{
@@ -197,16 +169,32 @@ export default function Hero() {
                                 delay: 2,
                                 ease: [0.22, 1, 0.36, 1],
                             }}
-                            whileHover={{
-                                y: -3,
-                            }}
-                            whileTap={{
-                                y: 0,
-                                scale: 0.98,
-                            }}
+                            whileHover={{ y: -3 }}
+                            whileTap={{ y: 0, scale: 0.98 }}
                         >
-                            {m.hero.cta}
-                        </motion.button>
+                            <Link
+                                href="/contact"
+                                className="
+                                    inline-flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    bg-ly-brand
+                                    hover:bg-ly-brand-hover
+                                    text-[#FAF7F0]
+                                    px-6 sm:px-7
+                                    py-3 sm:py-3.5
+                                    rounded-xl sm:rounded-2xl
+                                    text-base sm:text-lg
+                                    font-medium
+                                    transition-all
+                                    duration-200
+                                    hover:shadow-lg
+                                "
+                            >
+                                {m.hero.cta}
+                            </Link>
+                        </motion.div>
                     </motion.div>
 
                     {/* =========================

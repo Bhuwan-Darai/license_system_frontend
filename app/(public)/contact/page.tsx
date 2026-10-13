@@ -1,12 +1,5 @@
-
 import ContactUs from "@/app/components/LandingPage/Contact";
-import Header from "@/app/components/LandingPage/Header";
-import Footer from "@/app/components/LandingPage/Footer";
 
 export default function Page() {
-    return <>
-        <Header/>
-        <ContactUs/>
-        <Footer/>
-        </>
+    return <ContactUs />;
 }

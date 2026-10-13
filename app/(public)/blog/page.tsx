@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { API_BASE_URL } from "@/app/lib/seo";
-import Header from "@/app/components/LandingPage/Header";
-import Footer from "@/app/components/LandingPage/Footer";
 import Blog from "@/app/components/LandingPage/Blog";
 
 export const metadata: Metadata = {
@@ -26,14 +24,22 @@ async function getBlogs() {
   }
 }
 
-export default async function Page() {
+// Rendered on the server for every request; search and category come from the URL.
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[]; category?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v) ?? "";
+
   const initialBlogs = await getBlogs();
 
   return (
-    <>
-      <Header />
-      <Blog initialBlogs={initialBlogs} />
-      <Footer />
-    </>
+    <Blog
+      initialBlogs={initialBlogs}
+      search={first(params.q).slice(0, 100)}
+      category={first(params.category) || "All"}
+    />
   );
 }

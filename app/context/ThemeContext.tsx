@@ -14,6 +14,20 @@ export type Theme = "light" | "dark";
 
 export const THEME_STORAGE_KEY = "theme";
 
+export type FontSize = "small" | "medium" | "large";
+
+export const FONT_SIZE_STORAGE_KEY = "fontSize";
+
+/** Root font size per choice; rem based sizes follow it. */
+const FONT_SIZE_PX: Record<FontSize, string> = {
+  small: "14px",
+  medium: "16px",
+  large: "18px",
+};
+
+const isFontSize = (value: unknown): value is FontSize =>
+  value === "small" || value === "medium" || value === "large";
+
 // The admin dashboard is styled with fixed light colours, so it always renders light.
 const LIGHT_ONLY_PREFIXES = ["/dashboard"];
 
@@ -32,6 +46,8 @@ interface ThemeContextValue {
   resolvedTheme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  fontSize: FontSize;
+  setFontSize: (size: FontSize) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -52,10 +68,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // Server and first client render agree on "light"; the real value is read after mount.
   const [theme, setThemeState] = useState<Theme>("light");
+  const [fontSize, setFontSizeState] = useState<FontSize>("medium");
 
   useEffect(() => {
     setThemeState(readStoredTheme());
+    try {
+      const saved = localStorage.getItem(FONT_SIZE_STORAGE_KEY);
+      if (isFontSize(saved)) setFontSizeState(saved);
+    } catch {
+      // storage unavailable — keep the default size
+    }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = FONT_SIZE_PX[fontSize];
+  }, [fontSize]);
 
   const lightOnly = LIGHT_ONLY_PREFIXES.some((p) => pathname?.startsWith(p));
   const resolvedTheme: Theme = lightOnly ? "light" : theme;
@@ -75,14 +102,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const setFontSize = useCallback((next: FontSize) => {
+    setFontSizeState(next);
+    try {
+      localStorage.setItem(FONT_SIZE_STORAGE_KEY, next);
+    } catch {
+      // ignore — the choice still applies for this session
+    }
+  }, []);
+
   const toggleTheme = useCallback(
     () => setTheme(theme === "dark" ? "light" : "dark"),
     [theme, setTheme],
   );
 
   const value = useMemo(
-    () => ({ theme, resolvedTheme, setTheme, toggleTheme }),
-    [theme, resolvedTheme, setTheme, toggleTheme],
+    () => ({
+      theme,
+      resolvedTheme,
+      setTheme,
+      toggleTheme,
+      fontSize,
+      setFontSize,
+    }),
+    [theme, resolvedTheme, setTheme, toggleTheme, fontSize, setFontSize],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
-import { useI18n } from "@/app/context/LanguageContext";
+import { getI18n } from "@/app/i18n/server";
 
-export default function AboutUs() {
-    const { m } = useI18n();
+export default async function AboutUs() {
+    const { m } = await getI18n();
     const { about } = m;
 
     return (
