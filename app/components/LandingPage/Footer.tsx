@@ -1,7 +1,4 @@
-"use client";
-
-import React from "react";
-import { useI18n } from "@/app/context/LanguageContext";
+import { getI18n } from "@/app/i18n/server";
 
 const LinkedInIcon = () => (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -43,8 +40,8 @@ const ArrowRightIcon = () => (
     </svg>
 );
 
-export default function Footer() {
-    const { m } = useI18n();
+export default async function Footer() {
+    const { m } = await getI18n();
     const { footer } = m;
 
     // Column layout stays here; labels come from the dictionaries

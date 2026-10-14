@@ -51,7 +51,7 @@ export default function AddIshiharaPlates({
 }: AddIshiharaPlatesProps) {
   const { isAllowed } = useAuthContext();
   const canSubmit = isAllowed(
-    editMode ? PERM.ISHIHARA_PLATE.UPDATE : PERM.ISHIHARA_PLATE.ADD,
+    editMode ? PERM.ISHIHARA_PLATE.EDIT : PERM.ISHIHARA_PLATE.CREATE,
   );
   const [imageUrl, setImageUrl] = useState<string>("");
   const [form] = Form.useForm();

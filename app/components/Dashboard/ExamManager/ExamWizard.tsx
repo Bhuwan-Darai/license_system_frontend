@@ -87,7 +87,7 @@ type Props = {
 export default function ExamWizard({ examId, onClose }: Props) {
   const isEdit = !!examId;
   const { isAllowed } = useAuthContext();
-  const canSave = isAllowed(isEdit ? PERM.EXAM.UPDATE : PERM.EXAM.ADD);
+  const canSave = isAllowed(isEdit ? PERM.EXAM.EDIT : PERM.EXAM.CREATE);
   const canVisibility = isAllowed(PERM.EXAM.VISIBILITY);
   const [form] = Form.useForm<ExamFormValues>();
   const [current, setCurrent] = useState(0);

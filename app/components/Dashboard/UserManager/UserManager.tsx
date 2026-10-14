@@ -29,8 +29,6 @@ import {
 } from "./useUsers";
 
 const PAGE_SIZE = 10;
-// Select cannot hold an empty value for "no role", so super admin gets a marker
-const SUPER_ADMIN = "__super_admin__";
 
 type UserFormValues = {
   username: string;
@@ -41,10 +39,10 @@ type UserFormValues = {
 };
 
 export default function UserManager() {
-  const { user: me, isAllowed, isSuperAdmin } = useAuthContext();
+  const { user: me, isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.USER.LIST);
-  const canAdd = isAllowed(PERM.USER.ADD);
-  const canUpdate = isAllowed(PERM.USER.UPDATE);
+  const canAdd = isAllowed(PERM.USER.CREATE);
+  const canUpdate = isAllowed(PERM.USER.EDIT);
   const canDelete = isAllowed(PERM.USER.DELETE);
 
   const [form] = Form.useForm<UserFormValues>();
@@ -70,7 +68,7 @@ export default function UserManager() {
             username: user.username,
             email: user.email,
             phone: user.phone,
-            role: user.role_id ?? SUPER_ADMIN,
+            role: user.role_id ?? undefined,
           }
         : {},
     );
@@ -94,7 +92,7 @@ export default function UserManager() {
       email: values.email.trim(),
       phone: values.phone?.trim() ?? "",
       password: values.password ?? "",
-      role_id: values.role === SUPER_ADMIN ? "" : values.role,
+      role_id: values.role,
     };
     try {
       if (editing) await updateUser({ id: editing.id, payload });
@@ -105,17 +103,12 @@ export default function UserManager() {
     }
   };
 
-  const roleOptions = [
-    ...(isSuperAdmin
-      ? [{ value: SUPER_ADMIN, label: "Super Admin (full access)" }]
-      : []),
-    ...roles.map((role) => ({
-      value: role.role_id,
-      // a role with permissions the signed-in user lacks cannot be assigned
-      disabled: !isSuperAdmin && !role.permissions.every((code) => isAllowed(code)),
-      label: role.name,
-    })),
-  ];
+  const roleOptions = roles.map((role) => ({
+    value: role.role_id,
+    // a role with permissions the signed-in user lacks cannot be assigned
+    disabled: !role.permissions.every((code) => isAllowed(code)),
+    label: role.name,
+  }));
 
   if (!canList) {
     return (
@@ -196,7 +189,7 @@ export default function UserManager() {
             title: "Role",
             dataIndex: "role_name",
             render: (name: string, user) => (
-              <Tag color={user.account_type === "USER" ? "green" : user.is_super_admin ? "gold" : "blue"}>
+              <Tag color={user.account_type === "USER" ? "green" : "blue"}>
                 {name}
               </Tag>
             ),

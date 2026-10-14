@@ -35,7 +35,7 @@ type SymbolCategories = {
 function TrafficSignalList() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.TRAFFIC_SIGNAL.LIST);
-  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL.ADD);
+  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL.CREATE);
   const [form] = Form.useForm();
   const [mode, setMode] = useState("add");
   const { open, showModal, hideModal, setOpen } = useModal();

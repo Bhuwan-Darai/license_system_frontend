@@ -36,7 +36,7 @@ const NewLicenseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.REGISTRATION.LIST);
-  const canUpdate = isAllowed(PERM.REGISTRATION.UPDATE);
+  const canUpdate = isAllowed(PERM.REGISTRATION.EDIT);
   const canStatus = isAllowed(PERM.REGISTRATION.STATUS) || canUpdate;
   const [messageApi, contextHolder] = message.useMessage();
 

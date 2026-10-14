@@ -1,11 +1,14 @@
-import Header from "@/app/components/LandingPage/Header";
-import Footer from "@/app/components/LandingPage/Footer";
+import type { Metadata } from "next";
+import { API_BASE_URL } from "@/app/lib/seo";
 import Blog from "@/app/components/LandingPage/Blog";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_API_URL
-    : "http://localhost:3030/api/v1";
+export const metadata: Metadata = {
+  title: "Blog",
+  description:
+    "Guides, tips and updates on getting your driving license in Nepal: registration, written exam, trial and more.",
+  alternates: { canonical: "/blog" },
+  openGraph: { url: "/blog", title: "Blog" },
+};
 
 async function getBlogs() {
   try {
@@ -21,15 +24,22 @@ async function getBlogs() {
   }
 }
 
-export default async function Page() {
+// Rendered on the server for every request; search and category come from the URL.
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[]; category?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v) ?? "";
+
   const initialBlogs = await getBlogs();
-  console.log("initial blogs", initialBlogs);
 
   return (
-    <>
-      <Header />
-      <Blog initialBlogs={initialBlogs} />
-      <Footer />
-    </>
+    <Blog
+      initialBlogs={initialBlogs}
+      search={first(params.q).slice(0, 100)}
+      category={first(params.category) || "All"}
+    />
   );
 }

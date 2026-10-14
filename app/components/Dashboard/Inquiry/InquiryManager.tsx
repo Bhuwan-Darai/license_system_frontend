@@ -23,7 +23,7 @@ const { Text } = Typography;
 const InquiryManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.INQUIRY.LIST);
-  const canUpdate = isAllowed(PERM.INQUIRY.UPDATE);
+  const canUpdate = isAllowed(PERM.INQUIRY.EDIT);
   const canDelete = isAllowed(PERM.INQUIRY.DELETE);
   const [messageApi, contextHolder] = message.useMessage();
 

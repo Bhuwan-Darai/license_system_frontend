@@ -33,8 +33,8 @@ type RoleFormValues = {
 export default function RoleManager() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.ROLE.LIST);
-  const canAdd = isAllowed(PERM.ROLE.ADD);
-  const canUpdate = isAllowed(PERM.ROLE.UPDATE);
+  const canAdd = isAllowed(PERM.ROLE.CREATE);
+  const canUpdate = isAllowed(PERM.ROLE.EDIT);
   const canDelete = isAllowed(PERM.ROLE.DELETE);
 
   const [form] = Form.useForm<RoleFormValues>();
@@ -87,11 +87,6 @@ export default function RoleManager() {
       // the mutation hooks already surface the error
     }
   };
-
-  // Permissions the signed-in user does not hold cannot be handed out, unless the
-  // role being edited already has them.
-  const isDisabled = (code: string) =>
-    !isAllowed(code) && !editing?.permissions.includes(code);
 
   if (!canList) {
     return (
@@ -231,11 +226,7 @@ export default function RoleManager() {
               },
             ]}
           >
-            <PermissionPicker
-              catalog={catalog}
-              loading={isCatalogLoading}
-              isDisabled={isDisabled}
-            />
+            <PermissionPicker catalog={catalog} loading={isCatalogLoading} />
           </Form.Item>
         </Form>
       </Modal>

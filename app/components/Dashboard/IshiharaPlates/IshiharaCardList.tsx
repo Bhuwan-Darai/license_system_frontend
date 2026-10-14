@@ -84,8 +84,8 @@ export default function IshiharaCardList() {
   const { open, showModal, hideModal } = useModal();
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.ISHIHARA_PLATE.LIST);
-  const canAdd = isAllowed(PERM.ISHIHARA_PLATE.ADD);
-  const canUpdate = isAllowed(PERM.ISHIHARA_PLATE.UPDATE);
+  const canAdd = isAllowed(PERM.ISHIHARA_PLATE.CREATE);
+  const canUpdate = isAllowed(PERM.ISHIHARA_PLATE.EDIT);
   const canDelete = isAllowed(PERM.ISHIHARA_PLATE.DELETE);
   const { plates, isLoading: isPlateLoading } = useQueryIshihara(canList);
   const [form] = Form.useForm();

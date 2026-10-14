@@ -28,8 +28,8 @@ interface BlogCategory {
 export default function BlogCategory() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.BLOG_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.BLOG_CATEGORY.ADD);
-  const canUpdate = isAllowed(PERM.BLOG_CATEGORY.UPDATE);
+  const canAdd = isAllowed(PERM.BLOG_CATEGORY.CREATE);
+  const canUpdate = isAllowed(PERM.BLOG_CATEGORY.EDIT);
   const canDelete = isAllowed(PERM.BLOG_CATEGORY.DELETE);
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/app/context/AuthContext";
 import { PERM } from "@/config/permissions";
-import useModal from "@/app/hooks/useModalHook";
 import {
   Avatar,
   Button,
@@ -11,15 +11,12 @@ import {
   Col,
   Divider,
   Empty,
-  Form,
-  Input,
+  Image,
   message,
-  Modal,
   Pagination,
   Popconfirm,
   Result,
   Row,
-  Select,
   Space,
   Tag,
   Typography,
@@ -31,12 +28,8 @@ import {
   EditOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import QuillEditor from "@/app/components/QuillEditor";
-import ImageUpload from "../../ui/UploadImage";
 import { useMutationBlog } from "./useMutationBlog";
 import { useQueryBlog } from "./useQueryBlog";
-import { useQueryBlogCategoires } from "./Categories/useQueryBlogCategories";
-import { ImageValue } from "../VehicleCagetory/VehicleCategories";
 
 const { Paragraph, Title, Text } = Typography;
 
@@ -78,15 +71,6 @@ const categoryColors: Record<string, string> = {
   Lifestyle: "purple",
 };
 
-type onFinishPayload = {
-  title: string;
-  subtitle: string;
-  cover_image: ImageValue;
-  blog_category: string;
-  blog_content: string;
-  status: string;
-};
-
 const PAGE_SIZE = 6;
 
 const formatDate = (iso: string) => {
@@ -105,75 +89,27 @@ const formatDate = (iso: string) => {
 export default function BlogList() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.BLOG.LIST);
-  const canAdd = isAllowed(PERM.BLOG.ADD);
-  const canUpdate = isAllowed(PERM.BLOG.UPDATE);
+  const canAdd = isAllowed(PERM.BLOG.CREATE);
+  const canUpdate = isAllowed(PERM.BLOG.EDIT);
   const canDelete = isAllowed(PERM.BLOG.DELETE);
-  const { open, showModal, hideModal } = useModal();
-  const [form] = Form.useForm();
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [viewingBlog, setViewingBlog] = useState<Blog | null>(null);
-  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  // index into the post's images (cover first) while the preview is open
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
-  const {
-    addBlog,
-    updateBlog,
-    deleteBlog,
-    isAdding,
-    isUpdating,
-    isDeleting,
-  } = useMutationBlog();
+  const { deleteBlog, isDeleting } = useMutationBlog();
 
   const { blogs, isLoading, refetch } = useQueryBlog(canList);
-  const { categories, isLoading: blogCategoryLoading } =
-    useQueryBlogCategoires();
-
-  const onFinish = async (values: onFinishPayload) => {
-    const payload = {
-      title: values.title,
-      subtitle: values.subtitle,
-      cover_image: values?.cover_image?.path,
-      blog_category: values.blog_category,
-      blog_content: values.blog_content,
-      status: values.status,
-    };
-
-    try {
-      if (editingBlog) {
-        await updateBlog({
-          id: editingBlog.blog_id,
-          payload,
-        });
-      } else {
-        await addBlog(payload);
-      }
-
-      form.resetFields();
-      setEditingBlog(null);
-      hideModal();
-     await refetch(); // Refresh the list
-    } catch (error) {
-      console.error("Failed to save blog:", error);
-      message.error("Could not save the blog. Please try again.");
-    }
-  };
 
   const handleEdit = (blog: Blog) => {
-    setEditingBlog(blog)
-    form.setFieldsValue({
-      title: blog.title,
-      subtitle: blog.subtitle,
-      blog_category: blog.category.category_id,
-      blog_content: blog.content,
-      status: blog.status,
-      cover_image: { url: blog.cover_image, path: blog.cover_image_path },
-    });
-    showModal();
+    router.push(`/dashboard/blog/${blog.blog_id}/edit`);
   };
 
   const handleDelete = async (blog: Blog) => {
     try {
       await deleteBlog(blog.blog_id);
-     await message.success("Blog deleted.");
+      await message.success("Blog deleted.");
       if (viewingBlog?.blog_id === blog.blog_id) {
         setViewingBlog(null);
       }
@@ -202,6 +138,17 @@ export default function BlogList() {
   }
 
   if (viewingBlog) {
+    const contentImages = Array.from(
+      viewingBlog.content.matchAll(/<img[^>]+src=["']([^"']+)["']/gi),
+      (m) => new DOMParser().parseFromString(m[1], "text/html").body.textContent ?? m[1],
+    ).map((src) => new URL(src, window.location.href).href);
+    const postImages = [
+      ...(viewingBlog.cover_image
+        ? [new URL(viewingBlog.cover_image, window.location.href).href]
+        : []),
+      ...contentImages,
+    ];
+
     return (
       <div
         style={{
@@ -216,6 +163,18 @@ export default function BlogList() {
             padding: "24px 24px 64px",
           }}
         >
+          <Image.PreviewGroup
+            items={postImages}
+            preview={{
+              open: previewIndex !== null,
+              current: previewIndex ?? 0,
+              onChange: (current) => setPreviewIndex(current),
+              onOpenChange: (open) => {
+                if (!open) setPreviewIndex(null);
+              },
+            }}
+          />
+
           <Button
             type="text"
             icon={<ArrowLeftOutlined />}
@@ -235,14 +194,13 @@ export default function BlogList() {
             styles={{ body: { padding: 0 } }}
           >
             {viewingBlog.cover_image && (
-              <div
-                style={{
-                  width: "100%",
-                  height: 380,
-                  backgroundImage: `url(${viewingBlog.cover_image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
+              <Image
+                src={viewingBlog.cover_image}
+                alt={viewingBlog.title}
+                preview={false}
+                rootClassName="blog-cover"
+                style={{ width: "100%", height: 380, objectFit: "cover", cursor: "zoom-in" }}
+                onClick={() => setPreviewIndex(0)}
               />
             )}
 
@@ -294,8 +252,14 @@ export default function BlogList() {
               <Divider />
 
               <div
-                className="quill-content"
+                className="quill-content blog-zoomable"
                 dangerouslySetInnerHTML={{ __html: viewingBlog.content }}
+                onClick={(e) => {
+                  const img = e.target as HTMLElement;
+                  if (img.tagName !== "IMG") return;
+                  const i = postImages.indexOf((img as HTMLImageElement).src);
+                  if (i >= 0) setPreviewIndex(i);
+                }}
                 style={{
                   color: "#262626",
                   fontSize: 16,
@@ -361,7 +325,11 @@ export default function BlogList() {
         }}
       >
         {canAdd && (
-          <Button type="primary" size="middle" onClick={showModal}>
+          <Button
+            type="primary"
+            size="middle"
+            onClick={() => router.push("/dashboard/blog/add")}
+          >
             Add Blog
           </Button>
         )}
@@ -376,9 +344,10 @@ export default function BlogList() {
       ) : (
         <>
           <Row gutter={[24, 24]}>
-            {pagedBlogData.map((blog: Blog, index:number) => (
+            {pagedBlogData.map((blog: Blog, index: number) => (
               <Col xs={24} sm={12} md={8} key={index}>
-                <Card key={blog.blog_id}
+                <Card
+                  key={blog.blog_id}
                   hoverable
                   onClick={() => setViewingBlog(blog)}
                   style={{
@@ -412,41 +381,41 @@ export default function BlogList() {
                   }
                   actions={[
                     canUpdate && (
-                    <Button
-                      type="link"
-                      key="edit"
-                      style={{ fontWeight: 500 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(blog);
-                      }}
-                    >
-                      <EditOutlined /> Edit
-                    </Button>
-                    ),
-                    canDelete && (
-                    <Popconfirm
-                      key="delete"
-                      title="Delete this blog?"
-                      description="This action cannot be undone."
-                      okText="Delete"
-                      okButtonProps={{ danger: true }}
-                      onConfirm={(e) => {
-                        e?.stopPropagation();
-                        handleDelete(blog);
-                      }}
-                      onCancel={(e) => e?.stopPropagation()}
-                    >
                       <Button
                         type="link"
-                        danger
-                        loading={isDeleting}
+                        key="edit"
                         style={{ fontWeight: 500 }}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(blog);
+                        }}
                       >
-                        <DeleteOutlined /> Delete
+                        <EditOutlined /> Edit
                       </Button>
-                    </Popconfirm>
+                    ),
+                    canDelete && (
+                      <Popconfirm
+                        key="delete"
+                        title="Delete this blog?"
+                        description="This action cannot be undone."
+                        okText="Delete"
+                        okButtonProps={{ danger: true }}
+                        onConfirm={(e) => {
+                          e?.stopPropagation();
+                          handleDelete(blog);
+                        }}
+                        onCancel={(e) => e?.stopPropagation()}
+                      >
+                        <Button
+                          type="link"
+                          danger
+                          loading={isDeleting}
+                          style={{ fontWeight: 500 }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <DeleteOutlined /> Delete
+                        </Button>
+                      </Popconfirm>
                     ),
                   ].filter(Boolean)}
                 >
@@ -530,113 +499,6 @@ export default function BlogList() {
         </>
       )}
 
-      <Modal
-        title={
-          <span style={{ fontSize: 18, fontWeight: 600 }}>
-            {editingBlog ? "Edit Blog" : "Add Blog"}
-          </span>
-        }
-        open={open}
-        footer={
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <Button
-              onClick={() => {
-                form.resetFields();
-                setEditingBlog(null);
-                hideModal();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={isAdding || isUpdating}
-              onClick={() => form.submit()}
-            >
-              {editingBlog ? "Update" : "Create"}
-            </Button>
-          </div>
-        }
-        onCancel={() => {
-          form.resetFields();
-          setEditingBlog(null);
-          hideModal();
-        }}
-        width={900}
-        style={{ top: "5vh" }}
-      >
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item
-            label="Title"
-            name="title"
-            rules={[{ required: true, message: "Please enter a title" }]}
-          >
-            <Input size="large" placeholder="Enter blog title" />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Category"
-                name="blog_category"
-                rules={[
-                  { required: true, message: "Please select a category" },
-                ]}
-              >
-                <Select
-                  placeholder="Select a category"
-                  loading={blogCategoryLoading}
-                  options={categories?.map((cat: BlogCategory) => ({
-                    value: cat.BlogCategoryID,
-                    label: cat.Title,
-                  }))}
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Status"
-                name="status"
-                rules={[{ required: true, message: "Please select a status" }]}
-              >
-                <Select
-                  placeholder="Select a status"
-                  options={[
-                    { value: "DRAFT", label: "Draft" },
-                    { value: "PUBLISHED", label: "Published" },
-                  ]}
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item label="Subtitle" name="subtitle">
-            <Input.TextArea
-              rows={3}
-              showCount
-              maxLength={100}
-              placeholder="Short description..."
-            />
-          </Form.Item>
-
-          <Form.Item label="Cover Image" name="cover_image">
-            <ImageUpload
-              value={form.getFieldValue("cover_image") as ImageValue}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Content"
-            name="blog_content"
-            rules={[{ required: true, message: "Please enter blog content" }]}
-          >
-            <QuillEditor />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 }

@@ -33,7 +33,7 @@ export const routes: Route[] = [
     label: "Dashboard",
     icon: <DashboardOutlined />,
     path: "/dashboard",
-    permission: PERM.DASHBOARD.VIEW,
+    permission: PERM.DASHBOARD.LIST,
   },
 
   {
@@ -133,7 +133,7 @@ export const routes: Route[] = [
         key: "questions-add",
         label: "Add Question",
         path: "/dashboard/question/mcq",
-        permission: [PERM.QUESTION.LIST, PERM.QUESTION.ADD, PERM.QUESTION.UPDATE],
+        permission: [PERM.QUESTION.LIST, PERM.QUESTION.CREATE, PERM.QUESTION.EDIT],
         icon: <ShoppingOutlined />,
       },
     ],
@@ -184,7 +184,7 @@ export const routes: Route[] = [
     label: "Message",
     icon: <MessageOutlined />,
     path: "/dashboard/message",
-    permission: PERM.MESSAGE.VIEW,
+    permission: PERM.MESSAGE.LIST,
   },
   {
     key: "inquiry",
@@ -208,10 +208,18 @@ export const routes: Route[] = [
     permission: PERM.EMERGENCY_NUMBER.LIST,
   },
   {
+    key: "policy",
+    label: "Policy & About Us",
+    icon: <SafetyCertificateOutlined />,
+    path: "/dashboard/policy",
+    permission: PERM.POLICY.LIST,
+  },
+  {
     key: "notification",
     label: "Notification",
     icon: <FileTextOutlined />,
     path: "/dashboard/notification",
+    permission: PERM.NOTIFICATION.LIST,
   },
   {
     key: "settings",
@@ -224,6 +232,14 @@ export const routes: Route[] = [
         label: "General",
         path: "/dashboard/settings",
         icon: <SettingOutlined />,
+        permission: PERM.SETTINGS_GENERAL.LIST,
+      },
+      {
+        key: "settings-fiscal-year",
+        label: "Fiscal Year",
+        path: "/dashboard/settings/fiscal-year",
+        icon: <SettingOutlined />,
+        permission: PERM.FISCAL_YEAR.LIST,
       },
       {
         key: "settings-security",

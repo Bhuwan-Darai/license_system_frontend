@@ -189,13 +189,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   // Theme tokens
   const sidebarBg = isThemeLight ? "#eee8dd" : "#131b2e";
   const borderColor = isThemeLight ? "#d1d5db" : "#1e3a5f";
-  const textPrimary = isThemeLight ? "#1f2937" : "#eee8dd";
+  const textPrimary = isThemeLight ? "#1f2937" : "#f5f5f5";
   const textSecondary = isThemeLight ? "#6b7280" : "#9ca3af";
   const hoverBg = isThemeLight ? "#e0d9cb" : "#1c2740";
   const activeBg = isThemeLight ? "#d6cfc0" : "#1e3a5f";
   const inputBg = isThemeLight ? "#ffffff" : "#0f1a2e";
   const inputBorder = isThemeLight ? "#d1d5db" : "#1e3a5f";
-  const inputText = isThemeLight ? "#1f2937" : "#eee8dd";
+  const inputText = isThemeLight ? "#1f2937" : "#f5f5f5";
 
   return (
     <div

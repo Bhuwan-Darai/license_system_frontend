@@ -26,8 +26,8 @@ const PAGE_SIZE = 10;
 export default function ExamManager() {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.EXAM.LIST);
-  const canAdd = isAllowed(PERM.EXAM.ADD);
-  const canUpdate = isAllowed(PERM.EXAM.UPDATE);
+  const canAdd = isAllowed(PERM.EXAM.CREATE);
+  const canUpdate = isAllowed(PERM.EXAM.EDIT);
   const canDelete = isAllowed(PERM.EXAM.DELETE);
   const canVisibility = isAllowed(PERM.EXAM.VISIBILITY);
   // undefined = list, null = creating, string = editing that exam

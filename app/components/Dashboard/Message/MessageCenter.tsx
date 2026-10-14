@@ -11,7 +11,7 @@ import { useChatStatus } from "./useChat";
 
 const MessageCenter: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canView = isAllowed(PERM.MESSAGE.VIEW);
+  const canView = isAllowed(PERM.MESSAGE.LIST);
   const { data: status } = useChatStatus();
 
   if (!canView) {

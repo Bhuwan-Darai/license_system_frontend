@@ -95,3 +95,40 @@ html[lang="ne"] h3 {
 html[lang="ne"] * {
   letter-spacing: normal;
 }
+
+/* Blog HTML from the editor: Tailwind's reset removes list markers and indents */
+.quill-content ol,
+.quill-content ul {
+  margin: 0 0 1em;
+  padding-left: 1.75em;
+}
+.quill-content ol {
+  list-style: decimal;
+}
+.quill-content ul {
+  list-style: disc;
+}
+.quill-content ol ol {
+  list-style: lower-alpha;
+}
+.quill-content ul ul {
+  list-style: circle;
+}
+.quill-content li {
+  display: list-item;
+  margin-bottom: 0.4em;
+}
+.quill-content li > p {
+  margin: 0;
+}
+
+/* Blog images in the dashboard open in the antd image preview */
+.blog-cover {
+  display: block !important;
+  width: 100%;
+}
+.blog-zoomable img {
+  max-width: 100%;
+  height: auto;
+  cursor: zoom-in;
+}

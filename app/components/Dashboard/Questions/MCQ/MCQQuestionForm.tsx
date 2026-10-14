@@ -431,13 +431,13 @@ const QuestionFormCard: React.FC<QuestionFormCardProps> = ({
 
 const MCQQuestionForm: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canAdd = isAllowed(PERM.QUESTION.ADD);
-  const canUpdate = isAllowed(PERM.QUESTION.UPDATE);
+  const canAdd = isAllowed(PERM.QUESTION.CREATE);
+  const canUpdate = isAllowed(PERM.QUESTION.EDIT);
   const canDelete = isAllowed(PERM.QUESTION.DELETE);
   const canOpen = isAllowed([
     PERM.QUESTION.LIST,
-    PERM.QUESTION.ADD,
-    PERM.QUESTION.UPDATE,
+    PERM.QUESTION.CREATE,
+    PERM.QUESTION.EDIT,
   ]);
   const bankIdFromUrl = useSearchParams().get("bankId");
   const [bankId, setBankId] = useState<string | null>(bankIdFromUrl);

@@ -60,8 +60,8 @@ const isAllowedLink = (value: string) =>
 const CarouselManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.CAROUSEL.LIST);
-  const canAdd = isAllowed(PERM.CAROUSEL.ADD);
-  const canUpdate = isAllowed(PERM.CAROUSEL.UPDATE);
+  const canAdd = isAllowed(PERM.CAROUSEL.CREATE);
+  const canUpdate = isAllowed(PERM.CAROUSEL.EDIT);
   const canDelete = isAllowed(PERM.CAROUSEL.DELETE);
   const canDisplay = isAllowed(PERM.CAROUSEL.DISPLAY);
   const [search, setSearch] = useState("");

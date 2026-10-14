@@ -39,8 +39,8 @@ export default function IshiharaCategory() {
   } = useMutationIshiharaCategory();
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.ISHIHARA_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.ISHIHARA_CATEGORY.ADD);
-  const canUpdate = isAllowed(PERM.ISHIHARA_CATEGORY.UPDATE);
+  const canAdd = isAllowed(PERM.ISHIHARA_CATEGORY.CREATE);
+  const canUpdate = isAllowed(PERM.ISHIHARA_CATEGORY.EDIT);
   const canDelete = isAllowed(PERM.ISHIHARA_CATEGORY.DELETE);
   const { categories, isLoading } = useQueryIshiharaCategory(canList);
 

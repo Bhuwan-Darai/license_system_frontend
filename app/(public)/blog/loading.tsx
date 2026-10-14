@@ -1,21 +1,6 @@
 export default function Loading() {
   return (
-    <main className="min-h-screen bg-ly-bg">
-      {/* Header skeleton */}
-      <div className="h-20 border-b border-black/5 bg-white">
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
-          <div className="h-8 w-32 animate-pulse rounded-lg bg-gray-200" />
-
-          <div className="hidden gap-6 md:flex">
-            <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
-            <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
-            <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
-          </div>
-
-          <div className="h-9 w-24 animate-pulse rounded-lg bg-gray-200" />
-        </div>
-      </div>
-
+    <main className="min-h-screen bg-ly-bg" aria-busy="true">
       {/* Blog skeleton */}
       <section className="mx-auto max-w-7xl px-6 py-12">
         {/* Title */}
@@ -45,9 +30,6 @@ export default function Loading() {
           ))}
         </div>
       </section>
-
-      {/* Footer skeleton */}
-      <div className="mt-12 h-64 animate-pulse bg-gray-200" />
     </main>
   );
 }

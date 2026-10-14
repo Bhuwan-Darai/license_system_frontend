@@ -47,8 +47,8 @@ type FormValues = {
 const NewsManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
   const canList = isAllowed(PERM.NEWS.LIST);
-  const canAdd = isAllowed(PERM.NEWS.ADD);
-  const canUpdate = isAllowed(PERM.NEWS.UPDATE);
+  const canAdd = isAllowed(PERM.NEWS.CREATE);
+  const canUpdate = isAllowed(PERM.NEWS.EDIT);
   const canDelete = isAllowed(PERM.NEWS.DELETE);
   const [messageApi, contextHolder] = message.useMessage();
 
