@@ -31,7 +31,6 @@ import { useSearchParams } from "next/navigation";
 import api from "@/app/utils/axios";
 import ImageUpload from "@/app/components/ui/UploadImage";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import { DBQuestion } from "./useQuestions";
 import {
   useQueryBankQuestions,
@@ -431,13 +430,13 @@ const QuestionFormCard: React.FC<QuestionFormCardProps> = ({
 
 const MCQQuestionForm: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canAdd = isAllowed(PERM.QUESTION.CREATE);
-  const canUpdate = isAllowed(PERM.QUESTION.EDIT);
-  const canDelete = isAllowed(PERM.QUESTION.DELETE);
+  const canAdd = isAllowed("QUESTION_MCQ_CREATE");
+  const canUpdate = isAllowed("QUESTION_MCQ_EDIT");
+  const canDelete = isAllowed("QUESTION_MCQ_DELETE");
   const canOpen = isAllowed([
-    PERM.QUESTION.LIST,
-    PERM.QUESTION.CREATE,
-    PERM.QUESTION.EDIT,
+    "QUESTION_MCQ_LIST",
+    "QUESTION_MCQ_CREATE",
+    "QUESTION_MCQ_EDIT",
   ]);
   const bankIdFromUrl = useSearchParams().get("bankId");
   const [bankId, setBankId] = useState<string | null>(bankIdFromUrl);

@@ -259,7 +259,10 @@ const RegistrationForm: React.FC<Props> = ({ open, editing, provinces, onClose }
               >
                 <Input />
               </Form.Item>
-              <Form.Item label="Phone" name="phone" rules={[...required("the phone number"), { max: 50 }]}>
+              <Form.Item label="Phone" name="phone" rules={[
+                  ...required("the phone number"),
+                  { pattern: /^\+?[0-9][0-9 -]{6,18}[0-9]$/, message: "Enter a valid phone number" },
+                ]}>
                 <Input />
               </Form.Item>
               <Form.Item
@@ -356,16 +359,16 @@ const RegistrationForm: React.FC<Props> = ({ open, editing, provinces, onClose }
           {current === 3 && (
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
               <Form.Item
-                label="License - front"
+                label="Citizenship / NID - front"
                 name="license_front_image"
-                rules={[{ required: true, message: "Upload the front of the license" }]}
+                rules={[{ required: true, message: "Upload the front of the citizenship / NID card" }]}
               >
                 <ImageUpload width={200} height={130} />
               </Form.Item>
               <Form.Item
-                label="License - back"
+                label="Citizenship / NID - back"
                 name="license_back_image"
-                rules={[{ required: true, message: "Upload the back of the license" }]}
+                rules={[{ required: true, message: "Upload the back of the citizenship / NID card" }]}
               >
                 <ImageUpload width={200} height={130} />
               </Form.Item>
@@ -446,8 +449,8 @@ const RegistrationForm: React.FC<Props> = ({ open, editing, provinces, onClose }
             <Text strong>Photos</Text>
             <Image.PreviewGroup>
               <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginTop: 12, alignItems: "flex-end" }}>
-                {photo("License - front", review.license_front_image, 200)}
-                {photo("License - back", review.license_back_image, 200)}
+                {photo("Citizenship / NID - front", review.license_front_image, 200)}
+                {photo("Citizenship / NID - back", review.license_back_image, 200)}
                 {photo("Passport size photo", review.passport_photo, 110)}
               </div>
             </Image.PreviewGroup>

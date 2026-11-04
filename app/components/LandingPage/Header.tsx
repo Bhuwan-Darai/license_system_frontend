@@ -33,7 +33,7 @@ export default function Header() {
 
                 {/* Logo */}
                 <Link href="/home" className="flex items-center shrink-0">
-                    <div className="bg-ly-panel-ink rounded-xl sm:rounded-2xl w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center text-[#7A1F2B]">
+                    <div className="bg-ly-panel-ink rounded-md sm:rounded-lg w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center text-[#7A1F2B]">
                         <span className="text-xl sm:text-2xl font-bold">
                             LY
                         </span>
@@ -127,7 +127,7 @@ export default function Header() {
                                 background: "#7A1F2B",
                                 border: "none",
                             }}
-                            onClick={() => {handleLogin}}
+                            onClick={handleLogin}
                         >
                             {m.header.startJourney}
                         </Button>

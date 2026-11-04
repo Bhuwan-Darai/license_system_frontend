@@ -21,7 +21,6 @@ import CustomTable from "@/app/components/ui/CustomTable";
 import { getImageUrl } from "@/app/utils/supabase";
 import { useState } from "react";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 
 const { TextArea } = Input;
 
@@ -57,10 +56,10 @@ export interface CreateVehicleCategoryPayload {
 
 export default function VehicleCategories() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.VEHICLE_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.VEHICLE_CATEGORY.CREATE);
-  const canUpdate = isAllowed(PERM.VEHICLE_CATEGORY.EDIT);
-  const canDelete = isAllowed(PERM.VEHICLE_CATEGORY.DELETE);
+  const canList = isAllowed("CATEGORY_VEHICLE_LIST");
+  const canAdd = isAllowed("CATEGORY_VEHICLE_CREATE");
+  const canUpdate = isAllowed("CATEGORY_VEHICLE_EDIT");
+  const canDelete = isAllowed("CATEGORY_VEHICLE_DELETE");
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm<VehicleCategoryFormValues>();
   const [mode, setMode] = useState<"add" | "edit">("add");

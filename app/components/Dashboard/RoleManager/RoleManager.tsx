@@ -15,7 +15,6 @@ import {
 } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import PermissionPicker from "./PermissionPicker";
 import {
   Role,
@@ -32,10 +31,10 @@ type RoleFormValues = {
 
 export default function RoleManager() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.ROLE.LIST);
-  const canAdd = isAllowed(PERM.ROLE.CREATE);
-  const canUpdate = isAllowed(PERM.ROLE.EDIT);
-  const canDelete = isAllowed(PERM.ROLE.DELETE);
+  const canList = isAllowed("ACCESS_ROLE_LIST");
+  const canAdd = isAllowed("ACCESS_ROLE_CREATE");
+  const canUpdate = isAllowed("ACCESS_ROLE_EDIT");
+  const canDelete = isAllowed("ACCESS_ROLE_DELETE");
 
   const [form] = Form.useForm<RoleFormValues>();
   const [open, setOpen] = useState(false);

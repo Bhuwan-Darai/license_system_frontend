@@ -34,7 +34,6 @@ import {
 } from "./useMutationNotification";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
@@ -60,11 +59,11 @@ const apiMessage = (err: unknown) =>
 
 const Notification: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.NOTIFICATION.LIST);
-  const canAdd = isAllowed(PERM.NOTIFICATION.CREATE);
-  const canUpdate = isAllowed(PERM.NOTIFICATION.EDIT);
-  const canDelete = isAllowed(PERM.NOTIFICATION.DELETE);
-  const canSend = isAllowed(PERM.NOTIFICATION.SEND);
+  const canList = isAllowed("NOTIFICATION_NOTIFICATION_LIST");
+  const canAdd = isAllowed("NOTIFICATION_NOTIFICATION_CREATE");
+  const canUpdate = isAllowed("NOTIFICATION_NOTIFICATION_EDIT");
+  const canDelete = isAllowed("NOTIFICATION_NOTIFICATION_DELETE");
+  const canSend = isAllowed("NOTIFICATION_NOTIFICATION_SEND");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState<number>(1);

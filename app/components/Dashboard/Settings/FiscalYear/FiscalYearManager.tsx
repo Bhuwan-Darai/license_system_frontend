@@ -34,7 +34,6 @@ import {
 } from "./useMutationFiscalYear";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
@@ -62,11 +61,11 @@ const toBS = (date: Dayjs): string => {
 
 const FiscalYearManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.FISCAL_YEAR.LIST);
-  const canAdd = isAllowed(PERM.FISCAL_YEAR.CREATE);
-  const canUpdate = isAllowed(PERM.FISCAL_YEAR.EDIT);
-  const canDelete = isAllowed(PERM.FISCAL_YEAR.DELETE);
-  const canSelect = isAllowed(PERM.FISCAL_YEAR.SELECT);
+  const canList = isAllowed("FISCAL_YEAR_LIST");
+  const canAdd = isAllowed("FISCAL_YEAR_CREATE");
+  const canUpdate = isAllowed("FISCAL_YEAR_EDIT");
+  const canDelete = isAllowed("FISCAL_YEAR_DELETE");
+  const canSelect = isAllowed("FISCAL_YEAR_SELECT");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState<number>(1);

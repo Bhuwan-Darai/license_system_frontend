@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { Button, Form, Input, Result, Select } from "antd";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import { useMutationIshihara } from "./useMutationIshihara";
 import ImageUpload from "../../ui/UploadImage";
 import { ImageValue } from "../VehicleCagetory/VehicleCategories";
@@ -51,7 +50,7 @@ export default function AddIshiharaPlates({
 }: AddIshiharaPlatesProps) {
   const { isAllowed } = useAuthContext();
   const canSubmit = isAllowed(
-    editMode ? PERM.ISHIHARA_PLATE.EDIT : PERM.ISHIHARA_PLATE.CREATE,
+    editMode ? "ISHIHARA_PLATE_EDIT" : "ISHIHARA_PLATE_CREATE",
   );
   const [imageUrl, setImageUrl] = useState<string>("");
   const [form] = Form.useForm();

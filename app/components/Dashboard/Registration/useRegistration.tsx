@@ -26,7 +26,17 @@ export interface RegistrationListItem {
   license_category: string;
   status: RegistrationStatus;
   passport_photo: string;
+  amount_paid: number | null;
+  remarks: string;
   created_at: string;
+}
+
+export interface StatusHistoryItem {
+  from_status: RegistrationStatus | null;
+  to_status: RegistrationStatus;
+  remarks: string;
+  changed_by: string;
+  changed_at: string;
 }
 
 export interface RegistrationDetail {
@@ -48,12 +58,23 @@ export interface RegistrationDetail {
   municipality: string;
   ward_no: number | null;
   address: string;
+  contact_phone?: string;
+  current_province?: string;
+  current_district?: string;
+  current_municipality?: string;
+  current_ward_no?: number | null;
+  current_address?: string;
   license_front_image: string;
   license_front_image_path: string;
   license_back_image: string;
   license_back_image_path: string;
   passport_photo: string;
   passport_photo_path: string;
+  payment_bill_image: string;
+  payment_bill_image_path: string;
+  amount_paid: number | null;
+  payment_recorded_at: string | null;
+  status_history: StatusHistoryItem[];
   created_at: string;
   updated_at: string;
 }
@@ -145,8 +166,20 @@ export const useMutationRegistration = () => {
     onSuccess: refresh,
   });
   const changeStatus = useMutation({
-    mutationFn: ({ id, status, remarks }: { id: string; status: RegistrationStatus; remarks: string }) =>
-      api.put(`${BASE}/${id}/status`, { status, remarks }),
+    mutationFn: ({
+      id,
+      status,
+      remarks,
+      payment_bill_image,
+      amount_paid,
+    }: {
+      id: string;
+      status: RegistrationStatus;
+      remarks: string;
+      /** storage path of the bill photo; omit to keep the recorded one */
+      payment_bill_image?: string;
+      amount_paid?: number;
+    }) => api.put(`${BASE}/${id}/status`, { status, remarks, payment_bill_image, amount_paid }),
     onSuccess: refresh,
   });
   const remove = useMutation({

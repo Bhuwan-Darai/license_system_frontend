@@ -9,6 +9,7 @@ import {
   Col,
   Empty,
   Form,
+  Image,
   Input,
   InputNumber,
   List,
@@ -35,7 +36,6 @@ import {
 } from "@ant-design/icons";
 import { usePageCrumb } from "@/app/context/BreadcrumbContext";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import {
   ExamBank,
   ExamPayload,
@@ -51,6 +51,7 @@ type PickedQuestion = {
   question_id: string;
   bank_id: string;
   title: string;
+  image_url?: string;
   marks: number;
 };
 
@@ -87,8 +88,8 @@ type Props = {
 export default function ExamWizard({ examId, onClose }: Props) {
   const isEdit = !!examId;
   const { isAllowed } = useAuthContext();
-  const canSave = isAllowed(isEdit ? PERM.EXAM.EDIT : PERM.EXAM.CREATE);
-  const canVisibility = isAllowed(PERM.EXAM.VISIBILITY);
+  const canSave = isAllowed(isEdit ? "EXAM_EXAM_EDIT" : "EXAM_EXAM_CREATE");
+  const canVisibility = isAllowed("EXAM_EXAM_VISIBILITY");
   const [form] = Form.useForm<ExamFormValues>();
   const [current, setCurrent] = useState(0);
   const [selectedBankIds, setSelectedBankIds] = useState<string[]>([]);
@@ -117,6 +118,7 @@ export default function ExamWizard({ examId, onClose }: Props) {
         question_id: q.question_id,
         bank_id: q.question_bank_id,
         title: q.question?.title ?? "(question unavailable)",
+        image_url: q.question?.image_url,
         marks: q.marks,
       })),
     );
@@ -432,6 +434,20 @@ const QuestionSetsStep: React.FC<{
 
 /* ----------------------------- Step 3 ----------------------------- */
 
+/** Question picture as a small clickable thumbnail; nothing when there is none. */
+const QuestionImage: React.FC<{ src?: string }> = ({ src }) =>
+  src ? (
+    <Image
+      src={src}
+      alt="Question"
+      width={56}
+      height={56}
+      style={{ objectFit: "cover", borderRadius: 6 }}
+      preview={{ mask: "View" }}
+      fallback="data:image/svg+xml;utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2756%27 height=%2756%27%3E%3Crect width=%2756%27 height=%2756%27 fill=%27%23eee%27/%3E%3C/svg%3E"
+    />
+  ) : null;
+
 const BankQuestions: React.FC<{
   bank: ExamBank;
   picked: PickedQuestion[];
@@ -451,6 +467,7 @@ const BankQuestions: React.FC<{
     question_id: q.question_id,
     bank_id: bankId,
     title: q.title,
+    image_url: q.image_url,
     marks: 1,
   });
 
@@ -491,7 +508,8 @@ const BankQuestions: React.FC<{
               onChange={(e) => toggle(q, e.target.checked)}
               style={{ width: "100%" }}
             >
-              <Space wrap>
+              <Space wrap align="start">
+                <QuestionImage src={q.image_url} />
                 <span>{q.title}</span>
                 <Tag color={difficultyColor(q.difficulty_level)}>
                   {q.difficulty_level}
@@ -606,7 +624,15 @@ const ReviewStep: React.FC<{
             width: 50,
             render: (_: unknown, __: PickedQuestion, index: number) => index + 1,
           },
-          { title: "Question", dataIndex: "title" },
+          {
+            title: "Question",
+            render: (_: unknown, q: PickedQuestion) => (
+              <Space align="start">
+                <QuestionImage src={q.image_url} />
+                <span>{q.title}</span>
+              </Space>
+            ),
+          },
           {
             title: "Set",
             dataIndex: "bank_id",

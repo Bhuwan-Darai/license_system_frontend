@@ -39,9 +39,36 @@ export function validateInquiry(v: InquiryValues): InquiryErrorKey[] {
 
 export type InquiryResult = { ok: true } | { ok: false; tooMany: boolean };
 
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
+const RECAPTCHA_ACTION = "contact";
+
+/** Script URL for reCAPTCHA v3, or null when no site key is configured. */
+export const recaptchaScriptSrc = RECAPTCHA_SITE_KEY
+  ? `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`
+  : null;
+
+interface Grecaptcha {
+  ready: (cb: () => void) => void;
+  execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+}
+
+/** Gets a one-time v3 token. Returns "" when reCAPTCHA is off or fails to load; the server decides. */
+async function getRecaptchaToken(): Promise<string> {
+  const grecaptcha = (window as unknown as { grecaptcha?: Grecaptcha }).grecaptcha;
+  if (!RECAPTCHA_SITE_KEY || !grecaptcha) return "";
+  try {
+    await new Promise<void>((resolve) => grecaptcha.ready(resolve));
+    return await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: RECAPTCHA_ACTION });
+  } catch {
+    return "";
+  }
+}
+
 /** Sends the inquiry. `website` is the honeypot field and must stay empty for real visitors. */
 export async function sendInquiry(v: InquiryValues, website: string): Promise<InquiryResult> {
   try {
+    // tokens expire after 2 minutes and work once, so get a fresh one per send
+    const recaptcha_token = await getRecaptchaToken();
     await axios.post(
       `${API_BASE_URL}/public/inquiries`,
       {
@@ -51,6 +78,7 @@ export async function sendInquiry(v: InquiryValues, website: string): Promise<In
         help_type: v.help_type,
         message: v.message.trim(),
         website,
+        recaptcha_token,
       },
       { timeout: 10000, withCredentials: false },
     );

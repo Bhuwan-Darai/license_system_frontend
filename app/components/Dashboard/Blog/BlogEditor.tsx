@@ -5,7 +5,6 @@ import { Button, Card, Form, message, Result, Spin, Typography } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import BlogFormFields, { BlogFormValues } from "./BlogFormFields";
 import { useMutationBlog } from "./useMutationBlog";
 import { useQueryBlog } from "./useQueryBlog";
@@ -21,7 +20,7 @@ export default function BlogEditor({ blogId }: { blogId?: string }) {
   const { addBlog, updateBlog, isAdding, isUpdating } = useMutationBlog();
 
   const isEdit = !!blogId;
-  const allowed = isAllowed(isEdit ? PERM.BLOG.EDIT : PERM.BLOG.CREATE);
+  const allowed = isAllowed(isEdit ? "BLOG_BLOG_EDIT" : "BLOG_BLOG_CREATE");
   const { blogs, isLoading } = useQueryBlog(isEdit && allowed);
   const blog: Blog | undefined = isEdit
     ? (blogs?.data ?? []).find((b: Blog) => b.blog_id === blogId)

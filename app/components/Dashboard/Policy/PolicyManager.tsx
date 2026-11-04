@@ -33,7 +33,6 @@ import {
 } from "./useMutationPolicy";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 import TextEditor from "@/app/components/ui/TextEditor";
@@ -47,10 +46,10 @@ const TYPE_LABEL: Record<PolicyType, string> = {
 
 const PolicyManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.POLICY.LIST);
-  const canAdd = isAllowed(PERM.POLICY.CREATE);
-  const canUpdate = isAllowed(PERM.POLICY.EDIT);
-  const canDelete = isAllowed(PERM.POLICY.DELETE);
+  const canList = isAllowed("POLICY_LIST");
+  const canAdd = isAllowed("POLICY_CREATE");
+  const canUpdate = isAllowed("POLICY_EDIT");
+  const canDelete = isAllowed("POLICY_DELETE");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState<number>(1);

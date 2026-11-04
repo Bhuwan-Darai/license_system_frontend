@@ -14,7 +14,7 @@ export default async function AboutUs() {
 
                     {/* Left */}
                     <div>
-                        <p className="text-sm font-semibold tracking-[0.18em] uppercase text-ly-brand-text mb-4">
+                        <p className="text-sm font-semibold tracking-[0.08em] uppercase text-ly-brand-text mb-4">
                             {about.eyebrow}
                         </p>
 
@@ -60,12 +60,9 @@ export default async function AboutUs() {
                     {/* Right */}
                     <div className="relative">
 
-                        {/* Decorative background */}
-                        <div className="absolute -inset-4 bg-ly-bg rounded-[2rem] rotate-2" />
+                        <div className="relative bg-ly-panel rounded-lg sm:rounded-lg p-6 sm:p-8 lg:p-10">
 
-                        <div className="relative bg-ly-panel rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 lg:p-10">
-
-                            <p className="text-xs uppercase tracking-[0.18em] text-ly-gold-soft">
+                            <p className="text-xs uppercase tracking-[0.08em] text-ly-gold-soft">
                                 {about.helpTitle}
                             </p>
 
@@ -79,7 +76,7 @@ export default async function AboutUs() {
                                             <Check className="w-3.5 h-3.5 text-white" />
                                         </div>
 
-                                        <p className="text-white/85 text-sm sm:text-base leading-relaxed">
+                                        <p className="text-white/90 text-sm sm:text-base leading-relaxed">
                                             {point}
                                         </p>
                                     </div>
@@ -91,7 +88,7 @@ export default async function AboutUs() {
                                     {about.ctaTitle}
                                 </p>
 
-                                <p className="text-sm text-white/50 mt-2">
+                                <p className="text-sm text-white/70 mt-2">
                                     {about.ctaText}
                                 </p>
                             </div>

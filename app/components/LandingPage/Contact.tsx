@@ -12,7 +12,7 @@ export default async function ContactUs() {
 
                 {/* Heading */}
                 <div className="max-w-2xl mb-12 sm:mb-16">
-                    <p className="text-sm font-semibold tracking-[0.18em] uppercase text-ly-brand-text mb-4">
+                    <p className="text-sm font-semibold tracking-[0.08em] uppercase text-ly-brand-text mb-4">
                         {contact.eyebrow}
                     </p>
 
@@ -29,9 +29,9 @@ export default async function ContactUs() {
                 <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 lg:gap-12">
 
                     {/* Contact Information */}
-                    <div className="bg-ly-panel rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 text-white">
+                    <div className="bg-ly-panel rounded-lg sm:rounded-lg p-6 sm:p-8 lg:p-10 text-white">
 
-                        <p className="text-xs uppercase tracking-[0.18em] text-ly-gold-soft">
+                        <p className="text-xs uppercase tracking-[0.08em] text-ly-gold-soft">
                             {contact.infoEyebrow}
                         </p>
 
@@ -39,7 +39,7 @@ export default async function ContactUs() {
                             {contact.infoTitle}
                         </h3>
 
-                        <p className="text-white/55 text-sm sm:text-base leading-relaxed mt-4 max-w-sm">
+                        <p className="text-white/70 text-sm sm:text-base leading-relaxed mt-4 max-w-sm">
                             {contact.infoText}
                         </p>
 
@@ -50,15 +50,15 @@ export default async function ContactUs() {
                                 href="tel:+9779800000000"
                                 className="flex items-center gap-4 group"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-ly-brand transition-colors">
+                                <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-ly-brand transition-colors">
                                     <Phone className="w-4 h-4" />
                                 </div>
 
                                 <div>
-                                    <p className="text-xs text-white/40 uppercase tracking-wider">
+                                    <p className="text-xs text-white/70 uppercase tracking-wider">
                                         {contact.phone}
                                     </p>
-                                    <p className="text-sm mt-1 text-white/85">
+                                    <p className="text-sm mt-1 text-white/90">
                                         +977 9800000000
                                     </p>
                                 </div>
@@ -69,15 +69,15 @@ export default async function ContactUs() {
                                 href="mailto:hello@likhityatra.com"
                                 className="flex items-center gap-4 group"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-ly-brand transition-colors">
+                                <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-ly-brand transition-colors">
                                     <Mail className="w-4 h-4" />
                                 </div>
 
                                 <div>
-                                    <p className="text-xs text-white/40 uppercase tracking-wider">
+                                    <p className="text-xs text-white/70 uppercase tracking-wider">
                                         {contact.email}
                                     </p>
-                                    <p className="text-sm mt-1 text-white/85 break-all">
+                                    <p className="text-sm mt-1 text-white/90 break-all">
                                         hello@likhityatra.com
                                     </p>
                                 </div>
@@ -85,15 +85,15 @@ export default async function ContactUs() {
 
                             {/* Location */}
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center shrink-0">
                                     <MapPin className="w-4 h-4" />
                                 </div>
 
                                 <div>
-                                    <p className="text-xs text-white/40 uppercase tracking-wider">
+                                    <p className="text-xs text-white/70 uppercase tracking-wider">
                                         {contact.location}
                                     </p>
-                                    <p className="text-sm mt-1 text-white/85">
+                                    <p className="text-sm mt-1 text-white/90">
                                         {contact.locationValue}
                                     </p>
                                 </div>
@@ -101,7 +101,7 @@ export default async function ContactUs() {
                         </div>
 
                         <div className="mt-8 pt-6 border-t border-white/10">
-                            <p className="text-sm text-white/45 leading-relaxed">
+                            <p className="text-sm text-white/70 leading-relaxed">
                                 {contact.instituteNote}
                             </p>
                         </div>

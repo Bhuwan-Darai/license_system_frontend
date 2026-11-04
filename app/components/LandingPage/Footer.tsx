@@ -59,7 +59,7 @@ export default async function Footer() {
                     <div className="max-w-md">
 
                         <div className="flex items-center gap-3 mb-5">
-                            <div className="bg-ly-brand rounded-xl sm:rounded-2xl w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+                            <div className="bg-ly-brand rounded-md sm:rounded-lg w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
                                 <span className="text-base sm:text-lg font-semibold">
                                     LY
                                 </span>

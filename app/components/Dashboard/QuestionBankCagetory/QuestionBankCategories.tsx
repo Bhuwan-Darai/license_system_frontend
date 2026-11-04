@@ -9,7 +9,6 @@ import CustomTable from "@/app/components/ui/CustomTable";
 import { useMutationQuestionBankCategories } from "./useMutationQuestionBank";
 import { useQueryQuestionBankCategories } from "./useQueryQuestionBank";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 
 const { TextArea } = Input;
 
@@ -42,10 +41,10 @@ export interface CreateQuestionBankCategoryPayload {
 
 export default function QuestionBankCategories() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.QUESTION_BANK_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.QUESTION_BANK_CATEGORY.CREATE);
-  const canUpdate = isAllowed(PERM.QUESTION_BANK_CATEGORY.EDIT);
-  const canDelete = isAllowed(PERM.QUESTION_BANK_CATEGORY.DELETE);
+  const canList = isAllowed("CATEGORY_QUESTION_BANK_LIST");
+  const canAdd = isAllowed("CATEGORY_QUESTION_BANK_CREATE");
+  const canUpdate = isAllowed("CATEGORY_QUESTION_BANK_EDIT");
+  const canDelete = isAllowed("CATEGORY_QUESTION_BANK_DELETE");
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm<QuestionBankCategoryFormValues>();
   const [mode, setMode] = useState<"add" | "edit">("add");

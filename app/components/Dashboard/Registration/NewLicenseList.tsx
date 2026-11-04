@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import CustomTable from "@/app/components/ui/CustomTable";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import api from "@/app/utils/axios";
 import RegistrationForm from "./RegistrationForm";
 import {
@@ -27,10 +26,10 @@ const NewLicenseList: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.REGISTRATION.LIST);
-  const canAdd = isAllowed(PERM.REGISTRATION.CREATE);
-  const canUpdate = isAllowed(PERM.REGISTRATION.EDIT);
-  const canDelete = isAllowed(PERM.REGISTRATION.DELETE);
+  const canList = isAllowed("REGISTRATION_NEW_LICENSE_LIST");
+  const canAdd = isAllowed("REGISTRATION_NEW_LICENSE_CREATE");
+  const canUpdate = isAllowed("REGISTRATION_NEW_LICENSE_EDIT");
+  const canDelete = isAllowed("REGISTRATION_NEW_LICENSE_DELETE");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState(1);
@@ -57,7 +56,8 @@ const NewLicenseList: React.FC = () => {
     { page, pageSize, search: debouncedSearch, province, district, status },
     canList,
   );
-  const { deleteRegistration, isDeleting } = useMutationRegistration();
+  const { deleteRegistration } = useMutationRegistration();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<RegistrationDetail | null>(null);
@@ -85,9 +85,17 @@ const NewLicenseList: React.FC = () => {
       okText: "Yes, Delete",
       okType: "danger",
       onOk: async () => {
-        await deleteRegistration(record.registration_id);
-        if (items.length === 1 && page > 1) setPage((p) => p - 1);
-        messageApi.success("Registration deleted successfully.");
+        setDeletingId(record.registration_id);
+        try {
+          await deleteRegistration(record.registration_id);
+          if (items.length === 1 && page > 1) setPage((p) => p - 1);
+          messageApi.success("Registration deleted successfully.");
+        } catch (e) {
+          const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message;
+          messageApi.error(msg || "Failed to delete the registration.");
+        } finally {
+          setDeletingId(null);
+        }
       },
     });
   };
@@ -150,6 +158,21 @@ const NewLicenseList: React.FC = () => {
       },
     },
     {
+      title: "Remarks",
+      dataIndex: "remarks",
+      key: "remarks",
+      width: 220,
+      ellipsis: { showTitle: true },
+      render: (v: string) => v || <Text type="secondary">-</Text>,
+    },
+    {
+      title: "Paid (Rs.)",
+      dataIndex: "amount_paid",
+      key: "amount_paid",
+      width: 120,
+      render: (v: number | null) => (v == null ? <Text type="secondary">-</Text> : v.toLocaleString()),
+    },
+    {
       title: "Applied",
       dataIndex: "created_at",
       key: "created_at",
@@ -174,7 +197,7 @@ const NewLicenseList: React.FC = () => {
             </Button>
           )}
           {canDelete && (
-            <Button danger type="primary" icon={<DeleteOutlined />} loading={isDeleting} onClick={() => handleDelete(r)}>
+            <Button danger type="primary" icon={<DeleteOutlined />} loading={deletingId === r.registration_id} onClick={() => handleDelete(r)}>
               Delete
             </Button>
           )}

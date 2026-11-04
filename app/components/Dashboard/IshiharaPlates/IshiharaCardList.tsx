@@ -26,7 +26,6 @@ import {
 } from "@ant-design/icons";
 
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import { useQueryIshihara } from "./useQueryIshihara";
 import { useMutationIshihara } from "./useMutationIshihara";
@@ -83,10 +82,10 @@ export default function IshiharaCardList() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { open, showModal, hideModal } = useModal();
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.ISHIHARA_PLATE.LIST);
-  const canAdd = isAllowed(PERM.ISHIHARA_PLATE.CREATE);
-  const canUpdate = isAllowed(PERM.ISHIHARA_PLATE.EDIT);
-  const canDelete = isAllowed(PERM.ISHIHARA_PLATE.DELETE);
+  const canList = isAllowed("ISHIHARA_PLATE_LIST");
+  const canAdd = isAllowed("ISHIHARA_PLATE_CREATE");
+  const canUpdate = isAllowed("ISHIHARA_PLATE_EDIT");
+  const canDelete = isAllowed("ISHIHARA_PLATE_DELETE");
   const { plates, isLoading: isPlateLoading } = useQueryIshihara(canList);
   const [form] = Form.useForm();
   const {

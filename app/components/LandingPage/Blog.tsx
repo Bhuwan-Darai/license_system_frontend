@@ -50,7 +50,7 @@ function AdRail({ position }: { position: "left" | "right" }) {
           border
           border-dashed
           border-ly-gold/30
-          rounded-2xl
+          rounded-lg
           bg-ly-bg/40
           flex
           flex-col
@@ -60,7 +60,7 @@ function AdRail({ position }: { position: "left" | "right" }) {
           px-4
         "
       >
-        <span className="text-[10px] uppercase tracking-[0.2em] text-ly-gold">
+        <span className="text-[10px] uppercase tracking-[0.08em] text-ly-gold">
           Advertisement
         </span>
 
@@ -122,7 +122,7 @@ export default function Blog({
             Header
         ========================== */}
         <div className="max-w-3xl mx-auto text-center mb-12 lg:mb-16">
-          <p className="text-sm uppercase tracking-[0.18em] text-ly-brand mb-3">
+          <p className="text-sm uppercase tracking-[0.08em] text-ly-brand mb-3">
             Likhit Yatra Journal
           </p>
 
@@ -165,7 +165,7 @@ export default function Blog({
                   h-12
                   pl-11
                   pr-4
-                  rounded-xl
+                  rounded-md
                   border
                   border-ly-gold/20
                   bg-white
@@ -186,7 +186,7 @@ export default function Blog({
                 h-12
                 sm:w-56
                 px-4
-                rounded-xl
+                rounded-md
                 border
                 border-ly-gold/20
                 bg-white
@@ -209,7 +209,7 @@ export default function Blog({
               className="
                 h-12
                 px-6
-                rounded-xl
+                rounded-md
                 bg-ly-brand
                 hover:bg-ly-brand-hover
                 text-white
@@ -263,13 +263,12 @@ export default function Blog({
                       className="
                         group
                         overflow-hidden
-                        rounded-2xl
+                        rounded-lg
                         bg-white
                         border
                         border-ly-gold/15
                         transition-all
                         duration-300
-                        hover:-translate-y-1
                         hover:shadow-[0_20px_50px_-25px_rgba(19,27,46,0.3)]
                       "
                     >
@@ -306,7 +305,7 @@ export default function Blog({
                       {/* Content */}
                       <div className="p-6">
                         <div className="flex items-center justify-between gap-4 mb-4">
-                          <span className="text-xs uppercase tracking-[0.14em] text-ly-gold">
+                          <span className="text-xs uppercase tracking-[0.08em] text-ly-gold">
                             {blogCategory}
                           </span>
 
@@ -371,7 +370,7 @@ export default function Blog({
                   border
                   border-dashed
                   border-ly-gold/30
-                  rounded-2xl
+                  rounded-lg
                 "
               >
                 <p className="font-serif text-2xl text-ly-ink">

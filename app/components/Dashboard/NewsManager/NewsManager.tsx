@@ -21,7 +21,6 @@ import CustomTable from "@/app/components/ui/CustomTable";
 import ImageUpload from "@/app/components/ui/UploadImage";
 import useModal from "@/app/hooks/useModalHook";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import { News, NewsStatus, NewsTag, useMutationNews, useQueryNews } from "./useNews";
 
 const { Text } = Typography;
@@ -46,10 +45,10 @@ type FormValues = {
 
 const NewsManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.NEWS.LIST);
-  const canAdd = isAllowed(PERM.NEWS.CREATE);
-  const canUpdate = isAllowed(PERM.NEWS.EDIT);
-  const canDelete = isAllowed(PERM.NEWS.DELETE);
+  const canList = isAllowed("NEWS_NEWS_LIST");
+  const canAdd = isAllowed("NEWS_NEWS_CREATE");
+  const canUpdate = isAllowed("NEWS_NEWS_EDIT");
+  const canDelete = isAllowed("NEWS_NEWS_DELETE");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState(1);
