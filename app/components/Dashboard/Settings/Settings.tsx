@@ -18,7 +18,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
 import { useAuthContext } from "@/app/context/AuthContext";
 import { useTheme, type FontSize, type Theme } from "@/app/context/ThemeContext";
-import { PERM } from "@/config/permissions";
 
 const { Text } = Typography;
 
@@ -45,8 +44,8 @@ const Settings: React.FC = () => {
     refetchUser,
     isAllowed,
   } = useAuthContext();
-  const canList = isAllowed(PERM.SETTINGS_GENERAL.LIST);
-  const canEdit = isAllowed(PERM.SETTINGS_GENERAL.EDIT);
+  const canList = isAllowed("SETTINGS_GENERAL_LIST");
+  const canEdit = isAllowed("SETTINGS_GENERAL_EDIT");
   const { theme, setTheme, setFontSize } = useTheme();
   const isDark = theme === "dark";
   const queryClient = useQueryClient();

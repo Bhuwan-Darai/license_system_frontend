@@ -3,7 +3,6 @@ import { Button, Form, Input, Modal, Result, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 import { useMutationIshiharaCategory } from "./useMutationIshiharaCategory";
@@ -38,10 +37,10 @@ export default function IshiharaCategory() {
     editingCategory,
   } = useMutationIshiharaCategory();
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.ISHIHARA_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.ISHIHARA_CATEGORY.CREATE);
-  const canUpdate = isAllowed(PERM.ISHIHARA_CATEGORY.EDIT);
-  const canDelete = isAllowed(PERM.ISHIHARA_CATEGORY.DELETE);
+  const canList = isAllowed("CATEGORY_ISHIHARA_LIST");
+  const canAdd = isAllowed("CATEGORY_ISHIHARA_CREATE");
+  const canUpdate = isAllowed("CATEGORY_ISHIHARA_EDIT");
+  const canDelete = isAllowed("CATEGORY_ISHIHARA_DELETE");
   const { categories, isLoading } = useQueryIshiharaCategory(canList);
 
   const onFinish = async (values: Omit<IshiharaCategory, "id">) => {

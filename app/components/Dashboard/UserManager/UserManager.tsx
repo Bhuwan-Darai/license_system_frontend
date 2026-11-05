@@ -20,7 +20,6 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import { useQueryRoles } from "../RoleManager/useRole";
 import {
   PanelUser,
@@ -40,10 +39,10 @@ type UserFormValues = {
 
 export default function UserManager() {
   const { user: me, isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.USER.LIST);
-  const canAdd = isAllowed(PERM.USER.CREATE);
-  const canUpdate = isAllowed(PERM.USER.EDIT);
-  const canDelete = isAllowed(PERM.USER.DELETE);
+  const canList = isAllowed("ACCESS_USER_LIST");
+  const canAdd = isAllowed("ACCESS_USER_CREATE");
+  const canUpdate = isAllowed("ACCESS_USER_EDIT");
+  const canDelete = isAllowed("ACCESS_USER_DELETE");
 
   const [form] = Form.useForm<UserFormValues>();
   const [open, setOpen] = useState(false);

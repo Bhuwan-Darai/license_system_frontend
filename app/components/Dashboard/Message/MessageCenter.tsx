@@ -5,13 +5,12 @@ import { Alert, Result, Tabs } from "antd";
 import { FacebookOutlined, WhatsAppOutlined } from "@ant-design/icons";
 
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import ChatPanel from "./ChatPanel";
 import { useChatStatus } from "./useChat";
 
 const MessageCenter: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canView = isAllowed(PERM.MESSAGE.LIST);
+  const canView = isAllowed("MESSAGE_MESSAGE_LIST");
   const { data: status } = useChatStatus();
 
   if (!canView) {

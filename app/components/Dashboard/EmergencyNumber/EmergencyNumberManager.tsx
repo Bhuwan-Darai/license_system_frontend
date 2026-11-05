@@ -29,7 +29,6 @@ import { useQueryEmergencyNumber } from "./useQueryEmergencyNumber";
 import { useMutationEmergencyNumber } from "./useMutationEmergencyNumber";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
@@ -49,10 +48,10 @@ type NumberData = {
 
 const EmergencyNumberManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.EMERGENCY_NUMBER.LIST);
-  const canAdd = isAllowed(PERM.EMERGENCY_NUMBER.CREATE);
-  const canUpdate = isAllowed(PERM.EMERGENCY_NUMBER.EDIT);
-  const canDelete = isAllowed(PERM.EMERGENCY_NUMBER.DELETE);
+  const canList = isAllowed("EMERGENCY_NUMBER_LIST");
+  const canAdd = isAllowed("EMERGENCY_NUMBER_CREATE");
+  const canUpdate = isAllowed("EMERGENCY_NUMBER_EDIT");
+  const canDelete = isAllowed("EMERGENCY_NUMBER_DELETE");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState<number>(1);

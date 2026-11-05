@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
 
@@ -42,10 +41,10 @@ export default function TrafficSignalCategory() {
   } = useMutationTrafficSignalCategory();
 
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.CREATE);
-  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.EDIT);
-  const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL_CATEGORY.DELETE);
+  const canList = isAllowed("CATEGORY_TRAFFIC_SIGNAL_LIST");
+  const canAdd = isAllowed("CATEGORY_TRAFFIC_SIGNAL_CREATE");
+  const canUpdate = isAllowed("CATEGORY_TRAFFIC_SIGNAL_EDIT");
+  const canDelete = isAllowed("CATEGORY_TRAFFIC_SIGNAL_DELETE");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");

@@ -15,14 +15,14 @@
   --ly-surface: #faf7f0;     /* alternating section background */
   --ly-card: #ffffff;        /* cards and form panels */
   --ly-ink: #131b2e;         /* primary text */
-  --ly-muted: #5c6b7a;       /* secondary text */
+  --ly-muted: #465260;       /* secondary text */
   --ly-panel: #131b2e;       /* dark feature panels (header, stats, summaries) */
   --ly-panel-ink: #eee8dd;   /* text on panels — same in both themes */
   --ly-footer: #0a0e1a;
   --ly-brand: #7a1f2b;       /* buttons / filled accents */
-  --ly-brand-hover: #641923;
+  --ly-brand-hover: #5a1620;
   --ly-brand-text: #7a1f2b;  /* brand colour used as text or thin borders */
-  --ly-gold: #8a6d3b;
+  --ly-gold: #6b5126;
   --ly-gold-soft: #c9b98d;   /* gold on panels — same in both themes */
 
   color-scheme: light;

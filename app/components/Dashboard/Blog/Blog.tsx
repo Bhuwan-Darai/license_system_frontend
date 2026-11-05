@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import {
   Avatar,
   Button,
@@ -88,10 +87,10 @@ const formatDate = (iso: string) => {
 
 export default function BlogList() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.BLOG.LIST);
-  const canAdd = isAllowed(PERM.BLOG.CREATE);
-  const canUpdate = isAllowed(PERM.BLOG.EDIT);
-  const canDelete = isAllowed(PERM.BLOG.DELETE);
+  const canList = isAllowed("BLOG_BLOG_LIST");
+  const canAdd = isAllowed("BLOG_BLOG_CREATE");
+  const canUpdate = isAllowed("BLOG_BLOG_EDIT");
+  const canDelete = isAllowed("BLOG_BLOG_DELETE");
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [viewingBlog, setViewingBlog] = useState<Blog | null>(null);

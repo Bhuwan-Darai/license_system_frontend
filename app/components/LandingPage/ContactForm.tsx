@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Script from "next/script";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/app/context/LanguageContext";
-import { sendInquiry, validateInquiry, type InquiryValues } from "@/app/utils/inquiry";
+import { recaptchaScriptSrc, sendInquiry, validateInquiry, type InquiryValues } from "@/app/utils/inquiry";
 
 // The only interactive part of the contact page. The rest of the page is
 // rendered on the server (see Contact.tsx).
@@ -47,7 +48,10 @@ export default function ContactForm() {
     };
 
     return (
-            <div className="bg-ly-card border border-ly-ink/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
+            <div className="bg-ly-card border border-ly-ink/10 rounded-lg sm:rounded-lg p-6 sm:p-8 lg:p-10">
+
+                {/* reCAPTCHA v3 is loaded only on the contact page */}
+                {recaptchaScriptSrc && <Script src={recaptchaScriptSrc} strategy="lazyOnload" />}
 
                 <h3 className="font-serif text-2xl sm:text-3xl text-ly-ink">
                     {contact.formTitle}
@@ -93,7 +97,7 @@ export default function ContactForm() {
                                     bg-ly-surface
                                     border
                                     border-ly-ink/10
-                                    rounded-xl
+                                    rounded-md
                                     px-4
                                     py-3
                                     text-sm
@@ -123,7 +127,7 @@ export default function ContactForm() {
                                     bg-ly-surface
                                     border
                                     border-ly-ink/10
-                                    rounded-xl
+                                    rounded-md
                                     px-4
                                     py-3
                                     text-sm
@@ -158,7 +162,7 @@ export default function ContactForm() {
                                 bg-ly-surface
                                 border
                                 border-ly-ink/10
-                                rounded-xl
+                                rounded-md
                                 px-4
                                 py-3
                                 text-sm
@@ -188,7 +192,7 @@ export default function ContactForm() {
                                 bg-ly-surface
                                 border
                                 border-ly-ink/10
-                                rounded-xl
+                                rounded-md
                                 px-4
                                 py-3
                                 text-sm
@@ -238,7 +242,7 @@ export default function ContactForm() {
                                 bg-ly-surface
                                 border
                                 border-ly-ink/10
-                                rounded-xl
+                                rounded-md
                                 px-4
                                 py-3
                                 text-sm
@@ -260,12 +264,12 @@ export default function ContactForm() {
                         </ul>
                     )}
                     {status === "success" && (
-                        <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                        <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md px-4 py-3">
                             {contact.success}
                         </p>
                     )}
                     {status === "error" && (
-                        <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                        <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-4 py-3">
                             {serverMessage}
                         </p>
                     )}
@@ -286,12 +290,10 @@ export default function ContactForm() {
                             text-white
                             px-6
                             py-3.5
-                            rounded-xl
+                            rounded-md
                             font-medium
                             transition-all
                             duration-200
-                            hover:-translate-y-0.5
-                            hover:shadow-lg
                         "
                     >
                         {status === "sending" ? contact.sending : contact.send}

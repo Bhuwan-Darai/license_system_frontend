@@ -9,7 +9,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/app/utils/axios";
 import { useQueryBlogCategoires } from "./useQueryBlogCategories";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 
 const { TextArea } = Input;
 
@@ -27,10 +26,10 @@ interface BlogCategory {
 
 export default function BlogCategory() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.BLOG_CATEGORY.LIST);
-  const canAdd = isAllowed(PERM.BLOG_CATEGORY.CREATE);
-  const canUpdate = isAllowed(PERM.BLOG_CATEGORY.EDIT);
-  const canDelete = isAllowed(PERM.BLOG_CATEGORY.DELETE);
+  const canList = isAllowed("CATEGORY_BLOG_LIST");
+  const canAdd = isAllowed("CATEGORY_BLOG_CREATE");
+  const canUpdate = isAllowed("CATEGORY_BLOG_EDIT");
+  const canDelete = isAllowed("CATEGORY_BLOG_DELETE");
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
   const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(

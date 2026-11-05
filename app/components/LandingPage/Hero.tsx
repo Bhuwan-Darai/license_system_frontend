@@ -1,289 +1,50 @@
 import Image from "next/image";
 import Link from "next/link";
-import * as motion from "motion/react-client";
 import { getI18n } from "@/app/i18n/server";
 
 export default async function Hero() {
     const { m, lang } = await getI18n();
 
     return (
-        <section className="min-h-[calc(100svh-80px)] flex items-center overflow-hidden">
-            <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-20">
+        <section className="border-b border-ly-ink/15">
+            <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-14 sm:py-20 lg:py-24">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 xl:gap-24 items-center">
-
-                    {/* =========================
-                        Text Column
-                    ========================== */}
-                    <motion.div
-                        className="flex flex-col items-start"
-                        initial={{ opacity: 0, x: -40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                            duration: 0.8,
-                            ease: [0.22, 1, 0.36, 1],
-                        }}
-                    >
-
-                        {/* Heading */}
-                        <motion.h1
-                            className="
-                                font-serif
-                                text-[clamp(2.25rem,5vw,4.5rem)]
-                                leading-[1.05]
-                                tracking-tight
-                                text-ly-ink
-                                font-medium
-                            "
-                            initial={{ opacity: 0, y: 25 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                                duration: 0.8,
-                                delay: 0.1,
-                                ease: [0.22, 1, 0.36, 1],
-                            }}
-                        >
+                    <div className="flex flex-col items-start">
+                        <h1 className="font-serif text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.1] text-ly-ink font-medium">
                             {m.hero.title}
-                        </motion.h1>
+                        </h1>
 
-                        {/* Description */}
-                        <motion.p
-                            className="
-                                mt-5 sm:mt-6
-                                text-ly-muted
-                                text-base sm:text-lg
-                                leading-relaxed
-                                max-w-xl
-                            "
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                                duration: 0.7,
-                                delay: 0.25,
-                                ease: [0.22, 1, 0.36, 1],
-                            }}
-                        >
+                        <p className="mt-6 text-ly-muted text-base sm:text-lg leading-relaxed max-w-xl">
                             {m.hero.description}
-                        </motion.p>
+                        </p>
 
-                        {/* =========================
-                            Yatra dotted route
-                        ========================== */}
-                        <div
-                            className="
-                                flex
-                                items-center
-                                gap-3
-                                mt-6
-                                mb-5
-                                w-full
-                                max-w-md
-                            "
-                            aria-hidden="true"
-                        >
-                            {/* Start point */}
-                            <motion.span
-                                className="
-                                    h-2
-                                    w-2
-                                    rounded-full
-                                    bg-ly-gold
-                                    shrink-0
-                                "
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{
-                                    duration: 0.35,
-                                    delay: 0.7,
-                                    type: "spring",
-                                    stiffness: 300,
-                                }}
-                            />
-
-                            {/* Route */}
-                            <motion.span
-                                className="
-                                    flex-1
-                                    border-t
-                                    border-dotted
-                                    border-ly-gold/50
-                                    origin-left
-                                "
-                                initial={{ scaleX: 0 }}
-                                animate={{ scaleX: 1 }}
-                                transition={{
-                                    duration: 0.9,
-                                    delay: 0.8,
-                                    ease: [0.22, 1, 0.36, 1],
-                                }}
-                            />
-
-                            {/* Destination */}
-                            <motion.span
-                                className="
-                                    h-2
-                                    w-2
-                                    rounded-full
-                                    bg-ly-brand
-                                    shrink-0
-                                "
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{
-                                    duration: 0.35,
-                                    delay: 1.65,
-                                    type: "spring",
-                                    stiffness: 300,
-                                }}
-                            />
-                        </div>
-
-                        {/* Second-language tagline */}
-                        <motion.p
+                        <p
                             lang={lang === "en" ? "ne" : "en"}
-                            className={`
-                                ${lang === "en" ? "font-devanagari" : ""}
-                                text-base sm:text-lg
-                                leading-relaxed
-                                text-ly-ink
-                                max-w-xl
-                            `}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                                duration: 0.6,
-                                delay: 1.75,
-                                ease: [0.22, 1, 0.36, 1],
-                            }}
+                            className={`${lang === "en" ? "font-devanagari" : ""} mt-5 pl-4 border-l-2 border-ly-gold text-base sm:text-lg leading-relaxed text-ly-ink max-w-xl`}
                         >
                             {m.hero.tagline}
-                        </motion.p>
+                        </p>
 
-                        {/* CTA */}
-                        <motion.div
-                            className="mt-7 sm:mt-8"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                                duration: 0.6,
-                                delay: 2,
-                                ease: [0.22, 1, 0.36, 1],
-                            }}
-                            whileHover={{ y: -3 }}
-                            whileTap={{ y: 0, scale: 0.98 }}
+                        <Link
+                            href="/contact"
+                            className="mt-8 inline-flex items-center justify-center bg-ly-brand hover:bg-ly-brand-hover text-white px-6 py-3 rounded-md text-base font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ly-brand-text"
                         >
-                            <Link
-                                href="/contact"
-                                className="
-                                    inline-flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    bg-ly-brand
-                                    hover:bg-ly-brand-hover
-                                    text-[#FAF7F0]
-                                    px-6 sm:px-7
-                                    py-3 sm:py-3.5
-                                    rounded-xl sm:rounded-2xl
-                                    text-base sm:text-lg
-                                    font-medium
-                                    transition-all
-                                    duration-200
-                                    hover:shadow-lg
-                                "
-                            >
-                                {m.hero.cta}
-                            </Link>
-                        </motion.div>
-                    </motion.div>
+                            {m.hero.cta}
+                        </Link>
+                    </div>
 
-                    {/* =========================
-                        Image Column
-                    ========================== */}
-                    <motion.div
-                        className="
-                            relative
-                            w-full
-                            flex
-                            justify-center
-                            md:justify-end
-                        "
-                        initial={{
-                            opacity: 0,
-                            x: 50,
-                        }}
-                        animate={{
-                            opacity: 1,
-                            x: 0,
-                        }}
-                        transition={{
-                            duration: 1,
-                            delay: 0.3,
-                            ease: [0.22, 1, 0.36, 1],
-                        }}
-                    >
-
-                        {/* Decorative background */}
-                        <motion.div
-                            className="
-                                absolute
-                                -inset-4
-                                sm:-inset-6
-                                bg-ly-bg
-                                rounded-[2rem]
-                                -z-10
-                            "
-                            initial={{
-                                opacity: 0,
-                                rotate: 8,
-                                scale: 0.9,
-                            }}
-                            animate={{
-                                opacity: 1,
-                                rotate: 2,
-                                scale: 1,
-                            }}
-                            transition={{
-                                duration: 1,
-                                delay: 0.5,
-                                ease: [0.22, 1, 0.36, 1],
-                            }}
+                    <div className="w-full flex justify-center md:justify-end">
+                        <Image
+                            src="/license-card.png.jpg"
+                            priority
+                            width={700}
+                            height={460}
+                            alt={m.hero.imageAlt}
+                            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 600px"
+                            className="w-full max-w-[640px] h-auto rounded-md border border-ly-ink/15"
                         />
-
-                        {/* License card */}
-                        <motion.div
-                            animate={{
-                                y: [0, -8, 0],
-                            }}
-                            transition={{
-                                duration: 5,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                            }}
-                        >
-                                    <Image
-                                        src="/license-card.png.jpg"
-                                        loading="eager"
-                                        priority
-                                        width={700}
-                                        height={460}
-                                        alt={m.hero.imageAlt}
-                                        sizes="
-                                    (max-width: 640px) 92vw,
-                                    (max-width: 1024px) 45vw,
-                                    600px
-                                "
-                                        className="
-                                    brightness-100
-                                    w-full
-                                    max-w-[700px]
-                                    h-auto
-                                    rounded-xl
-                                    shadow-[0_25px_60px_-20px_rgba(19,27,46,0.4)]
-                                "
-                                    />
-                        </motion.div>
-                    </motion.div>
+                    </div>
 
                 </div>
             </div>

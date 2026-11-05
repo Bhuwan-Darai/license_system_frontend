@@ -17,7 +17,6 @@ import {
 import { PlusOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import {
   Channel,
   ChatMessage,
@@ -50,7 +49,7 @@ interface Props {
 
 const ChatPanel: React.FC<Props> = ({ channel, configured, setupHint }) => {
   const { isAllowed } = useAuthContext();
-  const canSend = isAllowed(PERM.MESSAGE.SEND);
+  const canSend = isAllowed("MESSAGE_MESSAGE_SEND");
   const [api, contextHolder] = antMessage.useMessage();
 
   const [search, setSearch] = useState("");

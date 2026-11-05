@@ -10,7 +10,6 @@ import {
   Image,
 } from "antd";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -90,8 +89,8 @@ function TrafficSignalCard({
   loading = false,
 }: TrafficSignalCardProps) {
   const { isAllowed } = useAuthContext();
-  const canUpdate = isAllowed(PERM.TRAFFIC_SIGNAL.EDIT);
-  const canDelete = isAllowed(PERM.TRAFFIC_SIGNAL.DELETE);
+  const canUpdate = isAllowed("SIGNAL_TRAFFIC_SIGNAL_EDIT");
+  const canDelete = isAllowed("SIGNAL_TRAFFIC_SIGNAL_DELETE");
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {
       Mandatory: "red",

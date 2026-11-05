@@ -7,7 +7,6 @@ import type { ColumnsType } from "antd/es/table";
 
 import CustomTable from "@/app/components/ui/CustomTable";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import {
   HELP_TYPE_OPTIONS,
   HelpType,
@@ -22,9 +21,9 @@ const { Text } = Typography;
 
 const InquiryManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.INQUIRY.LIST);
-  const canUpdate = isAllowed(PERM.INQUIRY.EDIT);
-  const canDelete = isAllowed(PERM.INQUIRY.DELETE);
+  const canList = isAllowed("INQUIRY_INQUIRY_LIST");
+  const canUpdate = isAllowed("INQUIRY_INQUIRY_EDIT");
+  const canDelete = isAllowed("INQUIRY_INQUIRY_DELETE");
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState(1);

@@ -31,7 +31,6 @@ import {
 import ImageUpload from "../../ui/UploadImage";
 import { usePageCrumb } from "@/app/context/BreadcrumbContext";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import {
   Carousel,
   useMutationCarousel,
@@ -59,11 +58,11 @@ const isAllowedLink = (value: string) =>
 
 const CarouselManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.CAROUSEL.LIST);
-  const canAdd = isAllowed(PERM.CAROUSEL.CREATE);
-  const canUpdate = isAllowed(PERM.CAROUSEL.EDIT);
-  const canDelete = isAllowed(PERM.CAROUSEL.DELETE);
-  const canDisplay = isAllowed(PERM.CAROUSEL.DISPLAY);
+  const canList = isAllowed("CAROUSEL_CAROUSEL_LIST");
+  const canAdd = isAllowed("CAROUSEL_CAROUSEL_CREATE");
+  const canUpdate = isAllowed("CAROUSEL_CAROUSEL_EDIT");
+  const canDelete = isAllowed("CAROUSEL_CAROUSEL_DELETE");
+  const canDisplay = isAllowed("CAROUSEL_CAROUSEL_DISPLAY");
   const [search, setSearch] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

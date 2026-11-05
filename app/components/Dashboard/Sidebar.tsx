@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Menu, Input, Badge } from "antd";
+import { Menu, Input, Avatar } from "antd";
 import type { MenuProps } from "antd";
 import { useRouter, usePathname } from "next/navigation";
 import {
   SearchOutlined,
+  UserOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
@@ -192,7 +193,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
   const textPrimary = isThemeLight ? "#1f2937" : "#f5f5f5";
   const textSecondary = isThemeLight ? "#6b7280" : "#9ca3af";
   const hoverBg = isThemeLight ? "#e0d9cb" : "#1c2740";
-  const activeBg = isThemeLight ? "#d6cfc0" : "#1e3a5f";
+  const activeBg = isThemeLight ? "#fde2e2" : "rgba(239, 68, 68, 0.22)";
+  const activeText = isThemeLight ? "#dc2626" : "#fca5a5";
   const inputBg = isThemeLight ? "#ffffff" : "#0f1a2e";
   const inputBorder = isThemeLight ? "#d1d5db" : "#1e3a5f";
   const inputText = isThemeLight ? "#1f2937" : "#f5f5f5";
@@ -263,6 +265,22 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
       )}
 
       {/* Menu */}
+      <style>{`
+        .ly-sidebar-menu.ant-menu .ant-menu-item-selected,
+        .ly-sidebar-menu.ant-menu .ant-menu-item-selected:hover {
+          background-color: ${activeBg} !important;
+          color: ${activeText} !important;
+        }
+        .ly-sidebar-menu.ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title,
+        .ly-sidebar-menu.ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title .anticon,
+        .ly-sidebar-menu.ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+          color: ${activeText} !important;
+        }
+        .ly-sidebar-menu.ant-menu .ant-menu-item-selected .anticon,
+        .ly-sidebar-menu.ant-menu .ant-menu-item-selected a {
+          color: ${activeText} !important;
+        }
+      `}</style>
       <div className="flex-1 overflow-y-auto py-4">
         <Menu
           mode="inline"
@@ -272,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
           onClick={handleMenuClick}
           inlineCollapsed={collapsed}
           items={menuItems}
-          className="border-r-0"
+          className="ly-sidebar-menu border-r-0"
           style={{
             backgroundColor: "transparent",
             color: textPrimary,
@@ -288,9 +306,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
           style={{ borderTopColor: borderColor }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
-              {user?.name?.charAt(0) || "U"}
-            </div>
+            <Avatar
+              size="default"
+              icon={<UserOutlined />}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 flex-shrink-0"
+            />
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm font-medium truncate"
@@ -302,7 +322,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, user }) => {
                 {user?.role_name || user?.role || "Guest"}
               </p>
             </div>
-            <Badge dot className="w-2 h-2 bg-green-500 flex-shrink-0" />
+            <span
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+              style={{
+                backgroundColor: "#39ff14",
+                boxShadow: "0 0 6px #39ff14, 0 0 12px #39ff14",
+              }}
+            />
           </div>
         </div>
       )}

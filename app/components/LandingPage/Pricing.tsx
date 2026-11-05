@@ -53,7 +53,7 @@ export default function VehicleRegistrationPricing() {
                 <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-6 lg:gap-8">
 
                     {/* Vehicle selection */}
-                    <div className="bg-ly-card border border-ly-gold/15 rounded-2xl sm:rounded-3xl p-5 sm:p-7">
+                    <div className="bg-ly-card border border-ly-gold/15 rounded-lg sm:rounded-lg p-5 sm:p-7">
                         <h3 className="font-serif text-2xl text-ly-ink mb-6">
                             {pricing.selectVehicle}
                         </h3>
@@ -68,7 +68,7 @@ export default function VehicleRegistrationPricing() {
                                         type="button"
                                         onClick={() => setSelectedVehicle(item.id)}
                                         className={`
-                                            relative text-left rounded-xl border px-4 py-3.5
+                                            relative text-left rounded-md border px-4 py-3.5
                                             transition-colors duration-150
                                             ${
                                             active
@@ -93,14 +93,14 @@ export default function VehicleRegistrationPricing() {
                     </div>
 
                     {/* Price summary */}
-                    <div className="bg-ly-panel rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white flex flex-col">
+                    <div className="bg-ly-panel rounded-lg sm:rounded-lg p-6 sm:p-8 text-white flex flex-col">
                         <h3 className="font-serif text-2xl">{pricing.summary}</h3>
 
                         <div className="mt-8 space-y-5">
                             <div className="flex justify-between gap-4">
                                 <div>
                                     <p className="text-sm text-white/90">{pricing.vehicles[vehicle.id]}</p>
-                                    <p className="text-xs text-white/45 mt-1">{pricing.registrationCharge}</p>
+                                    <p className="text-xs text-white/70 mt-1">{pricing.registrationCharge}</p>
                                 </div>
                                 <p className="text-sm whitespace-nowrap">
                                     {money(vehicle.registrationCharge)}
@@ -112,7 +112,7 @@ export default function VehicleRegistrationPricing() {
                             <div className="flex justify-between gap-4">
                                 <div>
                                     <p className="text-sm text-white/90">{m.common.brand}</p>
-                                    <p className="text-xs text-white/45 mt-1">{pricing.serviceFee}</p>
+                                    <p className="text-xs text-white/70 mt-1">{pricing.serviceFee}</p>
                                 </div>
                                 <p className="text-sm whitespace-nowrap">{money(SERVICE_FEE)}</p>
                             </div>
@@ -123,7 +123,7 @@ export default function VehicleRegistrationPricing() {
 
                             <div className="flex items-end justify-between">
                                 <div>
-                                    <p className="text-xs text-white/45 uppercase tracking-wider">{pricing.total}</p>
+                                    <p className="text-xs text-white/70 uppercase tracking-wider">{pricing.total}</p>
                                     <p className="text-3xl sm:text-4xl font-serif mt-1">
                                         {money(total)}
                                     </p>
@@ -132,7 +132,7 @@ export default function VehicleRegistrationPricing() {
 
                             <button
                                 type="button"
-                                className="w-full mt-6 bg-ly-brand hover:bg-ly-brand-hover text-white py-3.5 rounded-xl font-medium transition-colors"
+                                className="w-full mt-6 bg-ly-brand hover:bg-ly-brand-hover text-white py-3.5 rounded-md font-medium transition-colors"
                             >
                                 {pricing.continue}
                             </button>

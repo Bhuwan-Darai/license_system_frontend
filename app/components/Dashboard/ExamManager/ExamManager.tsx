@@ -17,7 +17,6 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import ExamWizard from "./ExamWizard";
 import { ExamSummary, useMutationExam, useQueryExams } from "./useExam";
 
@@ -25,11 +24,11 @@ const PAGE_SIZE = 10;
 
 export default function ExamManager() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.EXAM.LIST);
-  const canAdd = isAllowed(PERM.EXAM.CREATE);
-  const canUpdate = isAllowed(PERM.EXAM.EDIT);
-  const canDelete = isAllowed(PERM.EXAM.DELETE);
-  const canVisibility = isAllowed(PERM.EXAM.VISIBILITY);
+  const canList = isAllowed("EXAM_EXAM_LIST");
+  const canAdd = isAllowed("EXAM_EXAM_CREATE");
+  const canUpdate = isAllowed("EXAM_EXAM_EDIT");
+  const canDelete = isAllowed("EXAM_EXAM_DELETE");
+  const canVisibility = isAllowed("EXAM_EXAM_VISIBILITY");
   // undefined = list, null = creating, string = editing that exam
   const [editing, setEditing] = useState<string | null | undefined>(undefined);
   const [page, setPage] = useState(1);

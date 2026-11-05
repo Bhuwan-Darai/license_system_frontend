@@ -10,7 +10,6 @@ import {
   Pagination,
 } from "antd";
 import { useAuthContext } from "@/app/context/AuthContext";
-import { PERM } from "@/config/permissions";
 import { useSignalMutation } from "./hooks/useSignalMutation";
 import { useSignalQuery } from "./hooks/useSignalQuery";
 import { useSignalCategoryQuery } from "./Categories/useSignalCategoryQuery";
@@ -34,8 +33,8 @@ type SymbolCategories = {
 
 function TrafficSignalList() {
   const { isAllowed } = useAuthContext();
-  const canList = isAllowed(PERM.TRAFFIC_SIGNAL.LIST);
-  const canAdd = isAllowed(PERM.TRAFFIC_SIGNAL.CREATE);
+  const canList = isAllowed("SIGNAL_TRAFFIC_SIGNAL_LIST");
+  const canAdd = isAllowed("SIGNAL_TRAFFIC_SIGNAL_CREATE");
   const [form] = Form.useForm();
   const [mode, setMode] = useState("add");
   const { open, showModal, hideModal, setOpen } = useModal();

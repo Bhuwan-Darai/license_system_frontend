@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Avatar, Badge, Dropdown, Space, Button, Breadcrumb } from "antd";
+import { Avatar, Badge, Dropdown, Space, Button, Breadcrumb, message } from "antd";
 import {
   BellOutlined,
   UserOutlined,
@@ -17,11 +17,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { User } from "@/app/hooks/usePermissions";
 import api from "@/app/utils/axios";
+import { useWebPush } from "@/app/lib/useWebPush";
 import { useAuthContext } from "@/app/context/AuthContext";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useBreadcrumbExtra } from "@/app/context/BreadcrumbContext";
 import { Route, routes } from "@/config/route";
-import { PERM } from "@/config/permissions";
 import { HELP_TYPE_OPTIONS, useQueryInquiries } from "./Inquiry/useInquiry";
 
 type Crumb = { label: string; path: string };
@@ -66,19 +66,28 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
   const { logout, isAllowed, refetchUser } = useAuthContext();
 
   // new website inquiries, refreshed every 30s; only for staff who may view them
-  const canSeeInquiries = isAllowed(PERM.INQUIRY.LIST);
+  const canSeeInquiries = isAllowed("INQUIRY_INQUIRY_LIST");
   const { data: newInquiries } = useQueryInquiries(
     { page: 1, pageSize: 5, search: "", status: "NEW" },
     canSeeInquiries,
     30_000,
   );
   const newInquiryCount = newInquiries?.pagination?.total ?? 0;
+
+  // browser push for new inquiries, even when this tab is in the background
+  const { permission: pushPermission, enable: enablePush } =
+    useWebPush(canSeeInquiries);
+  const turnOnPush = async () => {
+    const problem = await enablePush();
+    if (problem) message.error(problem, 6);
+    else message.success("Desktop notifications are on");
+  };
   const { setTheme, theme } = useTheme();
 
   // Switching theme updates localStorage right away (via the theme context) and,
   // for users allowed to edit settings, the account as well so it survives a
   // refresh and other devices.
-  const canSaveSettings = isAllowed(PERM.SETTINGS_GENERAL.EDIT);
+  const canSaveSettings = isAllowed("SETTINGS_GENERAL_EDIT");
   const changeTheme = async (next: "light" | "dark") => {
     setTheme(next);
     if (!canSaveSettings) return;
@@ -159,6 +168,17 @@ const Header: React.FC<HeaderProps> = ({ user, collapsed }) => {
     })),
     ...(newInquiryCount === 0
       ? [{ key: "empty", label: "No new notifications", disabled: true }]
+      : []),
+    ...(canSeeInquiries && pushPermission === "default"
+      ? [
+          { type: "divider" as const },
+          {
+            key: "enable-push",
+            icon: <BellOutlined />,
+            label: "Enable desktop notifications",
+            onClick: turnOnPush,
+          },
+        ]
       : []),
     ...(canSeeInquiries
       ? [

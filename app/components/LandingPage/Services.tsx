@@ -164,7 +164,7 @@ export default async function ServicesGrid() {
                                         `}
                                     >
 
-                                        <p className="text-sm uppercase tracking-[0.16em] text-ly-gold mb-3">
+                                        <p className="text-sm uppercase tracking-[0.08em] text-ly-gold mb-3">
                                             {service.shortTitle}
                                         </p>
 
@@ -223,7 +223,7 @@ export default async function ServicesGrid() {
                                                 items-center
                                                 justify-center
                                                 bg-ly-bg
-                                                rounded-3xl
+                                                rounded-lg
                                                 min-h-[280px]
                                                 border
                                                 border-ly-gold/20
