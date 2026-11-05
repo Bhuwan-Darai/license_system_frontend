@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   ConfigProvider,
-  DatePicker,
   Form,
   Input,
   Modal,
@@ -23,8 +22,6 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import dayjs, { Dayjs } from "dayjs";
-import NepaliDate from "nepali-date-converter";
 
 import { useQueryFiscalYear } from "./useQueryFiscalYear";
 import {
@@ -36,28 +33,43 @@ import { useTheme } from "@/app/context/ThemeContext";
 import { useAuthContext } from "@/app/context/AuthContext";
 import useModal from "@/app/hooks/useModalHook";
 import CustomTable from "@/app/components/ui/CustomTable";
+import {
+  NepaliDateField,
+  parseAd,
+  toNepaliDateValue,
+  type NepaliDateValue,
+} from "@/app/components/ui/NepaliDatePicker";
 
 const { Text } = Typography;
-
-const DATE_FORMAT = "YYYY-MM-DD";
 
 interface FiscalYearForm {
   name_ad: string;
   name_bs: string;
-  range: [Dayjs, Dayjs];
-  start_date_bs: string;
-  end_date_bs: string;
+  /** Holds both calendars; a plain AD string while editing until the user changes it. */
+  start_date: NepaliDateValue | string | null;
+  end_date: NepaliDateValue | string | null;
   active: boolean;
 }
 
-/** AD date -> BS date string, or "" when it is outside the supported range. */
-const toBS = (date: Dayjs): string => {
-  try {
-    return new NepaliDate(date.toDate()).format(DATE_FORMAT);
-  } catch {
-    return "";
-  }
+/** Normalise a field value to { ad, bs, bsNe }, always recomputing BS from AD. */
+const normalizeDate = (value: FiscalYearForm["start_date"]): NepaliDateValue | null => {
+  const date = parseAd(value);
+  return date ? toNepaliDateValue(date) : null;
 };
+
+/** Rule: a date must exist in both calendars so AD and BS can both be stored. */
+const requireBothCalendars = (label: string) => ({
+  validator: (_: unknown, value: FiscalYearForm["start_date"]) => {
+    const v = normalizeDate(value);
+    if (!v) return Promise.reject(new Error(`Please select the ${label}`));
+    if (!v.bs) {
+      return Promise.reject(
+        new Error(`${label} is outside the supported Nepali calendar range (BS 2000-2090)`),
+      );
+    }
+    return Promise.resolve();
+  },
+});
 
 const FiscalYearManager: React.FC = () => {
   const { isAllowed } = useAuthContext();
@@ -140,9 +152,8 @@ const FiscalYearManager: React.FC = () => {
     form.setFieldsValue({
       name_ad: item.name_ad,
       name_bs: item.name_bs,
-      range: [dayjs(item.start_date_ad), dayjs(item.end_date_ad)],
-      start_date_bs: item.start_date_bs,
-      end_date_bs: item.end_date_bs,
+      start_date: item.start_date_ad,
+      end_date: item.end_date_ad,
       active: item.active,
     });
     showModal();
@@ -152,15 +163,6 @@ const FiscalYearManager: React.FC = () => {
     form.resetFields();
     setEditingItem(null);
     hideModal();
-  };
-
-  // Picking AD dates fills in the BS dates; they stay editable.
-  const handleRangeChange = (range: [Dayjs, Dayjs] | null) => {
-    if (!range) return;
-    form.setFieldsValue({
-      start_date_bs: toBS(range[0]),
-      end_date_bs: toBS(range[1]),
-    });
   };
 
   const toPayload = (item: FiscalYear, active = item.active): FiscalYearPayload => ({
@@ -174,13 +176,17 @@ const FiscalYearManager: React.FC = () => {
   });
 
   const onFinish = async (values: FiscalYearForm) => {
+    const start = normalizeDate(values.start_date);
+    const end = normalizeDate(values.end_date);
+    if (!start || !end) return;
+
     const payload: FiscalYearPayload = {
       name_ad: values.name_ad,
       name_bs: values.name_bs ?? "",
-      start_date_ad: values.range[0].format(DATE_FORMAT),
-      end_date_ad: values.range[1].format(DATE_FORMAT),
-      start_date_bs: values.start_date_bs ?? "",
-      end_date_bs: values.end_date_bs ?? "",
+      start_date_ad: start.ad,
+      end_date_ad: end.ad,
+      start_date_bs: start.bs,
+      end_date_bs: end.bs,
       active: values.active,
     };
 
@@ -261,7 +267,7 @@ const FiscalYearManager: React.FC = () => {
       title: "Fiscal Year",
       key: "name",
       render: (_: unknown, record) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <Text strong style={{ color: colors.text }}>
             {record.name_bs || record.name_ad}
           </Text>
@@ -504,38 +510,37 @@ const FiscalYearManager: React.FC = () => {
               </Form.Item>
             </div>
 
-            <Form.Item
-              label={<span style={{ color: colors.text }}>Start &amp; End Date (AD)</span>}
-              name="range"
-              rules={[{ required: true, message: "Please select the dates" }]}
-            >
-              <DatePicker.RangePicker
-                size="large"
-                style={{ width: "100%" }}
-                onChange={(range) =>
-                  handleRangeChange(range as [Dayjs, Dayjs] | null)
-                }
-              />
-            </Form.Item>
-
             <div style={{ display: "flex", gap: 16 }}>
               <Form.Item
-                label={<span style={{ color: colors.text }}>Start Date (BS)</span>}
-                name="start_date_bs"
+                label={<span style={{ color: colors.text }}>Start Date</span>}
+                name="start_date"
                 style={{ flex: 1 }}
-                extra="Filled in from the AD date."
-                rules={[{ max: 20, message: "Cannot exceed 20 characters" }]}
+                extra="Switch NEP / ENG in the calendar. Both AD and BS dates are saved."
+                rules={[requireBothCalendars("start date")]}
               >
-                <Input size="large" placeholder="YYYY-MM-DD" style={inputStyle} />
+                <NepaliDateField size="large" />
               </Form.Item>
 
               <Form.Item
-                label={<span style={{ color: colors.text }}>End Date (BS)</span>}
-                name="end_date_bs"
+                label={<span style={{ color: colors.text }}>End Date</span>}
+                name="end_date"
                 style={{ flex: 1 }}
-                rules={[{ max: 20, message: "Cannot exceed 20 characters" }]}
+                dependencies={["start_date"]}
+                rules={[
+                  requireBothCalendars("end date"),
+                  ({ getFieldValue }) => ({
+                    validator: (_, value) => {
+                      const start = normalizeDate(getFieldValue("start_date"));
+                      const end = normalizeDate(value);
+                      if (start && end && end.ad <= start.ad) {
+                        return Promise.reject(new Error("End date must be after the start date"));
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
               >
-                <Input size="large" placeholder="YYYY-MM-DD" style={inputStyle} />
+                <NepaliDateField size="large" />
               </Form.Item>
             </div>
 
