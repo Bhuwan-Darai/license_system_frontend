@@ -33,6 +33,7 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/app/context/AuthContext";
 
 export type QuestionBank = {
   id: number;
@@ -71,6 +72,10 @@ type Category = {
 };
 
 export default function QuestionBank() {
+  const { isAllowed } = useAuthContext();
+  const canAdd = isAllowed("QUESTION_BANK_CREATE");
+  const canUpdate = isAllowed("QUESTION_BANK_EDIT");
+  const canDelete = isAllowed("QUESTION_BANK_DELETE");
   const { open, showModal, hideModal } = useModal();
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
@@ -185,9 +190,11 @@ export default function QuestionBank() {
         }}
       >
         <h1 style={{ margin: 0 }}>Question Bank</h1>
-        <Button type="primary" onClick={handleAddNew}>
-          Add Question Bank
-        </Button>
+        {canAdd && (
+          <Button type="primary" onClick={handleAddNew}>
+            Add Question Bank
+          </Button>
+        )}
       </div>
 
       <Spin spinning={isLoading} description="Loading question banks...">
@@ -232,6 +239,8 @@ export default function QuestionBank() {
                   >
                     View
                   </Button>,
+                  ...(canUpdate
+                    ? [
                   <Button
                     type="text"
                     icon={<EditOutlined />}
@@ -240,6 +249,10 @@ export default function QuestionBank() {
                   >
                     Edit
                   </Button>,
+                      ]
+                    : []),
+                  ...(canDelete
+                    ? [
                   <Popconfirm
                     key="delete"
                     title="Delete Question Bank"
@@ -253,6 +266,8 @@ export default function QuestionBank() {
                       Delete
                     </Button>
                   </Popconfirm>,
+                      ]
+                    : []),
                 ]}
               >
                 <div
