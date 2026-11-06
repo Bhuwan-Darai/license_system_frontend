@@ -113,9 +113,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (response.data?.success) {
         // fetch the role's permissions and store them straight away
-        const me = await api.get("/auth/me");
-        // if (me)  await api.post(`/role/${response?.data?.id}`);
-        saveAccessCache(me.data?.data?.permissions ?? []);
+        // Warm the permission cache. Best effort: a failure here must not fail
+        // the login, because onSuccess refetches the user anyway.
+        try {
+          const me = await api.get("/auth/me");
+          saveAccessCache(me.data?.data?.permissions ?? []);
+        } catch {
+          /* ignore, refetch in onSuccess will retry */
+        }
       }
       return response.data;
     },
