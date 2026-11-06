@@ -249,6 +249,13 @@ export const routes: Route[] = [
         permission: "SETTINGS_ERROR_LOG_LIST",
       },
       {
+        key: "settings-email-logs",
+        label: "Email Logs",
+        path: "/dashboard/settings/email-logs",
+        icon: <SettingOutlined />,
+        permission: "SETTINGS_EMAIL_LOG_LIST",
+      },
+      {
         key: "settings-security",
         label: "Security",
         path: "/dashboard/settings/security",
