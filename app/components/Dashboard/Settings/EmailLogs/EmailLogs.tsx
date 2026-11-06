@@ -94,6 +94,19 @@ const EmailLogs: React.FC = () => {
       render: (p: string) => PURPOSE_LABELS[p] ?? p,
     },
     { title: "Subject", dataIndex: "subject", ellipsis: true },
+    {
+      title: "Reason",
+      dataIndex: "error",
+      width: 260,
+      render: (e: string, r) =>
+        r.status === "failed" ? (
+          <Text type="danger" style={{ fontSize: 12 }}>
+            {e ? (e.length > 100 ? `${e.slice(0, 100)}...` : e) : "Unknown reason"}
+          </Text>
+        ) : (
+          <Text type="secondary">-</Text>
+        ),
+    },
     ...(canDelete
       ? [
           {
